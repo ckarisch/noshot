@@ -17,19 +17,21 @@ var searchStorage = {
   }
 }
 
+var fotos = [1,2,3,4,5,6,7,8,9,10,11,12,13,14,15,16];
+
 // visibility filters
 var filters = {
   all: function (searches) {
     return searches
   },
-  active: function (searches) {
+  normal: function (searches) {
     return searches.filter(function (search) {
-      return !search.hidden
+      return !search.marked
     })
   },
-  hidden: function (searches) {
+  marked: function (searches) {
     return searches.filter(function (search) {
-      return search.hidden
+      return search.marked
     })
   }
 }
@@ -60,8 +62,17 @@ var app = new Vue({
     filteredSearches: function () {
       return filters[this.visibility](this.searches)
     },
+    fotos: function() {
+      return fotos
+    },
+    all: function () {
+      return this.searches.length
+    },
     remaining: function () {
-      return filters.active(this.searches).length
+      return filters.normal(this.searches).length
+    },
+    marked: function () {
+      return filters.marked(this.searches).length
     },
     allDone: {
       get: function () {
@@ -69,7 +80,7 @@ var app = new Vue({
       },
       set: function (value) {
         this.searches.forEach(function (search) {
-          search.hidden = value
+          search.marked = value
         })
       }
     }
@@ -92,7 +103,8 @@ var app = new Vue({
       this.searches.push({
         id: searchStorage.uid++,
         title: value,
-        hidden: false
+        marked: false,
+        frames: true
       })
       this.newSearch = ''
     },
@@ -122,8 +134,8 @@ var app = new Vue({
       search.title = this.beforeEditCache
     },
 
-    removeHidden: function () {
-      this.searches = filters.active(this.searches)
+    removeMarked: function () {
+      this.searches = filters.normal(this.searches)
     }
   },
 

@@ -1,0 +1,119 @@
+body {
+  margin: 0 auto;
+  font-family: sans-serif;
+  overflow-y: scroll;
+}
+
+header {
+  background: #eee;
+  height: 120px;
+  display: flex;
+  align-items: center;
+  white-space: nowrap;
+  /* margin-bottom: 4rem; */
+}
+
+.resultContainer {
+    display: flex;
+    flex-wrap: wrap;
+    /* padding: 5px; */
+    /* justify-content: space-between; */
+    /* overflow-y: scroll; */
+}
+
+
+.searchContainer {
+    width: 440px;
+    padding: 20px;
+    box-shadow: 0 0 10px rgba(0,0,0,.2);
+    margin-right: 40px;
+}
+
+.resultContainer > div {
+  display: flex;
+  align-items: center;
+}
+
+.resultContainer img {
+    width: 100px;
+    height: 100px;
+    padding: 5px;
+    position: relative;
+}
+
+.resultContainer img.preview{
+  width: 80px;
+  height: 80px;
+}
+
+.resultContainer:not(.showFrames) img:before {
+    background: #eee;
+    width: 200%;
+    height: 100%;
+    content: "";
+    display: block;
+    position: absolute;
+    top: 50%;
+    left: 50%;
+}
+
+
+.resultContainer:not(.showFrames) {
+  flex-direction: column;
+  justify-content: center;
+  align-items: center;
+}
+
+
+.searchNavigation {
+    margin: 10px 5px;
+    margin-bottom: 20px;
+    display: flex;
+    align-items: center;
+}
+
+.searches {
+    display: flex;
+    padding: 50px;
+}
+
+input {
+    padding: 5px 8px;
+}
+
+.radiobuttons {
+    display: flex;
+    margin: 20px 0;
+    font-size: 2rem;
+    margin-left: 0.5em;
+}
+
+label.radiobutton {
+    /* padding-right: 15px; */
+    font-family: sans-serif;
+    letter-spacing: .05em;
+}
+
+
+header > input, header > label {
+    margin: 0 3rem;
+}
+
+.menu {
+    position: absolute;
+    right: 0;
+    display: flex;
+    width: 100%;
+    justify-content: flex-end;
+    top: 0;
+}
+
+div.menu > label, div.menu > button {
+    margin-left: 0;
+}
+
+
+span.label {
+  text-transform: uppercase;
+  letter-spacing: .03em;
+}

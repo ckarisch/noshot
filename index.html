@@ -1,84 +1,78 @@
 <html>
 
 <head>
-  <link rel="stylesheet" type="text/css" href="styles.css" />
-  <link rel="stylesheet" type="text/css" href="radio-buttons.css" />
-  <link rel="stylesheet" type="text/css" href="vue.css" />
+  <link rel="stylesheet" type="text/css" href="css/styles.css" />
+  <link rel="stylesheet" type="text/css" href="css/icons.css" />
+  <link rel="stylesheet" type="text/css" href="css/radio-buttons.css" />
+  <link rel="stylesheet" type="text/css" href="css/vue.css" />
   <script src="https://cdn.jsdelivr.net/npm/vue/dist/vue.js"></script>
 </head>
-
-
 
 
 <body>
   <section class="app">
     <header class="header">
-      <input class="new-search"
-        autofocus autocomplete="off"
-        placeholder="enter new search"
-        v-model="newSearch"
-        @keyup.enter="addSearch">
+      <input class="new-search" autofocus autocomplete="off" placeholder="enter new search" v-model="newSearch" @keyup.enter="addSearch">
+
+      <label class="checkbox">
+        <span class="label">mark all</span>
+        <input class="toggle-all" type="checkbox" v-model="allDone">
+        <span class="checkmark"></span>
+      </label>
     </header>
     <section class="main" v-show="searches.length" v-cloak>
 
-        <label class="checkbox">
-          <input class="toggle-all" type="checkbox" v-model="allDone">
-          <span class="checkmark"></span>
-        </label>
       <ul class="dive-layout searches">
-        <li v-for="search in filteredSearches"
-          class="search searchContainer"
-          :key="search.id"
-          :class="{ hidden: search.hidden, editing: search == editedSearch }">
+        <li v-for="search in filteredSearches" class="search searchContainer" :key="search.id" :class="{ marked: search.marked, editing: search == editedSearch }">
           <div class="view">
-            <label class="toggle checkbox">
-              <input  type="checkbox" v-model="search.hidden">
-              <span class="checkmark"></span>
-            </label>
+            <div class="menu">
+              <label class="toggle checkbox">
+                <input  type="checkbox" v-model="search.marked">
+                <span class="checkmark"></span>
+              </label>
+              <button class="destroy" @click="removeSearch(search)"></button>
+            </div>
             <div class="searchNavigation">
-              <input placeholder="Suchbegriff" v-model="search.title"/>
+              <input placeholder="Suchbegriff" v-model="search.title" />
               <div class="radiobuttons">
-              <label class="radiobutton">Single
-                <input type="radio" :name="search.id" checked="checked">
-                <span class="checkmark"></span>
-              </label>
+                <label class="radiobutton">
+                  <input type="radio" v-model="search.frames" :name="search.id" :checked="search.frames" value="1">
+                  <span class="iconmark icon-frames"></span>
+                </label>
 
-              <label class="radiobutton">Strip
-                <input type="radio" :name="search.id">
-                <span class="checkmark"></span>
-              </label>
+                <label class="radiobutton">
+                  <input type="radio"  v-model="search.frames" :name="search.id" :checked="!search.frames" value="">
+                  <span class="iconmark icon-scene"></span>
+                </label>
               </div>
             </div>
-            <div class="resultContainer">
-              <img src="https://picsum.photos/300/300" />
-              <img src="https://picsum.photos/300/300" />
-              <img src="https://picsum.photos/300/300" />
+            <div :class="{ showFrames: search.frames, resultContainer: true }">
+              <div v-for="foto in fotos">
+                <img class="preview" v-if="!search.frames" :src="'https://picsum.photos/300/300?id=' + (foto - 1)" />
+                <img :src="'https://picsum.photos/300/300?id=' + foto" />
+                <img class="preview"  v-if="!search.frames" :src="'https://picsum.photos/300/300?id=' + (foto + 1)" />
+              </div>
             </div>
-            <button class="destroy" @click="removeSearch(search)"></button>
           </div>
-          <input class="edit" type="text"
-            v-model="search.title"
-            v-search-focus="search == editedSearch"
-            @blur="doneEdit(search)"
-            @keyup.enter="doneEdit(search)"
-            @keyup.esc="cancelEdit(search)">
+          <input class="edit" type="text" v-model="search.title" v-search-focus="search == editedSearch" @blur="doneEdit(search)" @keyup.enter="doneEdit(search)" @keyup.esc="cancelEdit(search)">
         </li>
       </ul>
     </section>
     <footer class="footer" v-show="searches.length" v-cloak>
       <span class="search-count">
-        <strong>{{ remaining }}</strong> {{ remaining | pluralize }} left
+        Searches: <strong>{{ all }}</strong> ({{ marked }} marked)
       </span>
       <ul class="filters">
         <li><a href="#/all" :class="{ selected: visibility == 'all' }">All</a></li>
-        <li><a href="#/active" :class="{ selected: visibility == 'active' }">Active</a></li>
-        <li><a href="#/hidden" :class="{ selected: visibility == 'hidden' }">Hidden</a></li>
+        <li><a href="#/normal" :class="{ selected: visibility == 'normal' }">Normal</a></li>
+        <li><a href="#/marked" :class="{ selected: visibility == 'marked' }">Marked</a></li>
       </ul>
-      <button class="clear-hidden" @click="removeHidden" v-show="searches.length > remaining">
-        Clear hidden
+      <button class="clear-marked" @click="removeMarked" v-show="searches.length > remaining">
+        remove marked
       </button>
     </footer>
   </section>
 </body>
 <script src="script.js"></script>
+
 </html>
