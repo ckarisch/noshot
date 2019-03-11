@@ -5,6 +5,7 @@ body {
 }
 
 header {
+  flex-wrap: wrap;
   background: #eee;
   height: 120px;
   display: flex;
@@ -15,31 +16,78 @@ header {
   top: 0;
 }
 
-.resultContainer {
-    display: flex;
-    flex-wrap: wrap;
-    /* padding: 5px; */
-    /* justify-content: space-between; */
-    overflow-y: scroll;
-    height: calc(100% - 4rem);
-    /* width: 100%; */
-    scrollbar-width: 20px;
-    /* flex-direction: column; */
-    /* align-items: flex-start; */
-    scrollbar-width: thick;
+.tabs {
+  width: calc(100% - 50px);
 }
 
+.tabs ul {
+  display: flex;
+  margin: 0;
+  padding: 0;
+  flex-wrap: wrap;
+}
+
+.tabs li {
+  user-select: none;
+  display: block;
+  border: 2px solid #888;
+  border-radius: 10px 10px 0 0;
+  margin-right: -2px;
+  overflow: hidden;
+  position: relative;
+}
+
+li.tab.selected a {
+  background: #aaa;
+  color: #fff;
+}
+
+.tabs li.tab input {
+  height: 34px;
+  display: block;
+}
+
+.tabs li a {
+  color: #444;
+  text-decoration: none;
+  text-transform: uppercase;
+  letter-spacing: .05em;
+  padding: .5em;
+  display: block;
+  padding-right: 1em;
+}
+
+.green {
+  background: #dfecdf;
+}
+.red {
+  background: #ecdfdf;
+}
+
+.resultContainer {
+  display: flex;
+  flex-wrap: wrap;
+  /* padding: 5px; */
+  /* justify-content: space-between; */
+  overflow-y: scroll;
+  height: calc(100% - 4rem);
+  /* width: 100%; */
+  scrollbar-width: 20px;
+  /* flex-direction: column; */
+  /* align-items: flex-start; */
+  scrollbar-width: thick;
+}
 
 .searchContainer {
-    width: 500px;
-    padding: 20px;
-    box-shadow: 0 0 10px rgba(0,0,0,.2);
-    margin-right: 40px;
-    margin-bottom: 40px;
-    min-width: 450px;
+  width: 500px;
+  padding: 20px;
+  box-shadow: 0 0 10px rgba(0, 0, 0, .2);
+  margin-right: 40px;
+  margin-bottom: 40px;
+  min-width: 450px;
 }
 
-.resultContainer > div > div {
+.resultContainer>div>div {
   display: flex;
   align-items: center;
   /* width: 25%; */
@@ -48,34 +96,33 @@ header {
   height: auto;
 }
 
-.resultContainer.showFrames > div > div {
+.resultContainer.showFrames>div>div {
   width: 25%;
 }
 
 .resultContainer img {
-    width: 100px;
-    height: 100px;
-    padding: 5px;
-    position: relative;
-    display: block;
+  width: 100px;
+  height: 100px;
+  padding: 5px;
+  position: relative;
+  display: block;
 }
 
-.resultContainer img.preview{
+.resultContainer img.preview {
   width: 80px;
   height: 80px;
 }
 
 .resultContainer:not(.showFrames) img:before {
-    background: #eee;
-    width: 200%;
-    height: 100%;
-    content: "";
-    display: block;
-    position: absolute;
-    top: 50%;
-    left: 50%;
+  background: #eee;
+  width: 200%;
+  height: 100%;
+  content: "";
+  display: block;
+  position: absolute;
+  top: 50%;
+  left: 50%;
 }
-
 
 .resultContainer:not(.showFrames) {
   flex-direction: column;
@@ -83,58 +130,54 @@ header {
   align-items: center;
 }
 
-
 .searchNavigation {
-    box-sizing: border-box;
-    padding: 10px 5px;
-    padding-bottom: 20px;
-    display: flex;
-    align-items: center;
-    height: 4rem;
+  box-sizing: border-box;
+  padding: 10px 5px;
+  padding-bottom: 20px;
+  display: flex;
+  align-items: center;
+  height: 4rem;
 }
 
 .searches {
-    display: flex;
-    padding: 50px;
-    justify-content: flex-start;
-    align-items: flex-start;
+  display: flex;
+  padding: 50px;
+  justify-content: flex-start;
+  align-items: flex-start;
 }
 
 input {
-    padding: 5px 8px;
+  padding: 5px 8px;
 }
 
 .radiobuttons {
-    display: flex;
-    /* padding: 20px 0; */
-    font-size: 2rem;
-    margin-left: 0.5em;
+  display: flex;
+  /* padding: 20px 0; */
+  font-size: 2rem;
+  margin-left: 0.5em;
 }
 
 label.radiobutton {
-    /* padding-right: 15px; */
-    font-family: sans-serif;
-    letter-spacing: .05em;
+  /* padding-right: 15px; */
+  font-family: sans-serif;
+  letter-spacing: .05em;
 }
 
-
-header > input, header > label {
-    margin: 0 3rem;
+header>input, header>label {
+  margin: 0 3rem;
 }
 
 .menu {
-    position: absolute;
-    right: 0;
-    display: flex;
-    width: 100%;
-    justify-content: flex-end;
-    top: 0;
+  position: absolute;
+  right: 0;
+  display: flex;
+  justify-content: flex-end;
+  top: 0;
 }
 
-div.menu > label, div.menu > button {
-    margin-left: 0;
+div.menu>label, div.menu>button {
+  margin-left: 0;
 }
-
 
 span.label {
   text-transform: uppercase;

@@ -13,13 +13,23 @@
 <body>
   <section class="app">
     <header class="header">
+      <div class="tabs">
+        <ul class="">
+          <li v-for="w of getWorkspaces" :class="{ tab: true, selected: visibility == w.id }" >
+            <a :href="'#/' + w.id" >{{ w.id }}</a>
+              <div class="menu">
+                <button v-if="w.id != 'default'" class="destroy" @click="removeWorkspace(w)">X</button>
+              </div>
+          </li>
+          </li>
+          <li class="tab new"><input href="#" :class="{green: getTabCheck, red: !getTabCheck}" placeholder="new tab" v-model="newTab" @keyup.enter="addTab" /></li>
+        </ul>
+      </div>
+
+
+      </div>
       <input class="new-search" autofocus autocomplete="off" placeholder="enter new search" v-model="newSearch" @keyup.enter="addSearch">
 
-      <label class="checkbox">
-        <span class="label">mark all</span>
-        <input class="toggle-all" type="checkbox" v-model="allDone">
-        <span class="checkmark"></span>
-      </label>
     </header>
     <section class="main" v-show="searches.length" v-cloak>
 
@@ -27,10 +37,6 @@
         <li v-for="search in filteredSearches" class="search searchContainer" :key="search.id" :class="{ marked: search.marked, editing: search == editedSearch }">
           <div class="view">
             <div class="menu">
-              <label class="toggle checkbox">
-                <input  type="checkbox" v-model="search.marked">
-                <span class="checkmark"></span>
-              </label>
               <button class="destroy" @click="removeSearch(search)"></button>
             </div>
             <div class="searchNavigation">
@@ -63,16 +69,8 @@
     </section>
     <footer class="footer" v-show="searches.length" v-cloak>
       <span class="search-count">
-        Searches: <strong>{{ all }}</strong> ({{ marked }} marked)
+        Searches: <strong>{{ all }}</strong>
       </span>
-      <ul class="filters">
-        <li><a href="#/all" :class="{ selected: visibility == 'all' }">All</a></li>
-        <li><a href="#/normal" :class="{ selected: visibility == 'normal' }">Normal</a></li>
-        <li><a href="#/marked" :class="{ selected: visibility == 'marked' }">Marked</a></li>
-      </ul>
-      <button class="clear-marked" @click="removeMarked" v-show="searches.length > remaining">
-        remove marked
-      </button>
     </footer>
   </section>
 </body>

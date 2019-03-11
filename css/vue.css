@@ -216,6 +216,7 @@ label[for='toggle-all'] {
 .destroy {
 	display: block;
 	position: relative;
+	cursor: pointer;
 }
 
 .dive-layout li .edit {
