@@ -6,6 +6,7 @@
   <link rel="stylesheet" type="text/css" href="css/radio-buttons.css" />
   <link rel="stylesheet" type="text/css" href="css/vue.css" />
   <script src="https://cdn.jsdelivr.net/npm/vue/dist/vue.js"></script>
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
 </head>
 
 
@@ -47,10 +48,12 @@
               </div>
             </div>
             <div :class="{ showFrames: search.frames, resultContainer: true }">
-              <div v-for="foto in fotos">
-                <img class="preview" v-if="!search.frames" :src="'https://picsum.photos/300/300?id=' + (foto - 1)" />
-                <img :src="'https://picsum.photos/300/300?id=' + foto" />
-                <img class="preview"  v-if="!search.frames" :src="'https://picsum.photos/300/300?id=' + (foto + 1)" />
+              <div>
+                <div v-for="foto in fotos">
+                  <img class="preview" v-if="!search.frames" :src="'https://picsum.photos/300/300?id=' + (foto - 1)" />
+                  <img :src="'https://picsum.photos/300/300?id=' + foto" />
+                  <img class="preview"  v-if="!search.frames" :src="'https://picsum.photos/300/300?id=' + (foto + 1)" />
+                </div>
               </div>
             </div>
           </div>
