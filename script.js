@@ -76,7 +76,7 @@ var app = new Vue({
         this.tabCheck = true;
         for (var w of this.workspaces)
         {
-          if ( w.id.toLowerCase() == this.newTab.toLowerCase())
+          if ( w.id.toLowerCase() == allowedString(this.newTab).toLowerCase())
           {
             this.tabCheck = false;
           }
@@ -140,7 +140,7 @@ var app = new Vue({
       this.newSearch = ''
     },
     addTab: function() {
-      var value = this.newTab && this.newTab.trim()
+      var value = allowedString(this.newTab)
       if (!value) {
         return
       }
@@ -148,10 +148,10 @@ var app = new Vue({
       {
         return;
       }
-      this.workspaces.push({ id: this.newTab, name: this.newTab });
+      this.workspaces.push({ id: value, name: value });
 
-      this.visibility = this.newTab;
-      window.location.hash = this.visibility;
+      this.visibility = value;
+      window.location.hash = "/" + this.visibility;
       this.newTab = '';
     },
     // checkTabName: function () {
@@ -250,6 +250,13 @@ function onHashChange () {
   //   app.visibility = 'all'
   // }
 }
+
+function allowedString(input) {
+  var out = input.trim();
+  out = out.replace(/ +/g, "_");
+  out = out.replace(/!(A-Za-z_-)/g, "");
+  return out;
+};
 
 window.addEventListener('hashchange', onHashChange)
 onHashChange()
