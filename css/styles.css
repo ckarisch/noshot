@@ -7,17 +7,20 @@ body {
 header {
   flex-wrap: wrap;
   background: #eee;
-  height: 120px;
+  height: 8rem;
   display: flex;
   align-items: center;
   white-space: nowrap;
   width: 100%;
   position: fixed;
   top: 0;
+  font-size: 1rem;
 }
 
 .tabs {
-  width: calc(100% - 50px);
+  /* width: calc(100% - 50px); */
+  padding: 1em;
+  /* height: 2em; */
 }
 
 .tabs ul {
@@ -30,11 +33,15 @@ header {
 .tabs li {
   user-select: none;
   display: block;
-  border: 2px solid #888;
-  border-radius: 10px 10px 0 0;
+  border: 0.1em solid #000;
+  border-radius: 1em;
   margin-right: -2px;
   overflow: hidden;
   position: relative;
+  height: 2em;
+  margin-right: 0.4em;
+  font-size: inherit;
+  box-sizing: border-box;
 }
 
 li.tab.selected a {
@@ -43,18 +50,28 @@ li.tab.selected a {
 }
 
 .tabs li.tab input {
-  height: 34px;
+  height: 1.8em;
   display: block;
+  /* margin: -0.2em; */
+  padding: .5em 1em;
+  box-sizing: border-box;
+  font-size: inherit;
+  border: navajowhite;
 }
 
 .tabs li a {
+  width: auto;
   color: #444;
   text-decoration: none;
   text-transform: uppercase;
   letter-spacing: .05em;
-  padding: .5em;
+  padding: 0.5em 1.2em;
   display: block;
-  padding-right: 1em;
+  padding-right: 1.5em;
+  height: 1.8em;
+  line-height: 0.87;
+  box-sizing: border-box;
+  min-width: 3.6em;
 }
 
 .green {
@@ -173,6 +190,28 @@ header>input, header>label {
   display: flex;
   justify-content: flex-end;
   top: 0;
+}
+
+.menu .destroy {
+  text-indent: -3000px;
+  background-image: url("https://www.formundzeichen.at/res/img/x.php?sw=3&t=r");
+  background-size: 75%;
+  background-position: center;
+  background-repeat: no-repeat;
+}
+
+.tab button.destroy {
+    /* right:  .2em; */
+    /* background-size: 0.8em; */
+    height: 1em;
+    width: 1em;
+}
+
+.tab .menu {
+    top: 50%;
+    transform: translate3d(0,-50%,0);
+    right: 0.3em;
+    height: 1em;
 }
 
 div.menu>label, div.menu>button {

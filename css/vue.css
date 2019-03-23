@@ -55,10 +55,10 @@ button {
 	position: relative;
 	margin: 0;
 	width: 100%;
-	font-size: 24px;
+	font-size: 2em;
 	font-family: inherit;
 	font-weight: inherit;
-	line-height: 1.4em;
+	/* line-height: 1.4em; */
 	border: 0;
 	color: inherit;
 	padding: 6px;
@@ -67,10 +67,11 @@ button {
 	box-sizing: border-box;
 	-webkit-font-smoothing: antialiased;
 	-moz-osx-font-smoothing: grayscale;
+	height: 2em;
 }
 
 .new-search {
-	padding: 16px 16px 16px 60px;
+	padding: .5em .5em .5em 1em;
 	border: none;
 	background: rgba(0, 0, 0, 0.1);
 	box-shadow: inset 0 -2px 1px rgba(0,0,0,0.03);
@@ -82,7 +83,7 @@ button {
 	/* border-top: 1px solid #e6e6e6; */
 	padding: 2rem 1rem;
 	/* margin-bottom: 5rem; */
-	height: calc(100% - 120px - 3rem);
+	height: calc(100% - 8rem - 3rem);
 	display: block;
 	box-sizing: border-box;
 	width: auto;
@@ -123,7 +124,7 @@ label[for='toggle-all'] {
 
 .dive-layout li {
 	position: relative;
-	font-size: 24px;
+	/* font-size: 24px; */
 	border-bottom: 1px solid #ededed;
 	height: 100%;
 	box-sizing: border-box;
@@ -188,8 +189,8 @@ label[for='toggle-all'] {
 	/* position: absolute; */
 	/* top: 0; */
 	/* right: 10px; */
-	width: 1em;
-	height: 1em;
+	width: 1.4em;
+	height: 1.4em;
 	margin: auto 0;
 	font-size: 1em;
 	color: #cc9a9a;
