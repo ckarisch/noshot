@@ -87,8 +87,14 @@ var app = new Vue({
     filteredSearches: function () {
       //return filters[this.visibility](this.searches)
       return this.searches.filter(function (search) {
-        return search.workspace == app.visibility || search.workspace == 0 || search.workspace === undefined
-        return true
+        var workspaceVisible = search.workspace == app.visibility || search.workspace == 0 || search.workspace === undefined;
+        return workspaceVisible && search.minimized == false;
+      })
+    },
+    filteredSearchesMinimized: function () {
+      return this.searches.filter(function (search) {
+        var workspaceVisible = search.workspace == app.visibility || search.workspace == 0 || search.workspace === undefined;
+        return workspaceVisible && search.minimized == true;
       })
     },
     fotos: function() {
