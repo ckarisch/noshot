@@ -184,26 +184,23 @@ label[for='toggle-all'] {
 	/* text-decoration: line-through; */
 }
 
-.destroy {
+/* .destroy {
 	display: none;
-	/* position: absolute; */
-	/* top: 0; */
-	/* right: 10px; */
+
 	width: 1.4em;
 	height: 1.4em;
 	margin: auto 0;
 	font-size: 1em;
 	color: #cc9a9a;
-	/* margin-bottom: 11px; */
 	transition: color 0.2s ease-out;
 	font-family: sans-serif;
-}
+} */
 
-.dive-layout li .destroy:hover {
+/* .dive-layout li .destroy:hover {
 	color: #af5b5e;
 	cursor: pointer;
-}
-
+} */
+/*
 .dive-layout li .destroy:after {
 	content: 'X';
 	position: absolute;
@@ -212,13 +209,13 @@ label[for='toggle-all'] {
 	transform: translate3d(-50%, -50%, 0);
 	display: block;
 	font-size: 0.8em;
-}
+} */
 
-.destroy {
+/* .destroy {
 	display: block;
 	position: relative;
 	cursor: pointer;
-}
+} */
 
 .dive-layout li .edit {
 	display: none;

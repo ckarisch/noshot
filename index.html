@@ -1,10 +1,7 @@
 <html>
 
 <head>
-  <link rel="stylesheet" type="text/css" href="css/styles.css" />
-  <link rel="stylesheet" type="text/css" href="css/icons.css" />
-  <link rel="stylesheet" type="text/css" href="css/radio-buttons.css" />
-  <link rel="stylesheet" type="text/css" href="css/vue.css" />
+  <link rel="stylesheet" type="text/css" href="css/style.css" />
   <script src="https://cdn.jsdelivr.net/npm/vue/dist/vue.js"></script>
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
 </head>
@@ -34,9 +31,10 @@
     <section class="main" v-show="searches.length" v-cloak>
 
       <ul class="dive-layout searches">
-        <li v-for="search in filteredSearches" class="search searchContainer" :key="search.id" :class="{ marked: search.marked, editing: search == editedSearch }">
+        <li v-for="search in filteredSearches" class="search searchContainer" :key="search.id" :class="{ marked: search.marked, editing: search == editedSearch, minimized: search.minimized }">
           <div class="view">
             <div class="menu">
+              <button class="minimize" @click="minimizeSearch(search)"></button>
               <button class="destroy" @click="removeSearch(search)"></button>
             </div>
             <div class="searchNavigation">

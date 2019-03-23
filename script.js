@@ -8,11 +8,6 @@ var searchStorage = {
     var searches = JSON.parse(localStorage.getItem(STORAGE_KEY+"_searches") || '[]')
     searches.forEach(function (search, index) {
       search.id = index
-      // for(var w in app.data.workspaces) {
-      //   if(search.workspace.id == w.id) {
-      //     search.workspace = w;
-      //   }
-      // }
     })
     searchStorage.uid = searches.length
     return searches
@@ -131,7 +126,8 @@ var app = new Vue({
         id: searchStorage.uid++,
         title: value,
         frames: true,
-        workspace: this.visibility
+        workspace: this.visibility,
+        minimized: false
       }
       this.searches.push(s)
       if(!this.activeWorkspace.searches)
@@ -169,6 +165,11 @@ var app = new Vue({
     removeSearch: function (search) {
       this.searches.splice(this.searches.indexOf(search), 1)
     },
+
+    minimizeSearch: function (search) {
+      search.minimized = !search.minimized;
+    },
+
 
     removeWorkspace: function (workspace) {
 

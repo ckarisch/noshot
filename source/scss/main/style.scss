@@ -1,3 +1,16 @@
+@charset "utf-8";
+
+
+$header-height: 8em;
+
+
+@import '../import/encode';
+@import '../import/icons';
+@import '../import/radio-buttons';
+@import '../import/vue';
+
+
+
 body {
   margin: 0 auto;
   font-family: sans-serif;
@@ -192,12 +205,26 @@ header>input, header>label {
   top: 0;
 }
 
-.menu .destroy {
+.menu > button {
   text-indent: -3000px;
-  background-image: url("https://www.formundzeichen.at/res/img/x.php?sw=3&t=r");
   background-size: 75%;
   background-position: center;
   background-repeat: no-repeat;
+  width: 1.4em;
+  height: 1.4em;
+  display: block;
+  position: relative;
+  cursor: pointer;
+}
+
+.menu button.destroy {
+  background-image: url("https://www.formundzeichen.at/res/img/x.php?sw=3&t=r");
+}
+.menu button.minimize {
+  background-image: inline-svg('<svg xmlns="http://www.w3.org/2000/svg"><line stroke-linecap="round" x1="2" x2="20" y1="15" y2="15" style="stroke:#000;stroke-width:2" /></svg>');
+  background-size: contain;
+  background-position: center;
+  display: block;
 }
 
 .tab button.destroy {
