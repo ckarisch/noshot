@@ -66,9 +66,9 @@
             <div :class="{ showFrames: search.frames, resultContainer: true }">
               <div>
                 <div v-for="img in search.images">
-                  <img class="preview" v-if="!search.frames" :alt="img.video + '_' + img.keyframe" />
-                  <img :alt="img.video + '_' + img.keyframe" />
-                  <img class="preview"  v-if="!search.frames" :alt="img.video + '_' + img.keyframe" />
+                  <img class="preview" v-if="!search.frames" :alt="keyframeSrc(img, -1)" :src="keyframeSrc(img, -1)" />
+                  <img :alt="keyframeSrc(img, 0)" :src="keyframeSrc(img, 0)" />
+                  <img class="preview"  v-if="!search.frames" :alt="keyframeSrc(img, 1)" :src="keyframeSrc(img, 1)" />
                 </div>
               </div>
             </div>

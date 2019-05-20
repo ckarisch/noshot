@@ -27,10 +27,6 @@ var searchStorage = {
   }
 }
 
-var fotos = [1,2,3,4,5,6,7,8,9,10,11,12,13,14,15,16,17,18,19,20,21,22,23,24,25,26,27,28,29,30,31,32];
-
-
-
 // visibility filters
 var filters = {
   all: function (searches) {
@@ -101,9 +97,6 @@ var app = new Vue({
         return workspaceVisible && search.minimized == true;
       })
     },
-    fotos: function() {
-      return fotos
-    },
     getWorkspaces: function() {
       return this.workspaces
     },
@@ -125,7 +118,6 @@ var app = new Vue({
   },
 
   // methods that implement data logic.
-  // note there's no DOM manipulation here at all.
   methods: {
     addSearch: function () {
       var value = this.newSearch && this.newSearch.trim()
@@ -229,22 +221,23 @@ var app = new Vue({
       this.loading = true
       let net = "cnn_googlenet"
 
-      // replace `getPost` with your data fetching util / API wrapper
       getFromSolr(net, search.title, (err, docs) => {
         this.loading = false
         if (err) {
           this.error = err.toString()
         } else {
-          //this.post = post
           search.images = docs;
-          // for(let doc of docs)
-          // {
-          //   console.log(doc)
-          //   console.log("video: " + doc["video"]);
-          //   console.log("keyframe: " + doc.keyframe);
-          // }
         }
       })
+    },
+    pad: function (num, size) {
+          var s = num+"";
+          while (s.length < size) s = "0" + s;
+          return s;
+    },
+    keyframeSrc: function (img, index) {
+      let keyframe = math.max(img.keyframe + index, 0);
+      return 'keyframes/' + this.pad(img.video, 5) + '/' + this.pad(img.video, 5) + '_' + this.pad(img.keyframe, 7) + '_key.jpg';
     }
   },
 
@@ -292,34 +285,11 @@ function getFromSolr(net, category, callback) {
   Http.open("GET", url);
   Http.send();
   Http.onreadystatechange=(e)=>{
-    //console.log(Http.responseText)
-    callback(null, JSON.parse(Http.responseText).response);
+    if(e.currentTarget.readyState == 4 && e.currentTarget.status == 200)
+    {
+        callback(null, JSON.parse(Http.responseText));
+    }
   }
-
-  let json = `
-{
-  "responseHeader":{
-    "status":0,
-    "QTime":0,
-    "params":{
-      "q":"net:cnn_googlenet AND *:*",
-      "fl":"video,keyframe"}},
-  "response":{"numFound":4,"start":0,"docs":[
-      {
-        "video":[5504],
-        "keyframe":[847]},
-      {
-        "video":[5504],
-        "keyframe":[2940]},
-      {
-        "video":[5504],
-        "keyframe":[1776]},
-      {
-        "video":[5504],
-        "keyframe":[6271]}]
-  }}  `
-
-  //callback(null, JSON.parse(json).response.docs)
 }
 
 function allowedString(input) {

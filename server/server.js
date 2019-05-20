@@ -5,7 +5,12 @@ var app = express();
 const hostname = '127.0.0.1';
 const port = 3000;
 
-//const server = http.createServer((req, res) => {
+app.use(function(req, res, next) {
+  res.header("Access-Control-Allow-Origin", "*");
+  res.header("Access-Control-Allow-Headers", "Origin, X-Requested-With, Content-Type, Accept");
+  next();
+});
+
 app.get('/category/:category?', function userIdHandler(req, res) {
   res.statusCode = 200;
   res.setHeader('Content-Type', 'application/json');
@@ -28,9 +33,7 @@ app.get('/category/:category?', function userIdHandler(req, res) {
     // The whole response has been received. Print out the result.
     resp.on('end', () => {
       let docs = JSON.parse(data).response.docs;
-
-      //console.log(data);
-      res.send(JSON.stringify(docs));
+      res.json(docs);
     });
 
   }).on("error", (err) => {
@@ -41,7 +44,3 @@ app.get('/category/:category?', function userIdHandler(req, res) {
 });
 
 app.listen(port);
-
-// server.listen(port, hostname, () => {
-//   console.log(`Server running at http://${hostname}:${port}/`);
-// });
