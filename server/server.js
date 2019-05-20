@@ -1,14 +1,16 @@
 const http = require('http');
+var express = require('express');
+var app = express();
 
 const hostname = '127.0.0.1';
 const port = 3000;
 
-const server = http.createServer((req, res) => {
-
+//const server = http.createServer((req, res) => {
+app.get('/category/:category?', function userIdHandler(req, res) {
   res.statusCode = 200;
   res.setHeader('Content-Type', 'application/json');
 
-  let category = 430;
+  let category = req.params.category;
 
   http.get({
     hostname: 'localhost',
@@ -28,16 +30,18 @@ const server = http.createServer((req, res) => {
       let docs = JSON.parse(data).response.docs;
 
       //console.log(data);
-      res.end("Data:" + JSON.stringify(docs));
+      res.send(JSON.stringify(docs));
     });
 
   }).on("error", (err) => {
     console.log("Error: " + err.message);
-    res.end("Error: " + err.message);
+    res.send("Error: " + err.message);
   });
 
 });
 
-server.listen(port, hostname, () => {
-  console.log(`Server running at http://${hostname}:${port}/`);
-});
+app.listen(port);
+
+// server.listen(port, hostname, () => {
+//   console.log(`Server running at http://${hostname}:${port}/`);
+// });
