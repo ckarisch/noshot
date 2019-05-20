@@ -8,10 +8,12 @@ const server = http.createServer((req, res) => {
   res.statusCode = 200;
   res.setHeader('Content-Type', 'application/json');
 
+  let category = 430;
+
   http.get({
     hostname: 'localhost',
     port: 8983,
-    path: '/solr/core1/select?q=*%3A*&fl=430',
+    path: '/solr/core1/select?q=category%3A' + category + '&rows=100',
     agent: false // Create a new agent just for this one request
   }, (resp) => {
     let data = '';
