@@ -50,7 +50,7 @@
               <button class="destroy" @click="removeSearch(search)"></button>
             </div>
             <div class="searchNavigation">
-              <input placeholder="Suchbegriff" v-model="search.title" />
+              <input placeholder="Suchbegriff" v-model="search.title" @change="fetchSolrSearch(search)" />
               <div class="radiobuttons">
                 <label class="radiobutton">
                   <input type="radio" v-model="search.frames" :name="search.id" :checked="search.frames" value="1">
@@ -65,10 +65,10 @@
             </div>
             <div :class="{ showFrames: search.frames, resultContainer: true }">
               <div>
-                <div v-for="foto in fotos">
-                  <img class="preview" v-if="!search.frames" :src="'https://picsum.photos/300/300?id=' + (foto - 1)" />
-                  <img :src="'https://picsum.photos/300/300?id=' + foto" />
-                  <img class="preview"  v-if="!search.frames" :src="'https://picsum.photos/300/300?id=' + (foto + 1)" />
+                <div v-for="img in search.images">
+                  <img class="preview" v-if="!search.frames" :alt="img.video + '_' + img.keyframe" />
+                  <img :alt="img.video + '_' + img.keyframe" />
+                  <img class="preview"  v-if="!search.frames" :alt="img.video + '_' + img.keyframe" />
                 </div>
               </div>
             </div>

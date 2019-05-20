@@ -49,7 +49,11 @@ var app = new Vue({
     tabCheck: true,
     editedSearch: null,
     visibility: 'default',
-    activeWorkspace: undefined
+    activeWorkspace: undefined,
+
+    loading: false,
+    post: null,
+    error: null
   },
 
   // watch searches change for localStorage persistence
@@ -133,7 +137,8 @@ var app = new Vue({
         title: value,
         frames: true,
         workspace: this.visibility,
-        minimized: false
+        minimized: false,
+        images: []
       }
       this.searches.push(s)
       if(!this.activeWorkspace.searches)
@@ -218,6 +223,28 @@ var app = new Vue({
     cancelEdit: function (search) {
       this.editedSearch = null
       search.title = this.beforeEditCache
+    },
+    fetchSolrSearch: function (search) {
+      this.error = this.post = null
+      this.loading = true
+      let net = "cnn_googlenet"
+
+      // replace `getPost` with your data fetching util / API wrapper
+      getFromSolr(net, search.title, (err, docs) => {
+        this.loading = false
+        if (err) {
+          this.error = err.toString()
+        } else {
+          //this.post = post
+          search.images = docs;
+          // for(let doc of docs)
+          // {
+          //   console.log(doc)
+          //   console.log("video: " + doc["video"]);
+          //   console.log("keyframe: " + doc.keyframe);
+          // }
+        }
+      })
     }
   },
 
@@ -256,6 +283,43 @@ function onHashChange () {
   //   window.location.hash = ''
   //   app.visibility = 'all'
   // }
+}
+
+function getFromSolr(net, category, callback) {
+  const Http = new XMLHttpRequest();
+  const url='http://localhost:3000/category/' + category;
+
+  Http.open("GET", url);
+  Http.send();
+  Http.onreadystatechange=(e)=>{
+    //console.log(Http.responseText)
+    callback(null, JSON.parse(Http.responseText).response);
+  }
+
+  let json = `
+{
+  "responseHeader":{
+    "status":0,
+    "QTime":0,
+    "params":{
+      "q":"net:cnn_googlenet AND *:*",
+      "fl":"video,keyframe"}},
+  "response":{"numFound":4,"start":0,"docs":[
+      {
+        "video":[5504],
+        "keyframe":[847]},
+      {
+        "video":[5504],
+        "keyframe":[2940]},
+      {
+        "video":[5504],
+        "keyframe":[1776]},
+      {
+        "video":[5504],
+        "keyframe":[6271]}]
+  }}  `
+
+  //callback(null, JSON.parse(json).response.docs)
 }
 
 function allowedString(input) {
