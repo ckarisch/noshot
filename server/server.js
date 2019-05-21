@@ -34,7 +34,6 @@ app.get('/category/:category?', function userIdHandler(req, res) {
 
     // The whole response has been received. Print out the result.
     resp.on('end', () => {
-      console.log(data);
       let docs = JSON.parse(data).response.docs;
       res.json(docs);
     });
