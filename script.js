@@ -27,13 +27,6 @@ var searchStorage = {
   }
 }
 
-// visibility filters
-var filters = {
-  all: function (searches) {
-    return searches
-  }
-}
-
 // app Vue instance
 var app = new Vue({
   // app initial state
@@ -85,7 +78,6 @@ var app = new Vue({
   // http://vuejs.org/guide/computed.html
   computed: {
     filteredSearches: function () {
-      //return filters[this.visibility](this.searches)
       return this.searches.filter(function (search) {
         var workspaceVisible = search.workspace == app.visibility || search.workspace == 0 || search.workspace === undefined;
         return workspaceVisible && search.minimized == false;
@@ -102,9 +94,6 @@ var app = new Vue({
     },
     all: function () {
       return this.searches.length
-    },
-    remaining: function () {
-      return filters.normal(this.searches).length
     },
     getTabCheck: function () {
       return this.tabCheck
@@ -132,11 +121,15 @@ var app = new Vue({
         minimized: false,
         images: []
       }
-      this.searches.push(s)
+      this.searches.push(s);
+
+      this.fetchSolrSearch(s);
+
       if(!this.activeWorkspace.searches)
         this.activeWorkspace.searches = [];
-      this.activeWorkspace.searches.push(s)
-      this.newSearch = ''
+      this.activeWorkspace.searches.push(s);
+      this.newSearch = '';
+
     },
     addTab: function() {
       var value = allowedString(this.newTab)
@@ -153,17 +146,6 @@ var app = new Vue({
       window.location.hash = "/" + this.visibility;
       this.newTab = '';
     },
-    // checkTabName: function () {
-    //   this.tabCheck = true;
-    //   for (var w in this.workspaces)
-    //   {
-    //     console.log( w.id.toLowerCase() + " , " + this.newTab.toLowerCase())
-    //     if ( w.id.toLowerCase() == this.newTab.toLowerCase())
-    //     {
-    //       this.tabCheck = false;
-    //     }
-    //   }
-    // },
 
     removeSearch: function (search) {
       this.searches.splice(this.searches.indexOf(search), 1)
@@ -173,12 +155,7 @@ var app = new Vue({
       search.minimized = !search.minimized;
     },
 
-
     removeWorkspace: function (workspace) {
-
-      // for(var s in workspace.searches) {
-      //   this.searches.splice(this.searches.indexOf(s), 1)
-      // }
       var temp = [];
       for(let search of this.searches) {
         temp.push(search);
@@ -196,26 +173,6 @@ var app = new Vue({
       this.visibility = 'default';
     },
 
-    editSearch: function (search) {
-      this.beforeEditCache = search.title
-      this.editedSearch = search
-    },
-
-    doneEdit: function (search) {
-      if (!this.editedSearch) {
-        return
-      }
-      this.editedSearch = null
-      search.title = search.title.trim()
-      if (!search.title) {
-        this.removeSearch(search)
-      }
-    },
-
-    cancelEdit: function (search) {
-      this.editedSearch = null
-      search.title = this.beforeEditCache
-    },
     fetchSolrSearch: function (search) {
       this.error = this.post = null
       this.loading = true
@@ -225,10 +182,25 @@ var app = new Vue({
         this.loading = false
         if (err) {
           this.error = err.toString()
+          console.log(this.error)
         } else {
           search.images = docs;
+          this.logCategories(docs);
         }
       })
+    },
+    logCategories: function(docs) {
+      if(docs.length > 0)
+      {
+        let categories = {};
+        for(doc of docs)
+        {
+          categories[doc.categoryName] = null;
+        }
+        console.log("%ccategories found:", "color: #b00;");
+        for(c in categories)
+          console.log(c);
+      }
     },
     pad: function (num, size) {
           var s = num+"";
@@ -269,13 +241,6 @@ function onHashChange () {
   if( app.visibility == 'default') {
     window.location.hash = ''
   }
-
-  // if (filters[visibility] || app.workspaces[visibility]) {
-  //   app.visibility = visibility
-  // } else {
-  //   window.location.hash = ''
-  //   app.visibility = 'all'
-  // }
 }
 
 function getFromSolr(net, category, callback) {

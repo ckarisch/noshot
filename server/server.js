@@ -17,31 +17,47 @@ app.get('/category/:category?', function userIdHandler(req, res) {
   res.setHeader('Content-Type', 'application/json');
 
   let category = req.params.category;
-  let net = "cnn_googlenet";
+  if(category !== typeof(undefined))
+  {
+    category = category.replace(/ *, */g, "OR");
+    category = category.replace(/ +/g, " AND ");
+    category = category.replace(/OR/g, " OR ");
+    category = category.replace(/((([\w\(\)\*]+) AND )+([\w\(\)\*]+))/g, "\($1\)");
+    console.log(category);
 
-  http.get({
-    hostname: 'localhost',
-    port: 8983,
-    path: util.format('/solr/core1/select?q=net%3A%s%20AND%20category%3A%s&rows=%i&sort=probability%20desc', net, category, 100),
-    agent: false // Create a new agent just for this one request
-  }, (resp) => {
-    let data = '';
+    category = escape('(' + category + ')');
+    const net = "cnn_googlenet";
+    const path = util.format('/solr/core1/select?q=categoryName%3A%s%20AND%20net%3A%s&rows=%i&sort=probability%20desc', category, net, 100);
 
-    // A chunk of data has been recieved.
-    resp.on('data', (chunk) => {
-      data += chunk;
+    http.get({
+      hostname: 'localhost',
+      port: 8983,
+      path: path,
+      agent: false // Create a new agent just for this one request
+    }, (resp) => {
+      let data = '';
+
+      // A chunk of data has been recieved.
+      resp.on('data', (chunk) => {
+        data += chunk;
+      });
+
+      // The whole response has been received. Print out the result.
+      resp.on('end', () => {
+        const jdata = JSON.parse(data);
+        if(jdata.response && jdata.response.docs)
+          res.json(jdata.response.docs);
+        else
+          res.json([]);
+      });
+
+    }).on("error", (err) => {
+      console.log("Error: " + err.message);
+      res.send("Error: " + err.message);
     });
-
-    // The whole response has been received. Print out the result.
-    resp.on('end', () => {
-      let docs = JSON.parse(data).response.docs;
-      res.json(docs);
-    });
-
-  }).on("error", (err) => {
-    console.log("Error: " + err.message);
-    res.send("Error: " + err.message);
-  });
+  }
+  else
+    res.json([]);
 
 });
 
