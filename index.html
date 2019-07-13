@@ -30,7 +30,7 @@
     </header>
     <section class="main" v-show="searches.length" v-cloak>
       <ul class="dive-layout searches minimized">
-        <li v-for="search in filteredSearchesMinimized" class="search searchContainer" :key="search.id" :class="{ marked: search.marked, editing: search == editedSearch, minimized: search.minimized }">
+        <li v-for="search in filteredSearchesMinimized" class="search searchContainer" :key="search.id" :class="{ marked: search.marked, editing: search == editedSearch, minimized: search.minimized, maximized: search.maximized }">
           <div class="view">
             <div class="menu">
               <button class="minimize" @click="minimizeSearch(search)"></button>
@@ -43,10 +43,11 @@
           </li>
       </ul>
       <ul class="dive-layout searches">
-        <li v-for="search in filteredSearches" class="search searchContainer" :key="search.id" :class="{ marked: search.marked, editing: search == editedSearch, minimized: search.minimized }">
+        <li v-for="search in filteredSearches" :key="search.id" :class="{ search: true, searchContainer: true, minimized: search.minimized, maximized: search.maximized }">
           <div class="view">
             <div class="menu">
               <button class="minimize" @click="minimizeSearch(search)"></button>
+              <button class="maximize" @click="maximizeSearch(search)"></button>
               <button class="destroy" @click="removeSearch(search)"></button>
             </div>
             <div class="searchNavigation">

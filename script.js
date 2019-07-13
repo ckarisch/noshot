@@ -119,6 +119,7 @@ var app = new Vue({
         frames: true,
         workspace: this.visibility,
         minimized: false,
+        maximized: false,
         images: []
       }
       this.searches.push(s);
@@ -153,6 +154,10 @@ var app = new Vue({
 
     minimizeSearch: function (search) {
       search.minimized = !search.minimized;
+    },
+
+    maximizeSearch: function (search) {
+      search.maximized = !search.maximized;
     },
 
     removeWorkspace: function (workspace) {
