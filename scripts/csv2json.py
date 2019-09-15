@@ -3,6 +3,8 @@
 # usage: ./csv2json.py <folder> <synsetFolder> > file.json
 # folder: contains subfolders which contain .csv files
 # csv files names: <videonumber>_<framenumber>_<classification_name>.csv
+# synsetFolder: line number = category number, line content = category name
+# synset file names: <synsetName>-synset.txt
 #
 # example: ./csv2json.py ~/diveXplore/data/classifications ~/diveXplore/concepts > /tmp/test.json
 
@@ -11,7 +13,7 @@ import sys, os, json
 # only store best x concepts of each net for each keyframe
 numBestProbabilities = 5
 
-synsets = []
+synsets = {}
 
 def floatformat(string):
 	return '{0:.7f}'.format(float(string))
@@ -31,14 +33,25 @@ def file2json(filename):
 		line = f.readline().rstrip("\n")
 		return line2tupel(line)
 
-def printFile(root, filename):
+def fileLines2Array(filename):
+	with open(filename) as f:
+		line = f.readline().rstrip("\n")
+		cnt = 1
+		temp = []
+		while line:
+			#print("Line {}: {}".format(cnt, line.strip()))
+			temp.append(line.strip())
+			line = f.readline()
+			cnt += 1
+		return temp
+
+def printFile(root, filename, synsets):
 	fullpath = os.path.join(root, filename)
 	afilename = filename.split("_")
 	netName = "_".join(afilename[2:]).split(".")[0]
 	classes = file2json(fullpath)
 
 	for entry in classes:
-
 
                 sys.stdout.write('"add": { "doc": {')
                 sys.stdout.write('"nodeType": "keyframe", ')
@@ -47,11 +60,12 @@ def printFile(root, filename):
                 sys.stdout.write('"video": {0}, "keyframe": {1}, "net": "{2}"'.format(int(afilename[0]), int(afilename[1]), netName))
                 #sys.stdout.write(', {0}'.format(jsonStr[1:-1]))
                 sys.stdout.write(', "category": {0}, "probability": {1}'.format(entry[0], entry[1]))
+                sys.stdout.write(', "categoryName": "{0}"'.format(synsets[netName][int(entry[0])]))
                 sys.stdout.write('}}')
 
-def walkRootFilename(directory):
+def walkRootFilename(directory, skipRoot):
 	walk = os.walk(directory)
-	next(walk) #skip directory itself
+	if (skipRoot): next(walk) #skip directory itself
 	for root, dirs, files in walk:
 		for filename in files:
 			yield root, filename
@@ -60,17 +74,18 @@ def walkRootFilename(directory):
 
 # create synset array
 
-synsetWalk = walkRootFilename(sys.argv[2])
+synsetWalk = walkRootFilename(sys.argv[2], False)
 for root, filename in synsetWalk:
 	afilename = filename.split("-")
 
-	if(afilename[1] == "-synset.txt"):
-		temp = []
+	if(len(afilename) > 1 and afilename[1] == "synset.txt"):
+		fullpath = os.path.join(root, filename)
+		temp = fileLines2Array(fullpath)
 
 		# 2Do: load synsets line by line into temp
 		# category number is the line number
 
-		synsets.append({afilename[0]: temp}) # 2Do
+		synsets.update({afilename[0]: temp})
 
 # end create synset array
 
@@ -80,7 +95,7 @@ for root, filename in synsetWalk:
 sys.stdout.write("{")
 sys.stdout.write('"delete": {"query": "nodeType:keyframe"}')
 
-walk = walkRootFilename(sys.argv[1])
+walk = walkRootFilename(sys.argv[1], True)
 
 #printFile(*next(walk))
 start = 0
@@ -90,7 +105,7 @@ for root, filename in walk:
 	if(counter < start): continue
 
 	sys.stdout.write(",")
-	printFile(root, filename)
+	printFile(root, filename, synsets)
 
 	#if(counter >= end):
 	#	break
