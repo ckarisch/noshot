@@ -1,15 +1,17 @@
 #!/usr/bin/python3
 
-# usage: ./csv2json.py <folder> > file.json
+# usage: ./csv2json.py <folder> <synsetFolder> > file.json
 # folder: contains subfolders which contain .csv files
 # csv files names: <videonumber>_<framenumber>_<classification_name>.csv
 #
-# example: ./csv2json.py ~/diveXplore/data/classifications > /tmp/test.json
+# example: ./csv2json.py ~/diveXplore/data/classifications ~/diveXplore/concepts > /tmp/test.json
 
 import sys, os, json
 
 # only store best x concepts of each net for each keyframe
 numBestProbabilities = 5
+
+synsets = []
 
 def floatformat(string):
 	return '{0:.7f}'.format(float(string))
@@ -53,6 +55,27 @@ def walkRootFilename(directory):
 	for root, dirs, files in walk:
 		for filename in files:
 			yield root, filename
+
+
+
+# create synset array
+
+synsetWalk = walkRootFilename(sys.argv[2])
+for root, filename in synsetWalk:
+	afilename = filename.split("-")
+
+	if(afilename[1] == "-synset.txt"):
+		temp = []
+
+		# 2Do: load synsets line by line into temp
+		# category number is the line number
+
+		synsets.append({afilename[0]: temp}) # 2Do
+
+# end create synset array
+
+
+
 
 sys.stdout.write("{")
 sys.stdout.write('"delete": {"query": "nodeType:keyframe"}')
