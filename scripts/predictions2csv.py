@@ -58,7 +58,7 @@ def printFile(root, filename, videoPath, classificationPath):
 				os.mkdir(classificationPath + '/' + afilename[0])
 
 			count = 0
-			csvName = classificationPath + '/' + afilename[0] + '/' + '_'.join(afilename[:2]) + '_cnn_goolgeyolo.csv'
+			csvName = classificationPath + '/' + afilename[0] + '/' + '_'.join(afilename[:2]) + '_cnn_googleyolo.csv'
 			if os.path.exists(csvName):
 				os.remove(csvName)
 			f= open(csvName,'w+')
@@ -113,8 +113,6 @@ for root, filename in walk:
 	printFile(root, filename, sys.argv[2], sys.argv[3])
 
 	counter += 1
-	if counter > 10:
-		break
 
 	sys.stderr.write("\r{0}".format(counter))
 
