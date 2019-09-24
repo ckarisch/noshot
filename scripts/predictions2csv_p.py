@@ -1,10 +1,10 @@
-# usage: ./predictions2csv.py <keyframeFolder> <videosFolder> <outputFolder>
+# usage: ./predictions2csv.py <keyframeFolder> <videosFolder> <outputFolder> <start> <max-prozessors> <processor>
 # keyframeFolder: contains subfolders which contain keyframe.jpg files
 # videosFolder: contains .mp4 files
 # outputFolder: contains subfolders which contain .csv files
 #
-# example: ./predictions2csv.py ~/diveXplore/data/keyframes /media/christoph/Data/videos ~/diveXplore/data/classifications
-# example: python ./predictions2csv.py ~/keyframes ~/videos ~/test-classifications
+# example: python ./predictions2csv_p.py ~/diveXplore/data/keyframes /media/christoph/Data/videos ~/diveXplore/data/classifications 0 16 0
+
 
 import sys, os
 #sys.path.append(os.path.join(os.getcwd(),'python/'))
@@ -14,7 +14,7 @@ import pdb
 import os
 import subprocess
 
-dn.set_gpu(0)
+#dn.set_gpu(0)
 net = dn.load_net('cfg/yolov3.cfg', 'yolov3.weights', 0)
 meta = dn.load_meta("cfg/coco.data")
 
@@ -53,28 +53,33 @@ def printFile(root, filename, videoPath, classificationPath):
 
 	if afilename[2] == 'key.jpg':
 		#sys.stdout.write(' ' + fullpath + "\n")
-		try:
 
-			if os.path.exists("temp.jpg"):
-				os.remove("temp.jpg")
 
-			subprocess.call(['ffmpeg', '-loglevel', 'quiet', '-i', videoPath + '/' + afilename[0] + '.mp4', '-vf', 'select=eq(n\,' + str(int(afilename[1])) + ')', '-vframes', '1', 'temp.jpg'])
-			if os.path.exists("temp.jpg"):
-				yoloResult = dn.detect(net, meta, "temp.jpg")
+		if os.path.exists('temp' + sys.argv[5] + sys.argv[6] + '.jpg'):
+			os.remove('temp' + sys.argv[5] + sys.argv[6] + '.jpg')
 
-				categories, props = getCategories(yoloResult, True)
+		subprocess.call(['ffmpeg', '-loglevel', 'quiet', '-i', videoPath + '/' + afilename[0] + '.mp4', '-vf', 'select=eq(n\,' + str(int(afilename[1])) + ')', '-vframes', '1', 'temp' + sys.argv[5] + sys.argv[6] + '.jpg'])
+		if os.path.exists('temp' + sys.argv[5] + sys.argv[6] + '.jpg'):
+			yoloResult = dn.detect(net, meta, 'temp' + sys.argv[5] + sys.argv[6] + '.jpg')
 
-				if len(categories) > 0:
+			categories, props = getCategories(yoloResult, True)
 
-					count = 0
-					f= open(csvName,'w+')
-					for category in categories:
-						if count > 0:
-							f.write(',')
-						f.write(str(names.index(str(category))) + ',' + str(props[category]))
-						count += 1
-		except:
-			sys.stdout.write(' error: ' + fullpath + "\n")
+			if len(categories) > 0:
+
+				count = 0
+				try:
+					with open(csvName,'w+') as f:
+						for category in categories:
+							if count > 0:
+								f.write(',')
+							f.write(str(names.index(str(category))) + ',' + str(props[category]))
+							count += 1
+				except:
+					sys.stdout.write(' error: ' + fullpath + "\n")
+					sys.stdout.write(' error: ' + csvName + "\n")
+					sys.stdout.wirte(sys.exc_info()[0] +  "\n")
+				else:
+					f.close()
 
 def fileLines2Array(filename):
 	with open(filename) as f:
@@ -118,10 +123,14 @@ walk = walkRootFilename(sys.argv[1], True)
 
 counter = 0
 for root, filename in walk:
-	printFile(root, filename, sys.argv[2], sys.argv[3])
+	if counter > int(sys.argv[4]):
+		if counter % int(sys.argv[5]) == int(sys.argv[6]):
+			printFile(root, filename, sys.argv[2], sys.argv[3])
 
 	counter += 1
 
 	sys.stderr.write("\r{0}".format(counter))
+	sys.stdout.flush()
+	sys.stderr.flush()
 
 sys.stdout.write("\ndone\n")
