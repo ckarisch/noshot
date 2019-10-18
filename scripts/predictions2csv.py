@@ -42,31 +42,39 @@ def printFile(root, filename, videoPath, classificationPath):
 	fullpath = os.path.join(root, filename)
 	afilename = filename.split("_")
 
+
+	if os.path.exists(classificationPath + '/' + afilename[0]) == False:
+		os.mkdir(classificationPath + '/' + afilename[0])
+
+
+	csvName = classificationPath + '/' + afilename[0] + '/' + '_'.join(afilename[:2]) + '_cnn_googleyolo.csv'
+	if os.path.exists(csvName):
+		return
+
 	if afilename[2] == 'key.jpg':
 		#sys.stdout.write(' ' + fullpath + "\n")
+		try:
 
-		if os.path.exists("temp.jpg"):
-			os.remove("temp.jpg")
+			if os.path.exists("temp.jpg"):
+				os.remove("temp.jpg")
 
-		subprocess.call(['ffmpeg', '-loglevel', 'quiet', '-i', videoPath + '/' + afilename[0] + '.mp4', '-vf', 'select=eq(n\,' + str(int(afilename[1])) + ')', '-vframes', '1', 'temp.jpg'])
-		yoloResult = dn.detect(net, meta, "temp.jpg")
+			subprocess.call(['ffmpeg', '-loglevel', 'quiet', '-i', videoPath + '/' + afilename[0] + '.mp4', '-vf', 'select=eq(n\,' + str(int(afilename[1])) + ')', '-vframes', '1', 'temp.jpg'])
+			if os.path.exists("temp.jpg"):
+				yoloResult = dn.detect(net, meta, "temp.jpg")
 
-		categories, props = getCategories(yoloResult, True)
+				categories, props = getCategories(yoloResult, True)
 
-		if len(categories) > 0:
-			if os.path.exists(classificationPath + '/' + afilename[0]) == False:
-				os.mkdir(classificationPath + '/' + afilename[0])
+				if len(categories) > 0:
 
-			count = 0
-			csvName = classificationPath + '/' + afilename[0] + '/' + '_'.join(afilename[:2]) + '_cnn_googleyolo.csv'
-			if os.path.exists(csvName):
-				os.remove(csvName)
-			f= open(csvName,'w+')
-			for category in categories:
-				if count > 0:
-					f.write(',')
-				f.write(str(names.index(str(category))) + ',' + str(props[category]))
-				count += 1
+					count = 0
+					f= open(csvName,'w+')
+					for category in categories:
+						if count > 0:
+							f.write(',')
+						f.write(str(names.index(str(category))) + ',' + str(props[category]))
+						count += 1
+		except:
+			sys.stdout.write(' error: ' + fullpath + "\n")
 
 def fileLines2Array(filename):
 	with open(filename) as f:

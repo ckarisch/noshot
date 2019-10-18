@@ -2,5 +2,5 @@ node_modules/
 keyframes
 
 scripts/*.pyc
-scripts/temp.jpg
-scripts/*.weights
+scripts/temp*.jpg
+scripts/cfg/*.weights
