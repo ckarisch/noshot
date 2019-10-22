@@ -2,7 +2,7 @@
 # keyframeFolder: contains subfolders which contain highkey.jpg files
 # outputFolder: contains subfolders which contain .csv files
 #
-# example: python ./predictions2csv.py ~/diveXplore/data/keyframes ~/diveXplore/data/classifications
+# example: python ./predictions2csv_highkey.py ~/diveXplore/data/keyframes ~/diveXplore/data/classifications
 
 import sys, os
 
@@ -12,7 +12,7 @@ import os
 import subprocess
 
 dn.set_gpu(0)
-net = dn.load_net('cfg/yolov3.cfg', 'yolov3.weights', 0)
+net = dn.load_net('cfg/yolov3.cfg', 'cfg/yolov3.weights', 0)
 meta = dn.load_meta("cfg/coco.data")
 
 def getCategories(yoloResult, best):
@@ -49,8 +49,8 @@ def printFile(root, filename, classificationPath):
 		return
 
 	if afilename[2] == 'highkey.jpg':
-		try
-			yoloResult = dn.detect(net, meta, filename)
+		try:
+			yoloResult = dn.detect(net, meta, fullpath)
 
 			categories, props = getCategories(yoloResult, True)
 
