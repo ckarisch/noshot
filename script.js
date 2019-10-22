@@ -14,9 +14,9 @@ var searchStorage = {
   },
   fetchWorkspaces: function () {
     var w = JSON.parse(localStorage.getItem(STORAGE_KEY+"_workspaces") || '[]');
-    if (!w || !w.length) {
-      w = [{id: 'default', name: 'Workspace 0'}];
-    }
+    // if (!w || !w.length) {
+    //   w = [{id: 'default', name: 'Workspace 0'}];
+    // }
     return w;
   },
   save: function (searches) {
@@ -39,6 +39,8 @@ var app = new Vue({
     editedSearch: null,
     visibility: 'default',
     activeWorkspace: undefined,
+    selectedNetwork: 'cnn_googleyolo',
+    nets: ['cnn_googlenet', 'cnn_googleyolo', 'cnn_inception100', 'cnn_places', 'cnn_alexnet'],
 
     loading: false,
     post: null,
@@ -120,7 +122,8 @@ var app = new Vue({
         workspace: this.visibility,
         minimized: false,
         maximized: false,
-        images: []
+        images: [],
+        selectedNetwork: this.nets[0]
       }
       this.searches.push(s);
 
@@ -175,13 +178,13 @@ var app = new Vue({
       }
 
       this.workspaces.splice(this.workspaces.indexOf(workspace), 1);
-      this.visibility = 'default';
+      // this.visibility = 'default';
     },
 
     fetchSolrSearch: function (search) {
       this.error = this.post = null
       this.loading = true
-      let net = "cnn_googlenet"
+      let net = search.selectedNetwork;
 
       getFromSolr(net, search.title, (err, docs) => {
         this.loading = false
@@ -233,7 +236,7 @@ var app = new Vue({
 // handle routing
 function onHashChange () {
   var visibility = window.location.hash.replace(/#\/?/, '')
-  app.visibility = 'default'
+  // app.visibility = 'default'
 
   for(var w of app.workspaces)
   {
@@ -243,14 +246,14 @@ function onHashChange () {
       app.activeWorkspace = w;
     }
   }
-  if( app.visibility == 'default') {
-    window.location.hash = ''
-  }
+  // if( app.visibility == 'default') {
+  //   window.location.hash = ''
+  // }
 }
 
 function getFromSolr(net, category, callback) {
   const Http = new XMLHttpRequest();
-  const url='http://localhost:3000/category/' + category;
+  const url='http://' + location.hostname + ':3000/search/' + net + '/' + category;
 
   Http.open("GET", url);
   Http.send();

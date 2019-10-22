@@ -25,10 +25,10 @@
 
 
       </div>
-      <input class="new-search" autofocus autocomplete="off" placeholder="enter new search" v-model="newSearch" @keyup.enter="addSearch">
+      <input v-if="typeof activeWorkspace !== 'undefined'" class="new-search" autofocus autocomplete="off" placeholder="enter new search" v-model="newSearch" @keyup.enter="addSearch">
 
     </header>
-    <section class="main" v-show="searches.length" v-cloak>
+    <section v-if="typeof activeWorkspace !== 'undefined'" class="main" v-show="searches.length" v-cloak>
       <ul class="dive-layout searches minimized">
         <li v-for="search in filteredSearchesMinimized" class="search searchContainer" :key="search.id" :class="{ marked: search.marked, editing: search == editedSearch, minimized: search.minimized, maximized: search.maximized }">
           <div class="view">
@@ -51,7 +51,10 @@
               <button class="destroy" @click="removeSearch(search)"></button>
             </div>
             <div class="searchNavigation">
-              <input placeholder="Suchbegriff" v-model="search.title" @change="fetchSolrSearch(search)" />
+              <input placeholder="Suchbegriff" v-model="search.title" @keyup="fetchSolrSearch(search)" />
+              <select v-model="search.selectedNetwork" @change="fetchSolrSearch(search)">
+                <option v-for="net in nets">{{ net }}</option>
+              </select>
               <div class="radiobuttons">
                 <label class="radiobutton">
                   <input type="radio" v-model="search.frames" :name="search.id" :checked="search.frames" value="1">

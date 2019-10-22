@@ -15,7 +15,7 @@ import os
 import subprocess
 
 dn.set_gpu(0)
-net = dn.load_net('cfg/yolov3.cfg', 'yolov3.weights', 0)
+net = dn.load_net('cfg/yolov3.cfg', 'cfg/yolov3.weights', 0)
 meta = dn.load_meta("cfg/coco.data")
 
 def getCategories(yoloResult, best):

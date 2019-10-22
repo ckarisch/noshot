@@ -12,10 +12,11 @@ app.use(function(req, res, next) {
   next();
 });
 
-app.get('/category/:category?', function userIdHandler(req, res) {
+app.get('/search/:net/:category', function userIdHandler(req, res) {
   res.statusCode = 200;
   res.setHeader('Content-Type', 'application/json');
 
+  let net = req.params.net;
   let category = req.params.category;
   if(category !== typeof(undefined))
   {
@@ -26,7 +27,6 @@ app.get('/category/:category?', function userIdHandler(req, res) {
     console.log(category);
 
     category = escape('(' + category + ')');
-    const net = "cnn_googlenet";
     const path = util.format('/solr/core1/select?q=categoryName%3A%s%20AND%20net%3A%s&rows=%i&sort=probability%20desc', category, net, 100);
 
     http.get({
