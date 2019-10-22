@@ -3,8 +3,9 @@
 # videosFolder: contains .mp4 files
 # outputFolder: contains subfolders which contain .csv files
 #
+# example: ./predictions2csv.py ~/diveXplore/data/keyframes /media/christoph/Data/videos ~/diveXplore/data/classifications
 # example: python ./predictions2csv_p.py ~/diveXplore/data/keyframes /media/christoph/Data/videos ~/diveXplore/data/classifications 0 16 0
-
+# example: python ./predictions2csv.py ~/keyframes ~/videos ~/test-classifications 0
 
 import sys, os
 #sys.path.append(os.path.join(os.getcwd(),'python/'))
