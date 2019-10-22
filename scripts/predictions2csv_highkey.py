@@ -2,7 +2,8 @@
 # keyframeFolder: contains subfolders which contain highkey.jpg files
 # outputFolder: contains subfolders which contain .csv files
 #
-# example: python ./predictions2csv_highkey.py ~/diveXplore/data/keyframes ~/diveXplore/data/classifications
+# example: python ./predictions2csv_highkey.py skipRoot ~/diveXplore/data/keyframes ~/diveXplore/data/classifications
+# example: python ./predictions2csv_highkey.py includeRoot ~/diveXplore/data/keyframes/00001 ~/diveXplore/data/classifications
 
 import sys, os
 
@@ -100,11 +101,16 @@ names = fileLines2Array('data/coco.names')
 
 
 sys.stdout.write("analyze images\n")
-walk = walkRootFilename(sys.argv[1], True)
+skipRoot = False;
+type = sys.argv[1];
+if(type == "skipRoot"):
+	skipRoot = True;
+
+walk = walkRootFilename(sys.argv[2], skipRoot)
 
 counter = 0
 for root, filename in walk:
-	printFile(root, filename, sys.argv[2])
+	printFile(root, filename, sys.argv[3])
 
 	counter += 1
 
