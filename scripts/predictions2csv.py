@@ -15,8 +15,8 @@ import os
 import subprocess
 
 dn.set_gpu(0)
-net = dn.load_net('cfg/yolov3.cfg', 'cfg/yolov3.weights', 0)
-meta = dn.load_meta("cfg/coco.data")
+net = dn.load_net(bytes('cfg/yolov3.cfg', encoding="utf-8"), bytes('cfg/yolov3.weights', encoding="utf-8"), 0)
+meta = dn.load_meta(bytes("cfg/coco.data", encoding="utf-8"))
 
 def getCategories(yoloResult, best):
 	categories = {}
@@ -60,7 +60,7 @@ def printFile(root, filename, videoPath, classificationPath):
 
 			subprocess.call(['ffmpeg', '-loglevel', 'quiet', '-i', videoPath + '/' + afilename[0] + '.mp4', '-vf', 'select=eq(n\,' + str(int(afilename[1])) + ')', '-vframes', '1', 'temp.jpg'])
 			if os.path.exists("temp.jpg"):
-				yoloResult = dn.detect(net, meta, "temp.jpg")
+				yoloResult = dn.detect(net, meta, bytes("temp.jpg", encoding="utf-8"))
 
 				categories, props = getCategories(yoloResult, True)
 

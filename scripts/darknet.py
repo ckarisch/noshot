@@ -151,4 +151,4 @@ if __name__ == "__main__":
     net = load_net("cfg/yolov3.cfg", "yolov3.weights", 0)
     meta = load_meta("cfg/coco.data")
     r = detect(net, meta, "data/dog.jpg")
-    print r
+    print(r)

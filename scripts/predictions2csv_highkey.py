@@ -13,8 +13,8 @@ import os
 import subprocess
 
 dn.set_gpu(0)
-net = dn.load_net('cfg/yolov3.cfg', 'cfg/yolov3.weights', 0)
-meta = dn.load_meta("cfg/coco.data")
+net = dn.load_net(bytes('cfg/yolov3.cfg', encoding="utf-8"), bytes('cfg/yolov3.weights', encoding="utf-8"), 0)
+meta = dn.load_meta(bytes("cfg/coco.data", encoding="utf-8"))
 
 def getCategories(yoloResult, best):
 	categories = {}
@@ -51,7 +51,7 @@ def printFile(root, filename, classificationPath):
 
 	if afilename[2] == 'highkey.jpg':
 		try:
-			yoloResult = dn.detect(net, meta, fullpath)
+			yoloResult = dn.detect(net, meta, bytes(fullpath, encoding="utf-8"))
 
 			categories, props = getCategories(yoloResult, True)
 
