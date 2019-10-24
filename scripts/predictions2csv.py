@@ -71,7 +71,7 @@ def printFile(root, filename, videoPath, classificationPath):
 					for category in categories:
 						if count > 0:
 							f.write(',')
-						f.write(str(names.index(str(category))) + ',' + str(props[category]))
+						f.write(str(names.index(str(category, 'utf-8'))) + ',' + str(props[category]))
 						count += 1
 		except:
 			sys.stdout.write(' error: ' + fullpath + "\n")

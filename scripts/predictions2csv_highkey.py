@@ -50,22 +50,19 @@ def printFile(root, filename, classificationPath):
 		return
 
 	if afilename[2] == 'highkey.jpg':
-		try:
-			yoloResult = dn.detect(net, meta, bytes(fullpath, encoding="utf-8"))
+		yoloResult = dn.detect(net, meta, bytes(fullpath, encoding="utf-8"))
 
-			categories, props = getCategories(yoloResult, True)
+		categories, props = getCategories(yoloResult, True)
 
-			if len(categories) > 0:
+		if len(categories) > 0:
 
-				count = 0
-				f= open(csvName,'w+')
-				for category in categories:
-					if count > 0:
-						f.write(',')
-					f.write(str(names.index(str(category))) + ',' + str(props[category]))
-					count += 1
-		except:
-			sys.stdout.write(' error: ' + fullpath + "\n")
+			count = 0
+			f= open(csvName,'w+')
+			for category in categories:
+				if count > 0:
+					f.write(',')
+				f.write(str(names.index(str(category, 'utf-8'))) + ',' + str(props[category]))
+				count += 1
 
 def fileLines2Array(filename):
 	with open(filename) as f:
