@@ -2,8 +2,8 @@
 # keyframeFolder: contains subfolders which contain highkey.jpg files
 # outputFolder: contains subfolders which contain .csv files
 #
-# example: python ./predictions2csv_highkey.py skipRoot ~/diveXplore/data/keyframes ~/diveXplore/data/classifications
-# example: python ./predictions2csv_highkey.py includeRoot ~/diveXplore/data/keyframes/00001 ~/diveXplore/data/classifications
+# example: python3 ./predictions2csv_highkey.py skipRoot ~/diveXplore/data/keyframes ~/diveXplore/data/classifications
+# example: python3 ./predictions2csv_highkey.py includeRoot ~/diveXplore/data/keyframes/00001 ~/diveXplore/data/classifications
 
 import sys, os
 
@@ -11,6 +11,7 @@ import darknet as dn
 import pdb
 import os
 import subprocess
+from pprint import pprint
 
 dn.set_gpu(0)
 net = dn.load_net(bytes('cfg/yolov3.cfg', encoding="utf-8"), bytes('cfg/yolov3.weights', encoding="utf-8"), 0)
@@ -19,6 +20,7 @@ meta = dn.load_meta(bytes("cfg/coco.data", encoding="utf-8"))
 def getCategories(yoloResult, best):
 	categories = {}
 	props = {}
+	boundingBoxes = {}
 	for category in yoloResult:
 		if category[0] in categories:
 			categories[category[0]] = categories[category[0]] + 1
@@ -26,14 +28,18 @@ def getCategories(yoloResult, best):
 			if best:
 				if props[category[0]] < category[1]:
 					props[category[0]] = category[1]
+					boundingBoxes[category[0]] = category[2]
+
 			else:
 				if props[category[0]] > category[1]:
 					props[category[0]] = category[1]
+					boundingBoxes[category[0]] = category[2]
 		else:
 			categories[category[0]] = 1
 			props[category[0]] = category[1]
+			boundingBoxes[category[0]] = category[2]
 
-	return [categories, props]
+	return [categories, props, boundingBoxes]
 
 
 def printFile(root, filename, classificationPath):
@@ -52,16 +58,20 @@ def printFile(root, filename, classificationPath):
 	if afilename[2] == 'highkey.jpg':
 		yoloResult = dn.detect(net, meta, bytes(fullpath, encoding="utf-8"))
 
-		categories, props = getCategories(yoloResult, True)
+		categories, props, boundingBoxes = getCategories(yoloResult, True)
 
 		if len(categories) > 0:
 
 			count = 0
 			f= open(csvName,'w+')
+			f.write(str(len(categories)) + ',')
 			for category in categories:
-				if count > 0:
-					f.write(',')
-				f.write(str(names.index(str(category, 'utf-8'))) + ',' + str(props[category]))
+				# cat id, count, probability, boundingBox of best match (when more than 1 objects of same type are found)
+				f.write(str(names.index(str(category, 'utf-8'))) + ',' + str(categories[category]) + ',' + str(props[category]))
+
+				for b in boundingBoxes[category]:
+					# b = x,y,w,h
+					f.write(',' + str(b))
 				count += 1
 
 def fileLines2Array(filename):
@@ -107,7 +117,8 @@ walk = walkRootFilename(sys.argv[2], skipRoot)
 
 counter = 0
 for root, filename in walk:
-	printFile(root, filename, sys.argv[3])
+	if(counter >= 27):
+		printFile(root, filename, sys.argv[3])
 
 	counter += 1
 
