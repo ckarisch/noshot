@@ -21,11 +21,11 @@ def floatformat(string):
 def line2tupel(line):
 	temp = []
 	parts = line.split(",")
-	for category, probability in zip( parts[0::2], map(floatformat, parts[1::2]) ):
-		temp.append([category, probability])
+	del parts[0]
 
-        # sort by second value (probability) with sorted
-        # only return best x concepts
+	for i in range(int(len(parts) / 7)):
+		temp.append([parts[i*7], parts[i*7+1], parts[i*7+2], parts[i*7+3], parts[i*7+4], parts[i*7+5], parts[i*7+6]])
+
 	return sorted(temp, key=lambda tup: tup[1])[:numBestProbabilities]
 
 def file2json(filename):
@@ -52,16 +52,15 @@ def printFile(root, filename, synsets):
 	classes = file2json(fullpath)
 
 	for entry in classes:
-
-                sys.stdout.write('"add": { "doc": {')
-                sys.stdout.write('"nodeType": "keyframe", ')
-                #sys.stdout.write('"video": {0}, "keyframe": {1}, "net": "{2}"'.format(int(afilename[0]), int(afilename[1]), netName))
-                #sys.stdout.write(', "{0}":{1}'.format(netName, jsonStr))
-                sys.stdout.write('"video": {0}, "keyframe": {1}, "net": "{2}"'.format(int(afilename[0]), int(afilename[1]), netName))
-                #sys.stdout.write(', {0}'.format(jsonStr[1:-1]))
-                sys.stdout.write(', "category": {0}, "probability": {1}'.format(entry[0], entry[1]))
-                sys.stdout.write(', "categoryName": "{0}"'.format(synsets[netName][int(entry[0])]))
-                sys.stdout.write('}}')
+        sys.stdout.write('"add": { "doc": {')
+        sys.stdout.write('"nodeType": {0}, '.format(int(1)))
+        sys.stdout.write('"startSecond": {0}, "endSecond": {1}, '.format(int(afilename[1]), int(afilename[1])))
+        sys.stdout.write('"video": {0}, "second": {1}, "net": "{2}", '.format(int(afilename[0]), int(afilename[1]), netName))
+        sys.stdout.write('"count": {0}'.format(entry[1]))
+        sys.stdout.write(', "category": {0}, "probability": {1}'.format(entry[0], entry[2]))
+        sys.stdout.write(', "boundingBox": [{0}, {1}, {2}, {3}]'.format(entry[3], entry[4], entry[5], entry[6]))
+        sys.stdout.write(', "categoryName": "{0}"'.format(synsets[netName][int(entry[0])]))
+        sys.stdout.write('}}')
 
 def walkRootFilename(directory, skipRoot):
 	walk = os.walk(directory)
@@ -93,7 +92,7 @@ for root, filename in synsetWalk:
 
 
 sys.stdout.write("{")
-sys.stdout.write('"delete": {"query": "nodeType:keyframe"}')
+sys.stdout.write('"delete": {"query": "*:*"}')
 
 walk = walkRootFilename(sys.argv[1], True)
 
