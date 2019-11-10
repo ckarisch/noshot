@@ -23,7 +23,9 @@ def line2tupel(line):
 	parts = line.split(",")
 	del parts[0]
 
-	for i in range(int(len(parts) / 7)):
+	# 2Do BUG WORKAROUND
+	#for i in range(int(len(parts) / 7)):
+	for i in range(1):
 		temp.append([parts[i*7], parts[i*7+1], parts[i*7+2], parts[i*7+3], parts[i*7+4], parts[i*7+5], parts[i*7+6]])
 
 	return sorted(temp, key=lambda tup: tup[1])[:numBestProbabilities]
