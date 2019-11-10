@@ -66,6 +66,9 @@ def printFile(root, filename, classificationPath):
 			f= open(csvName,'w+')
 			f.write(str(len(categories)) + ',')
 			for category in categories:
+				#2Do: second and following are failing..
+				# pprint(category)
+
 				# cat id, count, probability, boundingBox of best match (when more than 1 objects of same type are found)
 				f.write(str(names.index(str(category, 'utf-8'))) + ',' + str(categories[category]) + ',' + str(props[category]))
 
