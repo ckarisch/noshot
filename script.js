@@ -216,8 +216,8 @@ var app = new Vue({
           return s;
     },
     keyframeSrc: function (img, index) {
-      let keyframe = img.keyframe; //Math.max(parseInt(img.keyframe) + parseInt(index * 80), 0);
-      return 'keyframes/' + this.pad(img.video, 5) + '/' + this.pad(img.video, 5) + '_' + this.pad(keyframe, 7) + '_key.jpg';
+      let second = img.second; //Math.max(parseInt(img.keyframe) + parseInt(index * 80), 0);
+      return 'keyframes/' + this.pad(img.video, 5) + '/' + this.pad(img.video, 5) + '_' + this.pad(second + '_key.jpg';
     }
   },
 
