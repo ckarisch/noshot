@@ -173,7 +173,6 @@ function generateDemoData(client, res) {
      if(err){
         console.log(err);
      }else{
-        console.log('Solr response:', obj);
         client.commit();
         return res.json("done");
      }
@@ -182,12 +181,12 @@ function generateDemoData(client, res) {
 
 app.get('/update', async function userIdHandler(req, res) {
   res.statusCode = 200;
-  //res.setHeader('Content-Type', 'application/json');
-
-  client.autoCommit = true;
+  res.setHeader('Content-Type', 'application/json');
 
   deleteOldCache(client);
-  //return generateDemoData(client, res);
+
+  // uncomment if you want to delet all data and generate demo data
+  // return generateDemoData(client, res);
 
   let cacheSize = 10;
 
@@ -197,7 +196,6 @@ app.get('/update', async function userIdHandler(req, res) {
   let data = [];
   let datacounter = 0;
 
-  // console.log("videos: " + videos);
   for (let video = 1; video <= videos; video++) {
     for (let category = 0; category <= categories; category++) {
       let bestKeyframe = await getBestKeyframe(client, video, 1, seconds, category);
@@ -217,14 +215,13 @@ app.get('/update', async function userIdHandler(req, res) {
     }
   }
 
-  console.log(data);
-
-  client.add(data,function(err3,obj3){
-    if(err3){
-     console.log(err3);
+  client.add(data,function(err,obj){
+    if(err){
+     console.log(err);
     }else{
-      console.log("resp:")
+      console.log("uploaded data")
       client.commit();
+      console.log("data commit")
       res.json("done: " + data.length + " Objects cached.");
     }
 
