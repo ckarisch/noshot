@@ -188,18 +188,31 @@ app.get('/update', async function userIdHandler(req, res) {
   deleteOldCache(client);
   // return generateDemoData(client, res);
 
+  let cacheSize = 10;
 
-  let videos = (await getLimit(client, 'video')).video;
-  let categories = (await getLimit(client, 'category')).category;
+  let videos = (await getLimit(client, 'video')).video; // highest video number
+  let categories = (await getLimit(client, 'category')).category; // highest category number
+  let seconds = (await getLimit(client, 'second')).second; // longest video
   let data = [];
   let datacounter = 0;
 
   // console.log("videos: " + videos);
   for (let video = 1; video <= videos; video++) {
     for (let category = 0; category <= categories; category++) {
-      let bestKeyframe = await getBestKeyframe(client, video, 1, 10, category);
+      let bestKeyframe = await getBestKeyframe(client, video, 1, seconds, category);
       if(bestKeyframe)
-        data.push(bestKeyframe);
+      {
+        // if this video has any entry in this category
+
+        for (let second = 1; second <= seconds; second += cacheSize) {
+          // check every group of seconds from 1 to seconds
+
+          let bestKeyframe = await getBestKeyframe(client, video, second, second + cacheSize - 1, category);
+
+          if(bestKeyframe) // update cache array
+            data.push(bestKeyframe);
+        }
+      }
     }
   }
 
