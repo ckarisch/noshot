@@ -22,12 +22,13 @@ app.use(function(req, res, next) {
   next();
 });
 
-app.get('/search/:net/:category', function userIdHandler(req, res) {
+app.get('/search/:net/:category/:cache', function userIdHandler(req, res) {
   res.statusCode = 200;
   res.setHeader('Content-Type', 'application/json');
 
   let net = req.params.net;
   let category = req.params.category;
+  let cache = req.params.cache;
   if(category !== typeof(undefined))
   {
     category = category.replace(/ *, */g, "OR");
@@ -37,7 +38,7 @@ app.get('/search/:net/:category', function userIdHandler(req, res) {
     console.log(category);
 
     category = escape('(' + category + ')');
-    const path = util.format('/solr/core1/select?q=categoryName%3A%s%20AND%20net%3A%s&rows=%i&sort=probability%20desc', category, net, 100);
+    const path = util.format('/solr/core1/select?q=categoryName%3A%s%20AND%20net%3A%s%20AND%20nodeType%3A%s&rows=%i&sort=probability%20desc', category, net, cache, 100);
 
     http.get({
       hostname: 'localhost',
@@ -164,7 +165,7 @@ function generateDemoData(client, res) {
   for (category in categories) {
     for (let v = 1; v< 10; v++){
       for (let i = 1; i< 30; i++){
-        data.push({ nodeType : 1, probability: (i%10)/10, startSecond: i, endSecond: i, video: v, second: i, net: 'google_yolo', count: 1, category: categories[category], categoryName: category });
+        data.push({ nodeType : 1, probability: (i%10)/10, startSecond: i, endSecond: i, video: v, second: i, net: 'cnn_googleyolo', count: 1, category: categories[category], categoryName: category });
       }
     }
   }
@@ -186,7 +187,7 @@ app.get('/update', async function userIdHandler(req, res) {
   client.autoCommit = true;
 
   deleteOldCache(client);
-  // return generateDemoData(client, res);
+  //return generateDemoData(client, res);
 
   let cacheSize = 10;
 

@@ -55,6 +55,9 @@
               <select v-model="search.selectedNetwork" @change="fetchSolrSearch(search)">
                 <option v-for="net in nets">{{ net }}</option>
               </select>
+              <select v-model="search.selectedCache" @change="fetchSolrSearch(search)">
+                <option v-for="cache in caches">{{ cache }}</option>
+              </select>
               <div class="radiobuttons">
                 <label class="radiobutton">
                   <input type="radio" v-model="search.frames" :name="search.id" :checked="search.frames" value="1">

@@ -41,7 +41,7 @@ var app = new Vue({
     activeWorkspace: undefined,
     selectedNetwork: 'cnn_googleyolo',
     nets: ['cnn_googlenet', 'cnn_googleyolo', 'cnn_inception100', 'cnn_places', 'cnn_alexnet'],
-
+    caches: [1, 10],
     loading: false,
     post: null,
     error: null
@@ -122,6 +122,7 @@ var app = new Vue({
         workspace: this.visibility,
         minimized: false,
         maximized: false,
+        cache: 1,
         images: [],
         selectedNetwork: this.nets[0]
       }
@@ -185,8 +186,9 @@ var app = new Vue({
       this.error = this.post = null
       this.loading = true
       let net = search.selectedNetwork;
+      let cache = search.selectedCache;
 
-      getFromSolr(net, search.title, (err, docs) => {
+      getFromSolr(net, search.title, cache, (err, docs) => {
         this.loading = false
         if (err) {
           this.error = err.toString()
@@ -251,9 +253,9 @@ function onHashChange () {
   // }
 }
 
-function getFromSolr(net, category, callback) {
+function getFromSolr(net, category, cache, callback) {
   const Http = new XMLHttpRequest();
-  const url='http://' + location.hostname + ':3000/search/' + net + '/' + category;
+  const url='http://' + location.hostname + ':3000/search/' + net + '/' + category + '/' + cache;
 
   Http.open("GET", url);
   Http.send();
