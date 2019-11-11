@@ -64,13 +64,13 @@ def printFile(root, filename, classificationPath):
 
 			count = 0
 			f= open(csvName,'w+')
-			f.write(str(len(categories)) + ',')
+			f.write(str(len(categories)))
 			for category in categories:
 				#2Do: second and following are failing..
 				# pprint(category)
 
 				# cat id, count, probability, boundingBox of best match (when more than 1 objects of same type are found)
-				f.write(str(names.index(str(category, 'utf-8'))) + ',' + str(categories[category]) + ',' + str(props[category]))
+				f.write(',' + str(names.index(str(category, 'utf-8'))) + ',' + str(categories[category]) + ',' + str(props[category]))
 
 				for b in boundingBoxes[category]:
 					# b = x,y,w,h
@@ -120,8 +120,7 @@ walk = walkRootFilename(sys.argv[2], skipRoot)
 
 counter = 0
 for root, filename in walk:
-	if(counter >= 27):
-		printFile(root, filename, sys.argv[3])
+	printFile(root, filename, sys.argv[3])
 
 	counter += 1
 
