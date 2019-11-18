@@ -57,8 +57,8 @@ def printFile(root, filename, classificationPath):
 
 	if afilename[2] == 'highkey.jpg':
 		# dn.detect(net, meta, image, thresh=.5, hier_thresh=.5, nms=.45)
-		yoloResult = dn.detect(net, meta, bytes(fullpath, encoding="utf-8"), .1) # thresh=.1 for yolo9000
-
+		yoloResult = dn.detect(net, meta, bytes(fullpath, encoding="utf-8"), .1, .2) # thresh=.1 for yolo9000
+		pprint(yoloResult)
 		categories, props, boundingBoxes = getCategories(yoloResult, True)
 
 		if len(categories) > 0:
@@ -69,9 +69,10 @@ def printFile(root, filename, classificationPath):
 			for category in categories:
 				#2Do: second and following are failing..
 				# pprint(category)
+				index = names.index(str(category, 'utf-8'))
 
-				# cat id, count, probability, boundingBox of best match (when more than 1 objects of same type are found)
-				f.write(',' + str(names.index(str(category, 'utf-8'))) + ',' + str(categories[category]) + ',' + str(props[category]))
+				# parent id, cat id, count, probability, boundingBox of best match (when more than 1 objects of same type are found)
+				f.write(',' + str(tree[index][1]) + ',' + str(index) + ',' + str(categories[category]) + ',' + str(props[category]))
 
 				for b in boundingBoxes[category]:
 					# b = x,y,w,h
@@ -86,6 +87,20 @@ def fileLines2Array(filename):
 		while line:
 			#print("Line {}: {}".format(cnt, line.strip()))
 			temp.append(line.strip())
+			line = f.readline()
+			cnt += 1
+		return temp
+
+
+
+def fileTree2Array(filename):
+	with open(filename) as f:
+		line = f.readline().rstrip("\n")
+		cnt = 1
+		temp = []
+		while line:
+			lineArray = line.strip().split(" ") # [categoryName, parentId]
+			temp.append([lineArray[0], int(lineArray[1])])
 			line = f.readline()
 			cnt += 1
 		return temp
@@ -106,6 +121,9 @@ sys.stdout.write("starting\n")
 sys.stdout.write("load synset\n")
 
 names = fileLines2Array('data/9k.names')
+# labels = fileLines2Array('data/9k.labels')
+tree = fileTree2Array('data/9k.tree')
+
 
 # end create synset array
 
