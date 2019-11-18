@@ -38,7 +38,7 @@ app.get('/search/:net/:category/:cache', function userIdHandler(req, res) {
     console.log(category);
 
     category = escape('(' + category + ')');
-    const path = util.format('/solr/core1/select?q=categoryName%3A%s%20AND%20net%3A%s%20AND%20nodeType%3A%s&rows=%i&sort=probability%20desc', category, net, cache, 100);
+    const path = util.format('/solr/core1/select?q=categoryName%3A%s%20AND%20net%3A%s%20AND%20nodeType%3A%s&rows=%i&sort=probability%20desc', category, net, cache, 1000);
 
     http.get({
       hostname: 'localhost',
@@ -213,21 +213,32 @@ app.get('/update', async function userIdHandler(req, res) {
         }
       }
     }
+
+
+    client.add(data,function(err,obj){
+      if(err){
+       console.log(err);
+      }else{
+        // console.log("uploaded data")
+        client.commit();
+        // console.log("data commit")
+      }
+
+    });
+
+    datacounter += data.length;
+    console.log("commited: " + data.length);
+    console.log("total: " + datacounter + "\n");
+
+    data = [];
   }
 
-  client.add(data,function(err,obj){
-    if(err){
-     console.log(err);
-    }else{
-      console.log("uploaded data")
-      client.commit();
-      console.log("data commit")
-      res.json("done: " + data.length + " Objects cached.");
-    }
+  res.json("done: " + data.length + " Objects cached.");
 
-  });
 
 });
 
 
-app.listen(port);
+let server = app.listen(port);
+
+server.timeout = 1000 * 1000;

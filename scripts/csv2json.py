@@ -54,15 +54,15 @@ def printFile(root, filename, synsets):
 	classes = file2json(fullpath)
 
 	for entry in classes:
-        sys.stdout.write('"add": { "doc": {')
-        sys.stdout.write('"nodeType": {0}, '.format(int(1)))
-        sys.stdout.write('"startSecond": {0}, "endSecond": {1}, '.format(int(afilename[1]), int(afilename[1])))
-        sys.stdout.write('"video": {0}, "second": {1}, "net": "{2}", '.format(int(afilename[0]), int(afilename[1]), netName))
-        sys.stdout.write('"count": {0}'.format(entry[1]))
-        sys.stdout.write(', "category": {0}, "probability": {1}'.format(entry[0], entry[2]))
-        sys.stdout.write(', "boundingBox": [{0}, {1}, {2}, {3}]'.format(entry[3], entry[4], entry[5], entry[6]))
-        sys.stdout.write(', "categoryName": "{0}"'.format(synsets[netName][int(entry[0])]))
-        sys.stdout.write('}}')
+		sys.stdout.write('"add": { "doc": {')
+		sys.stdout.write('"nodeType": {0}, '.format(int(1)))
+		sys.stdout.write('"startSecond": {0}, "endSecond": {1}, '.format(int(afilename[1]), int(afilename[1])))
+		sys.stdout.write('"video": {0}, "second": {1}, "net": "{2}", '.format(int(afilename[0]), int(afilename[1]), netName))
+		sys.stdout.write('"count": {0}'.format(entry[1]))
+		sys.stdout.write(', "category": {0}, "probability": {1}'.format(entry[0], entry[2]))
+		sys.stdout.write(', "boundingBox": [{0}, {1}, {2}, {3}]'.format(entry[3], entry[4], entry[5], entry[6]))
+		sys.stdout.write(', "categoryName": "{0}"'.format(synsets[netName][int(entry[0])]))
+		sys.stdout.write('}}')
 
 def walkRootFilename(directory, skipRoot):
 	walk = os.walk(directory)
