@@ -58,7 +58,7 @@ def printFile(root, filename, classificationPath):
 	if afilename[2] == 'highkey.jpg':
 		# dn.detect(net, meta, image, thresh=.5, hier_thresh=.5, nms=.45)
 		yoloResult = dn.detect(net, meta, bytes(fullpath, encoding="utf-8"), .1, .2) # thresh=.1 for yolo9000
-		pprint(yoloResult)
+		
 		categories, props, boundingBoxes = getCategories(yoloResult, True)
 
 		if len(categories) > 0:
