@@ -2,7 +2,7 @@
 
 <head>
   <link rel="stylesheet" type="text/css" href="css/style.css" />
-  <script src="https://cdn.jsdelivr.net/npm/vue/dist/vue.js"></script>
+  <script src="https://cdn.jsdelivr.net/npm/vue@2.6.0"></script>
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
 </head>
 
@@ -77,6 +77,8 @@
                   <img :alt="keyframeSrc(img, 0)" :src="keyframeSrc(img, 0)" />
                   <img class="preview"  v-if="!search.frames" :alt="keyframeSrc(img, 1)" :src="keyframeSrc(img, 1)" />
                 </div>
+
+                <image-component v-for="img in search.images"></image-component>
               </div>
             </div>
           </div>
@@ -91,6 +93,6 @@
     </footer>
   </section>
 </body>
-<script src="script.js"></script>
+<script src="app.js"></script>
 
 </html>
