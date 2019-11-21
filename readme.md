@@ -11,3 +11,5 @@ cd cfg
 wget https://github.com/philipperemy/yolo-9000/raw/master/yolo9000-weights/xaa
 wget https://github.com/philipperemy/yolo-9000/raw/master/yolo9000-weights/xab
 cat yolo9000-weights/x* > yolo9000-weights/yolo9000.weights
+rm xaa
+rm xab
