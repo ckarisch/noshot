@@ -1,0 +1,309 @@
+/* style.scss */
+@charset "utf-8";
+
+
+$header-height: 8rem;
+$footer-height: 3rem;
+$minimized-height: 2.5rem;
+$layout-padding: 1rem;
+
+
+@import '../import/encode';
+@import '../import/icons';
+@import '../import/radio-buttons';
+@import '../import/vue';
+
+
+
+body {
+  margin: 0 auto;
+  font-family: sans-serif;
+  overflow-y: scroll;
+}
+
+header {
+  flex-wrap: wrap;
+  background: #eee;
+  height: 8em;
+  font-size: #{$header-height / 8};
+  display: flex;
+  align-items: center;
+  white-space: nowrap;
+  width: 100%;
+  position: fixed;
+  top: 0;
+}
+
+.tabs {
+  /* width: calc(100% - 50px); */
+  padding: 1em;
+  /* height: 2em; */
+}
+
+.tabs ul {
+  display: flex;
+  margin: 0;
+  padding: 0;
+  flex-wrap: wrap;
+}
+
+.tabs li {
+  user-select: none;
+  display: block;
+  border: 0.1em solid #000;
+  border-radius: 1em;
+  margin-right: -2px;
+  overflow: hidden;
+  position: relative;
+  height: 2em;
+  margin-right: 0.4em;
+  font-size: inherit;
+  box-sizing: border-box;
+}
+
+li.tab.selected a {
+  background: #aaa;
+  color: #fff;
+}
+
+.tabs li.tab input {
+  height: 1.8em;
+  display: block;
+  /* margin: -0.2em; */
+  padding: .5em 1em;
+  box-sizing: border-box;
+  font-size: inherit;
+  border: navajowhite;
+}
+
+.tabs li a {
+  width: auto;
+  color: #444;
+  text-decoration: none;
+  text-transform: uppercase;
+  letter-spacing: .05em;
+  padding: 0.5em 1.2em;
+  display: block;
+  padding-right: 1.5em;
+  height: 1.8em;
+  line-height: 0.87;
+  box-sizing: border-box;
+  min-width: 3.6em;
+}
+
+.green {
+  background: #dfecdf;
+}
+.red {
+  background: #ecdfdf;
+}
+
+.resultContainer {
+  display: flex;
+  flex-wrap: wrap;
+  /* padding: 5px; */
+  /* justify-content: space-between; */
+  overflow-y: scroll;
+  height: calc(100% - 4rem);
+  /* width: 100%; */
+  scrollbar-width: 20px;
+  /* flex-direction: column; */
+  /* align-items: flex-start; */
+  scrollbar-width: thick;
+}
+
+.searchContainer {
+  display: block;
+  width: 500px;
+  padding: 20px;
+  box-shadow: 0 0 10px rgba(0, 0, 0, .2);
+  margin-right: $layout-padding;
+  min-width: 450px;
+  order: 1;
+}
+
+
+.searches.minimized {
+
+  margin: 0;
+  height: $minimized-height;
+  margin-bottom: $layout-padding;
+
+  > li {
+      height: 100%;
+      padding: 0;
+      width: 220px;
+      min-width: 150px;
+      order: 0;
+  }
+
+  > .view  { height: 100%; }
+
+  > .view > .searchNavigation {
+      height: 100%;
+      padding: .5rem;
+      padding-right: 4rem;
+  }
+  > .view > .searchNavigation > input {
+      width: 100%;
+      height: 100%;
+  }
+
+  > .view > .searchNavigation > .radiobuttons {
+    display: none;
+  }
+
+  > .view > .menu {
+    top: 50%;
+    right: .5rem;
+    transform: translate3d(0, -50%, 0);
+  }
+}
+
+.search.maximized {
+  z-index: 1;
+  position: absolute;
+  left: 0;
+  top: 0;
+  width: 100%;
+  background: #fff;
+}
+
+.resultContainer>div>div {
+  display: flex;
+  align-items: center;
+  /* width: 25%; */
+  justify-content: center;
+  overflow: hidden;
+  height: auto;
+}
+
+.resultContainer.showFrames>div>div {
+  width: 25%;
+}
+
+.search.maximized .resultContainer.showFrames>div>div {
+  width: auto;
+}
+
+.resultContainer img {
+  width: 100px;
+  height: 100px;
+  padding: 5px;
+  position: relative;
+  display: block;
+}
+
+.resultContainer img.preview {
+  width: 80px;
+  height: 80px;
+}
+
+.resultContainer:not(.showFrames) img:before {
+  background: #eee;
+  width: 200%;
+  height: 100%;
+  content: "";
+  display: block;
+  position: absolute;
+  top: 50%;
+  left: 50%;
+}
+
+.resultContainer:not(.showFrames) {
+  flex-direction: column;
+  justify-content: flex-start;
+  align-items: center;
+}
+
+.searchNavigation {
+  box-sizing: border-box;
+  padding: 10px 5px;
+  padding-bottom: 20px;
+  display: flex;
+  align-items: center;
+  height: 4rem;
+}
+
+.searches {
+  display: flex;
+  padding: 0;
+  justify-content: flex-start;
+  align-items: flex-start;
+}
+
+input {
+  padding: 5px 8px;
+}
+
+.radiobuttons {
+  display: flex;
+  /* padding: 20px 0; */
+  font-size: 2rem;
+  margin-left: 0.5em;
+}
+
+label.radiobutton {
+  /* padding-right: 15px; */
+  font-family: sans-serif;
+  letter-spacing: .05em;
+}
+
+header>input, header>label {
+  margin: 0 3rem;
+}
+
+.menu {
+  position: absolute;
+  right: 0;
+  display: flex;
+  justify-content: flex-end;
+  top: 0;
+}
+
+.menu > button {
+  text-indent: -3000px;
+  background-size: 75%;
+  background-position: center;
+  background-repeat: no-repeat;
+  width: 1.4em;
+  height: 1.4em;
+  display: block;
+  position: relative;
+  cursor: pointer;
+}
+
+.menu button.destroy {
+  background-image: url("https://www.formundzeichen.at/res/img/x.php?sw=3&t=r");
+}
+.menu button.minimize {
+  background-image: inline-svg('<svg xmlns="http://www.w3.org/2000/svg"><line stroke-linecap="round" x1="2" x2="20" y1="15" y2="15" style="stroke:#000;stroke-width:2" /></svg>');
+  background-size: contain;
+  background-position: center;
+  display: block;
+}
+
+.searches:not(.minimized) .view > .menu { padding: .5em; }
+
+.tab button.destroy {
+    /* right:  .2em; */
+    /* background-size: 0.8em; */
+    height: 1em;
+    width: 1em;
+}
+
+.tab .menu {
+    top: 50%;
+    transform: translate3d(0,-50%,0);
+    right: 0.3em;
+    height: 1em;
+}
+
+div.menu>label, div.menu>button {
+  margin-left: 0;
+}
+
+span.label {
+  text-transform: uppercase;
+  letter-spacing: .03em;
+}
