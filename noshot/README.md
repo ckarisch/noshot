@@ -3,7 +3,6 @@
 
 ## Project setup
 ```
-npm install -D sass-loader sass
 npm install
 ```
 
