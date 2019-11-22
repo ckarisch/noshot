@@ -59,13 +59,11 @@
                     </div>
                     <div :class="{ showFrames: search.frames, resultContainer: true }">
                         <div>
-                            <div v-for="img in search.images" v-bind:key="img.video + img.second">
+                            <div v-for="img in search.images" v-bind:key="img.video + '_' + img.second">
                                 <img class="preview" v-if="!search.frames" :alt="keyframeSrc(img, -1)" :src="keyframeSrc(img, -1)" />
                                 <img :alt="keyframeSrc(img, 0)" :src="keyframeSrc(img, 0)" />
                                 <img class="preview" v-if="!search.frames" :alt="keyframeSrc(img, 1)" :src="keyframeSrc(img, 1)" />
                             </div>
-
-                            <image-component v-for="img in search.images" v-bind:key="img.video + img.second"></image-component>
                         </div>
                     </div>
                 </div>
@@ -208,7 +206,7 @@ export default {
                 workspace: this.visibility,
                 minimized: false,
                 maximized: false,
-                cache: 1,
+                selectedCache: 1,
                 images: [],
                 selectedNetwork: this.nets[0]
             }
@@ -304,7 +302,7 @@ export default {
         },
         keyframeSrc: function(img) {
             let second = img.second; //Math.max(parseInt(img.keyframe) + parseInt(index * 80), 0);
-            return '../keyframes/' + this.pad(img.video, 5) + '/' + this.pad(img.video, 5) + '_' + second + '_key.jpg';
+            return 'http://localhost:80/keyframes/' + this.pad(img.video, 5) + '/' + this.pad(img.video, 5) + '_' + second + '_key.jpg';
         },
 
         // handle routing
