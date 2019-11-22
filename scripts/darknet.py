@@ -44,7 +44,7 @@ class METADATA(Structure):
 
 
 
-lib = CDLL("libdarknet.so", RTLD_GLOBAL)
+lib = CDLL("./libdarknet_cuda.so", RTLD_GLOBAL)
 #lib = CDLL("libdarknet.so", RTLD_GLOBAL)
 lib.network_width.argtypes = [c_void_p]
 lib.network_width.restype = c_int
@@ -148,7 +148,7 @@ if __name__ == "__main__":
     #meta = load_meta("cfg/imagenet1k.data")
     #r = classify(net, meta, im)
     #print r[:10]
-    net = load_net("cfg/yolov3.cfg", "yolov3.weights", 0)
-    meta = load_meta("cfg/coco.data")
-    r = detect(net, meta, "data/dog.jpg")
+    net = load_net(bytes("cfg/yolov3.cfg", encoding="utf-8"), bytes("cfg/yolov3.weights", encoding="utf-8"), 0)
+    meta = load_meta(bytes("cfg/coco.data", encoding="utf-8"))
+    r = detect(net, meta, "temp.jpg")
     print(r)
