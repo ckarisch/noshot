@@ -9,6 +9,7 @@
 # example: ./csv2json.py ~/diveXplore/data/classifications ~/diveXplore/concepts > /tmp/test.json
 
 import sys, os, json
+from pprint import pprint
 
 # only store best x concepts of each net for each keyframe
 numBestProbabilities = 5
@@ -24,9 +25,9 @@ def line2tupel(line):
 	del parts[0]
 
 	# 2Do BUG WORKAROUND
-	#for i in range(int(len(parts) / 7)):
-	for i in range(1):
-		temp.append([parts[i*7], parts[i*7+1], parts[i*7+2], parts[i*7+3], parts[i*7+4], parts[i*7+5], parts[i*7+6]])
+	for i in range(int(len(parts) / 8)):
+	#for i in range(1):
+		temp.append([parts[i*8], parts[i*8+1], parts[i*8+2], parts[i*8+3], parts[i*8+4], parts[i*8+5], parts[i*8+6], parts[i*8+7]])
 
 	return sorted(temp, key=lambda tup: tup[1])[:numBestProbabilities]
 
@@ -53,14 +54,15 @@ def printFile(root, filename, synsets):
 	netName = "_".join(afilename[2:]).split(".")[0]
 	classes = file2json(fullpath)
 
+
 	for entry in classes:
 		sys.stdout.write('"add": { "doc": {')
 		sys.stdout.write('"nodeType": {0}, '.format(int(1)))
 		sys.stdout.write('"startSecond": {0}, "endSecond": {1}, '.format(int(afilename[1]), int(afilename[1])))
 		sys.stdout.write('"video": {0}, "second": {1}, "net": "{2}", '.format(int(afilename[0]), int(afilename[1]), netName))
-		sys.stdout.write('"count": {0}'.format(entry[1]))
-		sys.stdout.write(', "category": {0}, "probability": {1}'.format(entry[0], entry[2]))
-		sys.stdout.write(', "boundingBox": [{0}, {1}, {2}, {3}]'.format(entry[3], entry[4], entry[5], entry[6]))
+		sys.stdout.write('"count": {0}'.format(entry[2]))
+		sys.stdout.write(', "parentCategory": {0}, "category": {1}, "probability": {2}'.format(entry[0], entry[1], entry[3]))
+		sys.stdout.write(', "boundingBox": [{0}, {1}, {2}, {3}]'.format(entry[4], entry[5], entry[6], entry[7]))
 		sys.stdout.write(', "categoryName": "{0}"'.format(synsets[netName][int(entry[0])]))
 		sys.stdout.write('}}')
 
