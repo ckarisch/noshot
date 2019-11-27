@@ -60,10 +60,10 @@
                     <div :class="{ showFrames: search.frames, resultContainer: true }">
                         <div>
                             <div v-for="img in search.images" v-bind:key="img.video + '_' + img.second">
-                                <img class="preview" v-if="!search.frames" :alt="keyframeSrc(img, -1)" :src="keyframeSrc(img, -1)" />
-                                <img :alt="keyframeSrc(img, 0)" :src="keyframeSrc(img, 0)" />
-                                <img class="preview" v-if="!search.frames" :alt="keyframeSrc(img, 1)" :src="keyframeSrc(img, 1)" />
+                                <NoshotImage :search="search" :img="img"/>
                             </div>
+
+
                         </div>
                     </div>
                 </div>
@@ -80,6 +80,8 @@
 </template>
 
 <script>
+import NoshotImage from './NoshotImage.vue'
+
 // localStorage persistence
 var STORAGE_KEY = 'DIVE-layout'
 var searchStorage = {
@@ -108,6 +110,9 @@ var searchStorage = {
 
 export default {
     name: 'SearchTool',
+    components: {
+      NoshotImage
+    },
     props: {
         msg: String
     },
@@ -122,7 +127,7 @@ export default {
             visibility: 'default',
             activeWorkspace: undefined,
             selectedNetwork: 'cnn_googleyolo',
-            nets: ['cnn_googleyolo'],
+            nets: ['cnn_yolo'],
             caches: [1, 10],
             loading: false,
             post: null,
@@ -294,15 +299,6 @@ export default {
                 // for(c in categories)
                 //   console.log(c);
             }
-        },
-        pad: function(num, size) {
-            var s = num + "";
-            while (s.length < size) s = "0" + s;
-            return s;
-        },
-        keyframeSrc: function(img) {
-            let second = img.second; //Math.max(parseInt(img.keyframe) + parseInt(index * 80), 0);
-            return 'http://localhost:80/keyframes/' + this.pad(img.video, 5) + '/' + this.pad(img.video, 5) + '_' + second + '_key.jpg';
         },
 
         // handle routing
