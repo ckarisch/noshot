@@ -30,7 +30,7 @@ export default {
 
     methods: {
       keyframeSrc: function(img) {
-          let second = img.second; //Math.max(parseInt(img.keyframe) + parseInt(index * 80), 0);
+          let second = img.second;
           return 'http://localhost:80/keyframes/' + this.pad(img.video, 5) + '/' + this.pad(img.video, 5) + '_' + second + '_key.jpg';
       },
       pad: function(num, size) {
