@@ -114,7 +114,6 @@ li.tab.selected a {
 
 .searchContainer {
   display: block;
-  width: 500px;
   padding: 20px;
   box-shadow: 0 0 10px rgba(0, 0, 0, .2);
   margin-right: $layout-padding;
@@ -169,17 +168,37 @@ li.tab.selected a {
   background: #fff;
 }
 
-.resultContainer>div>div {
-  display: flex;
-  align-items: center;
-  /* width: 25%; */
-  justify-content: center;
-  overflow: hidden;
-  height: auto;
-}
+.resultContainer {
 
-.resultContainer.showFrames>div>div {
-  width: 25%;
+   >div {
+    > div {
+      display: flex;
+      align-items: center;
+      width: 100px;
+      height: 100px;
+      justify-content: center;
+      overflow: hidden;
+      border: 5px solid #fff;
+      > div {
+        height: 100%;
+      }
+    }
+
+    > div:hover {
+        position: relative;
+        overflow: visible;
+        img {
+          position: absolute;
+          height: 100%;
+          transform: translate3d(-50%, 0, 0);
+          border: 5px solid #fff;
+          box-sizing: border-box;
+          border-bottom-width: 0;
+          border-top-width: 0;
+          z-index: 1;
+        }
+      }
+  }
 }
 
 .search.maximized .resultContainer.showFrames>div>div {
@@ -187,9 +206,8 @@ li.tab.selected a {
 }
 
 .resultContainer img {
-  width: 100px;
-  height: 100px;
-  padding: 5px;
+  width: auto;
+  height: 100%;
   position: relative;
   display: block;
 }
@@ -228,7 +246,7 @@ li.tab.selected a {
 .searches {
   display: flex;
   padding: 0;
-  justify-content: flex-start;
+  justify-content: stretch;
   align-items: flex-start;
 }
 
