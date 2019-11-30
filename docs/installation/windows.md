@@ -60,4 +60,4 @@ Make sure [http://localhost/keyframes](http://localhost/keyframes) is accessible
 ## Setup Project
 
 Navigate to [server](../../server/) folder, run `npm install` and `npm start`.
-Navigate to [noshot src](../../noshot/src) folder, run `npm install` and `vue serve` or `npm start`.
+Navigate to [noshot src](../../noshot) folder, run `npm install` and `vue serve` or `npm start`.
