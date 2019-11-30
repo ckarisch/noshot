@@ -18,6 +18,7 @@
   },
   "homepage": "https://github.com/ckarisch/DIVE-layout#readme",
   "dependencies": {
+    "express": "^4.17.1",
     "solr-client": "^0.7.1"
   }
 }
