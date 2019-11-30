@@ -47,6 +47,16 @@ npm install -g @vue/cli
 npm install -g @vue/cli-service-global
 ```
 
+## Serving Keyframes
+
+Keyframes are hosted via a local Apache2 server. Either extract the keyframes directly into the server's `htdocs` folder or create a symlink to the extracted keyframes the name `keyframes` to this location in your Apache htdocs folder, i.e.:
+
+```
+mklink /D path/to/apache2/htdocs/keyframes path/to/extracted/keyframes
+```
+
+Make sure [http://localhost/keyframes](http://localhost/keyframes) is accessible by Apache2.
+
 ## Setup Project
 
 Navigate to [server](../../server/) folder, run `npm install` and `npm start`.
