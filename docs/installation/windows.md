@@ -1,6 +1,6 @@
 ### Windows Installation
 
-## Installing and configurint Solr
+## Installing and configuring Solr
 
 Get [Chocolatey](https://chocolatey.org/docs/installation#more-install-options), open command prompt with elevated priviledges and install solr via:
 
@@ -60,7 +60,8 @@ Make sure [http://localhost/keyframes](http://localhost/keyframes) is accessible
 ## Setup Project
 
 Navigate to [server](../../server/) folder, run `npm install` and `npm start`.
-Navigate to [noshot](../../noshot) folder, run `npm install` and `vue serve` or `npm start`.
+Navigate to [noshot](../../noshot) folder, run `npm install`.
+Navigate to [src](../../noshot/src) and run `vue serve` or `npm run serve`.
 
 ## Errors
 
