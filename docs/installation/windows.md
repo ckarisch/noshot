@@ -1,4 +1,4 @@
-### Windows Installation
+# Windows Installation
 
 ## Installing and configuring Solr
 
