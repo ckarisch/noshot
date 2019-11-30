@@ -61,3 +61,12 @@ Make sure [http://localhost/keyframes](http://localhost/keyframes) is accessible
 
 Navigate to [server](../../server/) folder, run `npm install` and `npm start`.
 Navigate to [noshot src](../../noshot) folder, run `npm install` and `vue serve` or `npm start`.
+
+## Errors
+
+Fsevents:
+```
+npm WARN optional SKIPPING OPTIONAL DEPENDENCY: fsevents@1.2.9 (node_modules\fsevents):
+npm WARN notsup SKIPPING OPTIONAL DEPENDENCY: Unsupported platform for fsevents@1.2.9: wanted {"os":"darwin","arch":"any"} (current: {"os":"win32","arch":"x64"})
+```
+Run `npm i -f`.
