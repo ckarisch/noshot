@@ -31,7 +31,7 @@ export default {
     methods: {
       keyframeSrc: function(img) {
           let second = img.second;
-          return 'http://localhost:80/keyframes/' + this.pad(img.video, 5) + '/' + this.pad(img.video, 5) + '_' + second + '_key.jpg';
+          return 'http://' + location.hostname + ':80/keyframes/' + this.pad(img.video, 5) + '/' + this.pad(img.video, 5) + '_' + second + '_key.jpg';
       },
       pad: function(num, size) {
           var s = num + "";
