@@ -43,8 +43,7 @@ Importing may take some time. Test if everything worked using the `Query` Button
 Install [Node.js](https://nodejs.org/), open command prompt with elevated priviledges and install Vue.js CLI via:
 
 ```
-npm install -g @vue/cli
-npm install -g @vue/cli-service-global
+npm install -g @vue/cli @vue/cli-service-global
 ```
 
 ## Serving Keyframes
