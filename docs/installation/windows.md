@@ -19,7 +19,7 @@ Waiting up to 30 to see Solr running on port 8983
 Started Solr server on port 8983. Happy searching!
 ```
 
-Make sure `[install_dir]` is writable (i.e. right click folder and un-check `Read-only`, apply for all subfolders). Copy [core1](../../appdata/solr/core1) folder to `[install_dir]\server\solr`.
+Make sure `[install_dir]` is writable by user `solr` (i.e. right click folder and un-check `Read-only`, apply for all subfolders). Copy [core1](../../appdata/solr/core1) folder to `[install_dir]\server\solr`.
 
 Open [http://localhost:8983/solr/](http://localhost:8983/solr/). Create a new core using `Core Admin` using following config:
 
