@@ -4,6 +4,7 @@ var app = express();
 var util = require('util');
 var querystring = require('querystring');
 var fs = require('fs');
+const url = require('url');
 
 var solr = require('solr-client');
 var client = solr.createClient({
@@ -15,6 +16,22 @@ var client = solr.createClient({
 
 const hostname = '127.0.0.1';
 const port = 3000;
+const treefileName = '9k.tree';
+const namesfileName = '9k.names';
+
+const categoryNames = parseNamesFile(namesfileName);
+const categoryTree = parseTreeFile(treefileName);
+const categoryIdTree = categoryTree.map(a => a[1]); // only ids
+
+String.prototype.replaceArray = function(find, replace) {
+  var replaceString = this;
+  var regex;
+  for (var i = 0; i < find.length; i++) {
+    regex = new RegExp(find[i], "g");
+    replaceString = replaceString.replace(regex, replace[i]);
+  }
+  return replaceString;
+};
 
 app.use(function(req, res, next) {
   res.header("Access-Control-Allow-Origin", "*");
@@ -31,19 +48,52 @@ app.get('/search/:net/:category/:cache', function userIdHandler(req, res) {
   let cache = req.params.cache;
   if(category !== typeof(undefined))
   {
-    category = category.replace(/ *, */g, "OR");
-    category = category.replace(/ +/g, " AND ");
-    category = category.replace(/OR/g, " OR ");
-    category = category.replace(/((([\w\(\)\*]+) AND )+([\w\(\)\*]+))/g, "\($1\)");
-    console.log(category);
-
+    // category = category.replace(/ *, */g, "OR");
+    // category = category.replace(/ +/g, " AND ");
+    // category = category.replace(/OR/g, " OR ");
+    // category = category.replace(/((([\w\(\)\*]+) AND )+([\w\(\)\*]+))/g, "\($1\)");
+    // console.log(category);
+    //
     category = escape('(' + category + ')');
-    const path = util.format('/solr/core1/select?q=categoryName%3A%s%20AND%20net%3A%s%20AND%20nodeType%3A%s&rows=%i&sort=probability%20desc', category, net, cache, 1000);
+    // const path = util.format('/solr/core1/select?q=categoryName%3A%s%20AND%20net%3A%s%20AND%20nodeType%3A%s&rows=%i&sort=probability%20desc', category, net, cache, 1000);
+
+
+
+    categoryId = searchStringInArray(categoryNames, category) // search category and get id;
+    let children = [];
+    if (categoryId.length > 0)
+      children = getChildren(categoryId[0]); // get childs
+
+    // add searched category
+    children.push(categoryId[0]);
+    const solrGetUrl = new url.URL('http://' + hostname + ':8983/solr/core1/select');
+
+    let categoryString = '';
+    for (let c of children) {
+      if (categoryString != '')
+        categoryString += ' OR ';
+      categoryString += c;
+    }
+
+    const queryItems = [['categoryName', category], ['net', net], ['nodeType', cache]];
+    // const queryItems = [['category', '(' + categoryString + ')'], ['net', net], ['nodeType', cache]];
+    let q = '';
+    for (let e of queryItems) {
+      if (q != '')
+        q += ' AND ';
+      q += e[0] + ':' + e[1];
+    }
+    q = q.replaceArray([' ', ':'], ['+', '%3A']);
+
+    // const params = util.format('&rows=%i&sort=probability%20desc&group=true&group.field=video&group.main=true', 1000);
+    const params = util.format('&rows=%i&sort=probability%20desc', 1000);
+
+    console.log('/solr/core1/select?q=' + q + params);
 
     http.get({
       hostname: 'localhost',
       port: 8983,
-      path: path,
+      path: '/solr/core1/select?q=' + q + params,
       agent: false // Create a new agent just for this one request
     }, (resp) => {
       let data = '';
@@ -72,6 +122,43 @@ app.get('/search/:net/:category/:cache', function userIdHandler(req, res) {
 
 });
 
+function searchStringInArray(array, search){
+  return array.map(s => s == search ? array.indexOf(s): null).filter(element => element !== null);
+}
+
+
+function getChildren(id) {
+
+  // get direct child categories
+  childCategories = categoryTree.map(c => c[1] == id ? categoryTree.indexOf(c) : null).filter(e => e !== null);
+  // console.log(childCategories);
+
+  if(childCategories.length == 0)
+    return childCategories;
+
+  let children = childCategories;
+
+  for (c of childCategories) {
+    children = children.concat(getChildren(c));
+  }
+  return children;
+
+}
+
+function parseNamesFile(namesfileName) {
+  const namesString = fs.readFileSync(namesfileName, 'utf8');
+  const names = namesString.split('\n');
+  return names;
+}
+
+function parseTreeFile(treefileName) {
+  const treestring = fs.readFileSync(treefileName, 'utf8');
+  const stringArray = treestring.split('\n');
+  const tree = stringArray.map(line => [line.split(' ')[0], parseInt(line.split(' ')[1])]);
+  // tree = array[[<categoryName>, <parentId>], ...]
+
+  return tree;
+}
 
 function deleteOldCache(client) {
   var query = 'nodeType:10';
