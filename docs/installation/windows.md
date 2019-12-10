@@ -8,7 +8,7 @@ Get [Chocolatey](https://chocolatey.org/docs/installation#more-install-options),
 choco install solr
 ```
 
-Start Server in unpriviledged command prompt (default `[install_dir]=C:\tools\solr-8.3.0\bin`):
+Start Server in unprivileged command prompt (default `[install_dir]=C:\tools\solr-8.3.0\bin`):
 
 ```
 [install_dir]\bin\solr.cmd start
