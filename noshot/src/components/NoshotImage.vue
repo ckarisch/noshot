@@ -1,7 +1,7 @@
 <template>
   <div>
       <img class="preview" v-if="!search.frames" :alt="keyframeSrc(img, -1)" :src="keyframeSrc(img, -1)" />
-      <img :alt="keyframeSrc(img, 0)" :src="keyframeSrc(img, 0)" />
+      <img v-on:click="click" :alt="keyframeSrc(img, 0)" :src="keyframeSrc(img, 0)" />
       <img class="preview" v-if="!search.frames" :alt="keyframeSrc(img, 1)" :src="keyframeSrc(img, 1)" />
 
   </div>
@@ -9,7 +9,7 @@
 
 <script>
 
-import submissionMixin from '../mixins/submission/submission.js'
+import submission from '../mixins/submission/submission.js'
 
 export default {
     name: 'NoshotImage',
@@ -21,7 +21,7 @@ export default {
         return {
         };
     },
-    mixins: [submissionMixin],
+    mixins: [submission],
 
     watch: {
     },
@@ -43,6 +43,13 @@ export default {
           while (s.length < size) s = "0" + s;
           return s;
       },
+      click: function(event) {
+        let imgUrl = event.target.src;
+        let vInfo = this.utils.videoInfoFromUrl(imgUrl);
+        if (Object.keys(vInfo).length > 0) this.submit(vInfo.video, vInfo.frame);
+        // window.log(event);
+        // window.log("click!!");
+      }
     },
 
     // a custom directive to wait for the DOM to be updated

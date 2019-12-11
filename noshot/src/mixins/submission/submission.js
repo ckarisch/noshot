@@ -1,4 +1,4 @@
-var submissionMixin = {
+var submission = {
   created: function() {
     // window.log(this.getSubmissionURL());
   },
@@ -22,14 +22,16 @@ var submissionMixin = {
       url += "&video=" + video;
       url += "&frame=" + frame;
 
+      window.log(`Submission: ${url}`);
       fetch(url, {
           method: "POST"
         })
-        .then(response => {
-          window.log(response);
-        });
+        .then(
+          response => window.log(response),
+          rejected => window.log(rejected)
+        );
 
     }
   }
 };
-export default submissionMixin;
+export default submission;

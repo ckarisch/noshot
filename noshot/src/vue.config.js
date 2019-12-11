@@ -2,6 +2,10 @@
 module.exports = {
   devServer: {
     host: 'localhost',
-    disableHostCheck: true
+    disableHostCheck: true,
+    watchOptions: {
+      aggregateTimeout: 300,
+      poll: 1000
+    }
   }
 }

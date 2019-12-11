@@ -21,8 +21,16 @@ const utilFuncs = {
       let file = caller.substring(caller.lastIndexOf("/") + 1, caller.length - 1);
       if (caller != null) callerString += file + ": ";
       callerString = utilFuncs.padding_right(callerString, " ", 30);
-      // eslint-disable-next-line no-console
-      console.log(callerString + msg);
+      if (typeof msg === 'object') {
+        // eslint-disable-next-line no-console
+        console.log(callerString);
+        // eslint-disable-next-line no-console
+        console.log(msg);
+      }
+      else {
+        // eslint-disable-next-line no-console
+        console.log(callerString + msg);
+      }
     },
     updateJSONRecursive: function(jsonPart, updatePart) {
       if (Object.keys(jsonPart).length === 0) return;
@@ -37,6 +45,13 @@ const utilFuncs = {
           jsonPart[key] = updatePart[key];
         }
       }
+    },
+    videoInfoFromUrl: function(url, dataLocation = window.appCfg.dataServer.keyframesLocation) {
+      let parts = url.split(dataLocation);
+      if (parts.length < 1) return {};
+      let video = parts[1].split("/")[1];
+      let frame = parts[1].split("/")[2].split("_")[1];
+      return {video: video, frame: frame};
     }
 };
 
