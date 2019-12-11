@@ -13,15 +13,8 @@ fetch('./config/local.json', {
   .then(r => r.json()).then(json => {
     // override keys set in local cfg
     updateJSONRecursive(window.appCfg, json);
-    // set updated cfg for all vue components as a global mixin
-    // https://stackoverflow.com/questions/40896261/apply-global-variable-to-vuejs
-    Vue.mixin({
-      data: function () {
-        return  {
-          appCfg: window.appCfg
-        }
-      }
-    });
+    // launch app
+    initApp();
   }, json => {
     // not found / unexpected error
     let msg = `Local config: ${json}`;
@@ -45,8 +38,21 @@ function updateJSONRecursive(jsonPart, updatePart) {
   }
 }
 
-Vue.config.productionTip = false
+// creates VUE app
+function initApp() {
+  // set updated cfg for all vue components as a global mixin
+  // https://stackoverflow.com/questions/40896261/apply-global-variable-to-vuejs
+  Vue.mixin({
+    data: function () {
+      return  {
+        appCfg: window.appCfg
+      }
+    }
+  });
+  
+  Vue.config.productionTip = false
 
-new Vue({
-  render: h => h(App)
-}).$mount('#app')
+  new Vue({
+    render: h => h(App)
+  }).$mount('#app')
+}
