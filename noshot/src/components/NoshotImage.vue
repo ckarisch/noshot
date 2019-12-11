@@ -9,6 +9,8 @@
 
 <script>
 
+import submissionMixin from '../mixins/submission/submission.js'
+
 export default {
     name: 'NoshotImage',
     props: {
@@ -19,6 +21,7 @@ export default {
         return {
         };
     },
+    mixins: [submissionMixin],
 
     watch: {
     },

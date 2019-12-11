@@ -135,7 +135,6 @@ export default {
         };
     },
 
-
     // watch searches change for localStorage persistence
     watch: {
         searches: {
