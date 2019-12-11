@@ -63,7 +63,7 @@ def printFile(root, filename, synsets):
 		sys.stdout.write('"count": {0}'.format(entry[2]))
 		sys.stdout.write(', "parentCategory": {0}, "category": {1}, "probability": {2}'.format(entry[0], entry[1], entry[3]))
 		sys.stdout.write(', "boundingBox": [{0}, {1}, {2}, {3}]'.format(entry[4], entry[5], entry[6], entry[7]))
-		sys.stdout.write(', "categoryName": "{0}"'.format(synsets[netName][int(entry[0])]))
+		sys.stdout.write(', "categoryName": "{0}"'.format(synsets[netName][int(entry[1])]))
 		sys.stdout.write('}}')
 
 def walkRootFilename(directory, skipRoot):
