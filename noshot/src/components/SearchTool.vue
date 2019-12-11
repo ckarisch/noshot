@@ -9,7 +9,11 @@
                         <button v-if="w.id != 'default'" class="destroy" @click="removeWorkspace(w)">X</button>
                     </div>
                 </li>
-                <li class="tab new"><input href="#" :class="{green: getTabCheck, red: !getTabCheck}" placeholder="new tab" v-model="newTab" @keyup.enter="addTab" /></li>
+                <li class="tab new">
+                  <input href="#" :class="{green: getTabCheck, red: !getTabCheck}" placeholder="new tab" v-model="newTab" @keyup.enter="addTab" />
+
+                  <button class="newTab" @click="addTabButton">+</button>
+                </li>
             </ul>
         </div>
 
@@ -245,6 +249,24 @@ export default {
             this.visibility = value;
             window.location.hash = "/" + this.visibility;
             this.newTab = '';
+        },
+
+        addTabButton: function() {
+          let name = "Tab";
+          let nameNumber = 1;
+          let nameUsed = true;
+
+          while (nameUsed) {
+            nameUsed = false;
+            for (var w of this.workspaces) {
+                if (w.id.toLowerCase() == (name + nameNumber).toLowerCase()) {
+                    nameUsed = true;
+                    nameNumber++;
+                }
+            }
+          }
+          this.newTab = name + nameNumber;
+          this.addTab();
         },
 
         removeSearch: function(search) {
