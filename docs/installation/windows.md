@@ -8,7 +8,7 @@ Get [Chocolatey](https://chocolatey.org/docs/installation#more-install-options),
 choco install solr
 ```
 
-Start Server in unpriviledged command prompt (default `[install_dir]=C:\tools\solr-8.3.0\bin`):
+Start Server in unprivileged command prompt (default `[install_dir]=C:\tools\solr-8.3.0\bin`):
 
 ```
 [install_dir]\bin\solr.cmd start
@@ -60,7 +60,7 @@ Make sure [http://localhost/keyframes](http://localhost/keyframes) is accessible
 
 Navigate to [server](../../server/) folder, run `npm install` and `npm start`.
 Navigate to [noshot](../../noshot) folder, run `npm install`.
-Navigate to [src](../../noshot/src) and run `vue serve` or `npm run serve`.
+Navigate to [src](../../noshot) and run `npm start` or `npm run serve` (DONT use `vue serve`, since it hides public folder with config files).
 
 ## Errors
 

@@ -1,0 +1,23 @@
+{
+  "dbServer": {
+    "url": "http://localhost",
+    "port": 3000
+  },
+  "vueServer": {
+    "url": "http://localhost",
+    "port": 8080
+  },
+  "vbsServer": {
+    "url": "http://localhost",
+    "port": 3100,
+    "teamName": "ITEC",
+    "teamId": 1,
+    "memberId": 1
+  },
+  "dataServer": {
+    "url": "http://localhost",
+    "port": 80,
+    "keyframesLocation": "keyframes",
+    "videosLocation": "videos"
+  }
+}

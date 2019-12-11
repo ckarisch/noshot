@@ -1,12 +1,15 @@
 <template>
   <div>
       <img class="preview" v-if="!search.frames" :alt="keyframeSrc(img, -1)" :src="keyframeSrc(img, -1)" />
-      <img :alt="keyframeSrc(img, 0)" :src="keyframeSrc(img, 0)" />
+      <img v-on:click="click" :alt="keyframeSrc(img, 0)" :src="keyframeSrc(img, 0)" />
       <img class="preview" v-if="!search.frames" :alt="keyframeSrc(img, 1)" :src="keyframeSrc(img, 1)" />
+
   </div>
 </template>
 
 <script>
+
+import submission from '../mixins/submission/submission.js'
 
 export default {
     name: 'NoshotImage',
@@ -14,10 +17,11 @@ export default {
         img: Object,
         search: Object
     },
-    data: () => {
+    data: function () {
         return {
         };
     },
+    mixins: [submission],
 
     watch: {
     },
@@ -31,13 +35,21 @@ export default {
     methods: {
       keyframeSrc: function(img) {
           let second = img.second;
-          return 'http://' + location.hostname + ':80/keyframes/' + this.pad(img.video, 5) + '/' + this.pad(img.video, 5) + '_' + second + '_key.jpg';
+          // return 'http://localhost:80/keyframes/'+ this.pad(img.video, 5) + '/' + this.pad(img.video, 5) + '_' + second + '_key.jpg';
+          return this.appCfg.dataServer.url + ':' + this.appCfg.dataServer.port + '/' + this.appCfg.dataServer.keyframesLocation + '/' + this.pad(img.video, 5) + '/' + this.pad(img.video, 5) + '_' + second + '_key.jpg';
       },
       pad: function(num, size) {
           var s = num + "";
           while (s.length < size) s = "0" + s;
           return s;
       },
+      click: function(event) {
+        let imgUrl = event.target.src;
+        let vInfo = this.utils.videoInfoFromUrl(imgUrl);
+        if (Object.keys(vInfo).length > 0) this.submit(vInfo.video, vInfo.frame);
+        // window.log(event);
+        // window.log("click!!");
+      }
     },
 
     // a custom directive to wait for the DOM to be updated
