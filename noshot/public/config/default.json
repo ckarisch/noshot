@@ -14,7 +14,9 @@
     "teamId": 1,
     "memberId": 1
   },
-  "data": {
+  "dataServer": {
+    "url": "http://localhost",
+    "port": 80,
     "keyframesLocation": "keyframes",
     "videosLocation": "videos"
   }

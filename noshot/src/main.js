@@ -3,7 +3,7 @@ import App from './App.vue'
 import config from '../public/config/default.json' // default app cfg
 
 // global cfg
-window.appCfg = config
+window.appCfg = config; // cfg (for non VUE components)
 
 // local cfg
 // try getting local cfg ('public' is served under serverurl:port/)
@@ -13,11 +13,20 @@ fetch('./config/local.json', {
   .then(r => r.json()).then(json => {
     // override keys set in local cfg
     updateJSONRecursive(window.appCfg, json);
+    // set updated cfg for all vue components as a global mixin
+    // https://stackoverflow.com/questions/40896261/apply-global-variable-to-vuejs
+    Vue.mixin({
+      data: function () {
+        return  {
+          appCfg: window.appCfg
+        }
+      }
+    });
   }, json => {
     // not found / unexpected error
-    let msg = `Local config: ${json}`
+    let msg = `Local config: ${json}`;
     // eslint-disable-next-line no-console
-    console.log(msg)
+    console.log(msg);
   })
 // updates parts of default cfg according to local cfg
 function updateJSONRecursive(jsonPart, updatePart) {
@@ -27,7 +36,7 @@ function updateJSONRecursive(jsonPart, updatePart) {
     if (typeof updatePart[key] === 'object' &&
       Object.keys(updatePart[key]).length > 0 &&
       Object.keys(jsonPart[key].length > 0)) {
-      updateJSONRecursive(jsonPart[key], updatePart[key])
+      updateJSONRecursive(jsonPart[key], updatePart[key]);
     } else if (jsonPart[key] !== updatePart[key]) {
       // eslint-disable-next-line no-console
       console.log(`[config override] ${key}: ${jsonPart[key]} => ${updatePart[key]}`);
@@ -39,5 +48,5 @@ function updateJSONRecursive(jsonPart, updatePart) {
 Vue.config.productionTip = false
 
 new Vue({
-  render: h => h(App),
+  render: h => h(App)
 }).$mount('#app')

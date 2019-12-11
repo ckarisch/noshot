@@ -3,6 +3,7 @@
       <img class="preview" v-if="!search.frames" :alt="keyframeSrc(img, -1)" :src="keyframeSrc(img, -1)" />
       <img :alt="keyframeSrc(img, 0)" :src="keyframeSrc(img, 0)" />
       <img class="preview" v-if="!search.frames" :alt="keyframeSrc(img, 1)" :src="keyframeSrc(img, 1)" />
+
   </div>
 </template>
 
@@ -14,7 +15,7 @@ export default {
         img: Object,
         search: Object
     },
-    data: () => {
+    data: function () {
         return {
         };
     },
@@ -31,7 +32,8 @@ export default {
     methods: {
       keyframeSrc: function(img) {
           let second = img.second;
-          return 'http://' + location.hostname + ':80/keyframes/' + this.pad(img.video, 5) + '/' + this.pad(img.video, 5) + '_' + second + '_key.jpg';
+          // return 'http://localhost:80/keyframes/'+ this.pad(img.video, 5) + '/' + this.pad(img.video, 5) + '_' + second + '_key.jpg';
+          return this.appCfg.dataServer.url + ':' + this.appCfg.dataServer.port + '/' + this.appCfg.dataServer.keyframesLocation + '/' + this.pad(img.video, 5) + '/' + this.pad(img.video, 5) + '_' + second + '_key.jpg';
       },
       pad: function(num, size) {
           var s = num + "";
