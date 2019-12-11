@@ -69,7 +69,7 @@
                         <div>
                             <div v-for="img in search.images" :key="search.id + '_' + img.video + '_' + img.second" :data="search.id + '_' + img.video + '_' + img.second" :probability="img.probability">
                                 <NoshotImage :search="search" :img="img"/>
-                                <span class="imageDescription">{{img.categoryName[0]}}</span>
+                                <span class="imageDescription"><strong>{{img.categoryName}}</strong> <br/>P: {{img.parentName}} <br/>C: {{img.childs}} <br/> {{Math.round(img.probability * 100) / 100}}</span>
                             </div>
 
 

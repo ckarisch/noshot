@@ -340,12 +340,13 @@ header>input, header>label {
 }
 
 button.newTab {
-    position: absolute;
-    right: 0;
-    top: -0.2rem;
-    height: 1.9rem;
-    width: 2rem;
-    font-size: 2rem;
+  position: absolute;
+  right: 0;
+  top: 50%;
+  height: 1.9rem;
+  width: 2rem;
+  font-size: 1.8rem;
+  transform: translate3d(0, -50%,0);
 }
 
 div.menu>label, div.menu>button {

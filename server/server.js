@@ -86,9 +86,8 @@ app.get('/search/:net/:category/:cache', function userIdHandler(req, res) {
     q = q.replaceArray([' ', ':'], ['+', '%3A']);
 
     // const params = util.format('&rows=%i&sort=probability%20desc&group=true&group.field=video&group.main=true', 1000);
-    const params = util.format('&sort=probability%20desc&rows=%i', 1000);
+    const params = util.format('&sort=probability%20desc&rows=%i', 500);
 
-    // console.log('/solr/core1/select?q=' + q + params);
 
     http.get({
       hostname: 'localhost',
@@ -137,7 +136,27 @@ function filterSolrResponse(docs) {
       return acc;
   }, {}));
 
+  // HOT FIX
+
+  for(let i = 0; i < result.length; i++) {
+    result[i].categoryName = getCategoryName(result[i].category);
+
+    // let children = getChildren(result[i].category)
+    // let childNames = [];
+    // for(let c of children) {
+    //   childNames.push(getCategoryName(c));
+    // }
+    result[i].parentName = getCategoryName(result[i].parentCategory);
+    // result[i].childs = children.length;
+  }
+
+  // END HOT FIX
+
   return result;
+}
+
+function getCategoryName(id) {
+  return categoryNames[id];
 }
 
 
@@ -155,7 +174,7 @@ function getChildren(id) {
   for (c of childCategories) {
     children = children.concat(getChildren(c));
   }
-  return children.slice(0,500);
+  return children.slice(0,1000);
 
 }
 
