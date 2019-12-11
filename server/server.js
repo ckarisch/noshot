@@ -54,7 +54,7 @@ app.get('/search/:net/:category/:cache', function userIdHandler(req, res) {
     // category = category.replace(/((([\w\(\)\*]+) AND )+([\w\(\)\*]+))/g, "\($1\)");
     // console.log(category);
     //
-    category = escape('(' + category + ')');
+    // category = escape('(' + category + ')');
     // const path = util.format('/solr/core1/select?q=categoryName%3A%s%20AND%20net%3A%s%20AND%20nodeType%3A%s&rows=%i&sort=probability%20desc', category, net, cache, 1000);
 
 
@@ -75,8 +75,8 @@ app.get('/search/:net/:category/:cache', function userIdHandler(req, res) {
       categoryString += c;
     }
 
-    const queryItems = [['categoryName', category], ['net', net], ['nodeType', cache]];
-    // const queryItems = [['category', '(' + categoryString + ')'], ['net', net], ['nodeType', cache]];
+    //const queryItems = [['categoryName', category], ['net', net], ['nodeType', cache]];
+    const queryItems = [['category', '(' + categoryString + ')'], ['net', net], ['nodeType', cache]];
     let q = '';
     for (let e of queryItems) {
       if (q != '')
@@ -86,9 +86,9 @@ app.get('/search/:net/:category/:cache', function userIdHandler(req, res) {
     q = q.replaceArray([' ', ':'], ['+', '%3A']);
 
     // const params = util.format('&rows=%i&sort=probability%20desc&group=true&group.field=video&group.main=true', 1000);
-    const params = util.format('&rows=%i&sort=probability%20desc', 1000);
+    const params = util.format('&sort=probability%20desc&rows=%i', 1000);
 
-    console.log('/solr/core1/select?q=' + q + params);
+    // console.log('/solr/core1/select?q=' + q + params);
 
     http.get({
       hostname: 'localhost',
@@ -107,7 +107,7 @@ app.get('/search/:net/:category/:cache', function userIdHandler(req, res) {
       resp.on('end', () => {
         const jdata = JSON.parse(data);
         if(jdata.response && jdata.response.docs)
-          res.json(jdata.response.docs);
+          res.json(filterSolrResponse(jdata.response.docs));
         else
           res.json([]);
       });
@@ -126,6 +126,20 @@ function searchStringInArray(array, search){
   return array.map(s => s == search ? array.indexOf(s): null).filter(element => element !== null);
 }
 
+// remove duplicate keyframes from solr resonse. Entries are identified by id field.
+function filterSolrResponse(docs) {
+  const result = Object.values(docs.reduce( (acc, obj) => {
+      const prev = acc[obj.UserID];
+      const id = obj.video + '_' + obj.second;
+      if (!prev || !acc[id]) {
+          acc[id] = obj;
+      }
+      return acc;
+  }, {}));
+
+  return result;
+}
+
 
 function getChildren(id) {
 
@@ -141,7 +155,7 @@ function getChildren(id) {
   for (c of childCategories) {
     children = children.concat(getChildren(c));
   }
-  return children;
+  return children.slice(0,500);
 
 }
 

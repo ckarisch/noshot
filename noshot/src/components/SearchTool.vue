@@ -32,6 +32,10 @@
         <ul class="dive-layout searches">
             <li v-for="search in filteredSearches" :key="search.id" :class="{ search: true, searchContainer: true, minimized: search.minimized, maximized: search.maximized }">
                 <div class="view">
+                    <div class="menuLeft">
+
+                      <span>{{search.images.length}}</span>
+                    </div>
                     <div class="menu">
                         <button class="minimize" @click="minimizeSearch(search)"></button>
                         <button class="maximize" @click="maximizeSearch(search)"></button>
@@ -59,8 +63,9 @@
                     </div>
                     <div :class="{ showFrames: search.frames, resultContainer: true }">
                         <div>
-                            <div v-for="img in search.images" v-bind:key="img.video + '_' + img.second">
+                            <div v-for="img in search.images" :key="search.id + '_' + img.video + '_' + img.second" :data="search.id + '_' + img.video + '_' + img.second" :probability="img.probability">
                                 <NoshotImage :search="search" :img="img"/>
+                                <span class="imageDescription">{{img.categoryName[0]}}</span>
                             </div>
 
 
