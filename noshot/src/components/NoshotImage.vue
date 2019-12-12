@@ -44,9 +44,20 @@ export default {
           return s;
       },
       click: function(event) {
+
+        // Trigger a confirmation dialog
+        // this.$dialog
+        //   .confirm('Please confirm to continue')
+        //   .then(function() {
+        //     console.log('Clicked on proceed');
+        //   })
+        //   .catch(function() {
+        //     console.log('Clicked on cancel');
+        //   });
+
         let imgUrl = event.target.src;
-        let vInfo = this.utils.videoInfoFromUrl(imgUrl);
-        if (Object.keys(vInfo).length > 0) this.submit(vInfo.video, vInfo.frame);
+        let frame = this.utils.frameFromUrl(imgUrl);
+        if (Object.keys(frame).length > 0) this.submit(frame.video, frame.number);
         // window.log(event);
         // window.log("click!!");
       }

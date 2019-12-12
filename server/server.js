@@ -40,89 +40,91 @@ app.use(function(req, res, next) {
 });
 
 app.get('/search/:net/:category/:cache', function userIdHandler(req, res) {
-  res.statusCode = 200;
-  res.setHeader('Content-Type', 'application/json');
+    res.statusCode = 200;
+    res.setHeader('Content-Type', 'application/json');
 
-  let net = req.params.net;
-  let category = req.params.category;
-  let cache = req.params.cache;
-  if(category !== typeof(undefined))
-  {
-    // category = category.replace(/ *, */g, "OR");
-    // category = category.replace(/ +/g, " AND ");
-    // category = category.replace(/OR/g, " OR ");
-    // category = category.replace(/((([\w\(\)\*]+) AND )+([\w\(\)\*]+))/g, "\($1\)");
-    // console.log(category);
-    //
-    // category = escape('(' + category + ')');
-    // const path = util.format('/solr/core1/select?q=categoryName%3A%s%20AND%20net%3A%s%20AND%20nodeType%3A%s&rows=%i&sort=probability%20desc', category, net, cache, 1000);
-
+    let net = req.params.net;
+    let category = req.params.category;
+    let cache = req.params.cache;
+    if (category !== typeof(undefined)) {
+        // category = category.replace(/ *, */g, "OR");
+        // category = category.replace(/ +/g, " AND ");
+        // category = category.replace(/OR/g, " OR ");
+        // category = category.replace(/((([\w\(\)\*]+) AND )+([\w\(\)\*]+))/g, "\($1\)");
+        // console.log(category);
+        //
+        // category = escape('(' + category + ')');
+        // const path = util.format('/solr/core1/select?q=categoryName%3A%s%20AND%20net%3A%s%20AND%20nodeType%3A%s&rows=%i&sort=probability%20desc', category, net, cache, 1000);
 
 
-    categoryId = searchStringInArray(categoryNames, category) // search category and get id;
-    let children = [];
-    if (categoryId.length > 0)
-      children = getChildren(categoryId[0]); // get childs
 
-    // add searched category
-    children.push(categoryId[0]);
-    const solrGetUrl = new url.URL('http://' + hostname + ':8983/solr/core1/select');
+        categoryId = searchStringInArray(categoryNames, category) // search category and get id;
+        let children = [];
+        if (categoryId.length > 0)
+            children = getChildren(categoryId[0]); // get childs
 
-    let categoryString = '';
-    for (let c of children) {
-      if (categoryString != '')
-        categoryString += ' OR ';
-      categoryString += c;
-    }
+        // add searched category
+        children.push(categoryId[0]);
+        const solrGetUrl = new url.URL('http://' + hostname + ':8983/solr/core1/select');
 
-    //const queryItems = [['categoryName', category], ['net', net], ['nodeType', cache]];
-    const queryItems = [['category', '(' + categoryString + ')'], ['net', net], ['nodeType', cache]];
-    let q = '';
-    for (let e of queryItems) {
-      if (q != '')
-        q += ' AND ';
-      q += e[0] + ':' + e[1];
-    }
-    q = q.replaceArray([' ', ':'], ['+', '%3A']);
+        let categoryString = '';
+        for (let c of children) {
+            if (categoryString != '')
+                categoryString += ' OR ';
+            categoryString += c;
+        }
 
-    // const params = util.format('&rows=%i&sort=probability%20desc&group=true&group.field=video&group.main=true', 1000);
-    const params = util.format('&sort=probability%20desc&rows=%i', 500);
+        //const queryItems = [['categoryName', category], ['net', net], ['nodeType', cache]];
+        const queryItems = [
+            ['category', '(' + categoryString + ')'],
+            ['net', net],
+            ['nodeType', cache]
+        ];
+        let q = '';
+        for (let e of queryItems) {
+            if (q != '')
+                q += ' AND ';
+            q += e[0] + ':' + e[1];
+        }
+        q = q.replaceArray([' ', ':'], ['+', '%3A']);
+
+        // const params = util.format('&rows=%i&sort=probability%20desc&group=true&group.field=video&group.main=true', 1000);
+        const params = util.format('&sort=probability%20desc&rows=%i', 500);
 
 
-    http.get({
-      hostname: 'localhost',
-      port: 8983,
-      path: '/solr/core1/select?q=' + q + params,
-      agent: false // Create a new agent just for this one request
-    }, (resp) => {
-      let data = '';
+        http.get({
+            hostname: 'localhost',
+            port: 8983,
+            path: '/solr/core1/select?q=' + q + params,
+            agent: false // Create a new agent just for this one request
+        }, (resp) => {
+            let data = '';
 
-      // A chunk of data has been recieved.
-      resp.on('data', (chunk) => {
-        data += chunk;
-      });
+            // A chunk of data has been recieved.
+            resp.on('data', (chunk) => {
+                data += chunk;
+            });
 
-      // The whole response has been received. Print out the result.
-      resp.on('end', () => {
-        const jdata = JSON.parse(data);
-        if(jdata.response && jdata.response.docs)
-          res.json(filterSolrResponse(jdata.response.docs));
-        else
-          res.json([]);
-      });
+            // The whole response has been received. Print out the result.
+            resp.on('end', () => {
+                const jdata = JSON.parse(data);
+                if (jdata.response && jdata.response.docs)
+                    res.json(filterSolrResponse(jdata.response.docs));
+                else
+                    res.json([]);
+            });
 
-    }).on("error", (err) => {
-      console.log("Error: " + err.message);
-      res.send("Error: " + err.message);
-    });
-  }
-  else
-    res.json([]);
+        }).on("error", (err) => {
+            console.log("Error: " + err.message);
+            res.send("Error: " + err.message);
+        });
+    } else
+        res.json([]);
 
 });
 
 function searchStringInArray(array, search){
-  return array.map(s => s == search ? array.indexOf(s): null).filter(element => element !== null);
+  return array.map(s => s.toLowerCase() == search.toLowerCase() ? array.indexOf(s): null).filter(element => element !== null);
 }
 
 // remove duplicate keyframes from solr resonse. Entries are identified by id field.
@@ -180,13 +182,13 @@ function getChildren(id) {
 
 function parseNamesFile(namesfileName) {
   const namesString = fs.readFileSync(namesfileName, 'utf8');
-  const names = namesString.split('\n');
+  const names = namesString.split(/\r?\n/);
   return names;
 }
 
 function parseTreeFile(treefileName) {
   const treestring = fs.readFileSync(treefileName, 'utf8');
-  const stringArray = treestring.split('\n');
+  const stringArray = treestring.split(/\r?\n/);
   const tree = stringArray.map(line => [line.split(' ')[0], parseInt(line.split(' ')[1])]);
   // tree = array[[<categoryName>, <parentId>], ...]
 
@@ -358,7 +360,7 @@ app.get('/update', async function userIdHandler(req, res) {
 
 });
 
-
+console.log(`Listening on ${port}`);
 let server = app.listen(port);
 
 server.timeout = 1000 * 1000;
