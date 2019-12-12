@@ -1,3 +1,5 @@
+import Frame from '../entities/Frame.js'
+
 // general utils
 const utilFuncs = {
     // right padding s with c to a total of n chars
@@ -46,12 +48,12 @@ const utilFuncs = {
         }
       }
     },
-    videoInfoFromUrl: function(url, dataLocation = window.appCfg.dataServer.keyframesLocation) {
+    frameFromUrl: function(url, dataLocation = window.appCfg.dataServer.keyframesLocation) {
       let parts = url.split(dataLocation);
       if (parts.length < 1) return {};
       let video = parts[1].split("/")[1];
       let frame = parts[1].split("/")[2].split("_")[1];
-      return {video: video, frame: frame};
+      return new Frame(video, frame);
     }
 };
 

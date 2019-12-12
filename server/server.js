@@ -122,7 +122,7 @@ app.get('/search/:net/:category/:cache', function userIdHandler(req, res) {
 });
 
 function searchStringInArray(array, search){
-  return array.map(s => s == search ? array.indexOf(s): null).filter(element => element !== null);
+  return array.map(s => s.toLowerCase() == search.toLowerCase() ? array.indexOf(s): null).filter(element => element !== null);
 }
 
 // remove duplicate keyframes from solr resonse. Entries are identified by id field.
@@ -358,7 +358,7 @@ app.get('/update', async function userIdHandler(req, res) {
 
 });
 
-
+console.log(`Listening on ${port}`);
 let server = app.listen(port);
 
 server.timeout = 1000 * 1000;
