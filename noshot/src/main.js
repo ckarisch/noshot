@@ -16,17 +16,21 @@ fetch('./config/local.json', {
   .then(r => r.json()).then(json => {
     // override keys set in local cfg
     utils.updateJSONRecursive(window.appCfg, json);
-    // launch app
-    initApp();
+
+
   }, json => {
     // not found / unexpected error
-    let msg = `Local config: ${json}`;
+    let msg = `Local config: ${JSON.stringify(json)}`;
     window.log(msg);
-  });
+
+}).finally( () => {
+    // launch app in any case
+    initApp();
+});
 
 // creates VUE app
 function initApp() {
-  // set globals (cfg, utils) for all vue components as a global mixins 
+  // set globals (cfg, utils) for all vue components as a global mixins
   // https://stackoverflow.com/questions/40896261/apply-global-variable-to-vuejs
   Vue.mixin({
     data: function () {
