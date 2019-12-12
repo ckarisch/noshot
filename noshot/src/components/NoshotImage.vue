@@ -43,23 +43,33 @@ export default {
           while (s.length < size) s = "0" + s;
           return s;
       },
-      click: function(event) {
-
-        // Trigger a confirmation dialog
-        // this.$dialog
-        //   .confirm('Please confirm to continue')
-        //   .then(function() {
-        //     console.log('Clicked on proceed');
-        //   })
-        //   .catch(function() {
-        //     console.log('Clicked on cancel');
-        //   });
+      click: function(event, confirm=true) {
 
         let imgUrl = event.target.src;
         let frame = this.utils.frameFromUrl(imgUrl);
-        if (Object.keys(frame).length > 0) this.submit(frame.video, frame.number);
-        // window.log(event);
-        // window.log("click!!");
+        if (Object.keys(frame).length === 0) return;
+        window.log(event);
+        // let style ="display: block;margin-left: auto;margin-right: auto;width: 50%;"
+        let imgTag = `<img style='width:100%;' src='${event.target.src}' />`;
+
+        // Trigger a confirmation dialog
+        if (confirm) {
+          this.$dialog
+            .confirm(`<div class="confirm_submission">
+                        <div>Confirm submission of</div>
+                        <div class='confirm_image'> ${imgTag}</div>
+                        <div>v ${frame.video} f ${frame.number}</div>
+                      </div>`,
+              {html: true})
+            .then(() => {
+              window.log('Clicked on proceed');
+              this.submit(frame.video, frame.number);
+            })
+            .catch(() => {
+              window.log('submission cancelled');
+            });
+        }
+        else this.submit(frame.video, frame.number);
       }
     },
 

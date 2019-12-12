@@ -3,14 +3,15 @@ import App from './App.vue'
 import config from '../public/config/default.json' // default app cfg
 import utils from './utils/utils.js'
 import VueToastr from "vue-toastr";
-// import VuejsDialog from 'vuejs-dialog';
+import VuejsDialog from 'vuejs-dialog';
+import '../node_modules/vuejs-dialog/dist/vuejs-dialog.min.css';
 
 // plugins
 Vue.use(VueToastr, {
   /* OverWrite Plugin Options if you need */
   preventDuplicates: true // default is false
 });
-// Vue.use(VuejsDialog);
+Vue.use(VuejsDialog);
 
 // global cfg
 window.appCfg = config; // cfg (for non VUE components)

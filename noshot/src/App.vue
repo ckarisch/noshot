@@ -8,6 +8,7 @@
 import SearchTool from './components/SearchTool.vue'
 import './scss/main/style.scss'
 
+
 export default {
   name: 'app',
   components: {
