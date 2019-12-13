@@ -207,7 +207,7 @@ function deleteOldCache(client, cacheSize) {
   });
 }
 
-function deleteCacheVideo(client, cacheSize, video, res) {
+function deleteCacheVideo(client, cacheSize, video) {
   var query = 'nodeType:' + cacheSize + ' AND video:' + video;
   client.deleteByQuery(query,function(err,obj){
      if(err){
@@ -216,7 +216,7 @@ function deleteCacheVideo(client, cacheSize, video, res) {
 
       client.commit();
      	console.log("video " + video + ' of cache ' + cacheSize + " cleared");
-      writeLine(res, "video " + video + ' of cache ' + cacheSize + " cleared");
+      // writeLine(res, "video " + video + ' of cache ' + cacheSize + " cleared");
      }
   });
 }
@@ -322,8 +322,8 @@ app.get('/update/:cache', async function cacheUpdateHandler(req, res) {
   let allowedCaches = [10, 180];
 
   if(!cacheUpdateSemaphore.available()) {
-    writeLine(res, 'another cache request is running.' );
-    res.end();
+    // writeLine(res, 'another cache request is running.' );
+    return res.end('another cache request is running.');
   }
 
   // uncomment if you want to delet all data and generate demo data
@@ -334,18 +334,19 @@ app.get('/update/:cache', async function cacheUpdateHandler(req, res) {
     return res.end("cacheSize " + cacheSize + " not allowed.");
   }
 
-  // deleteOldCache(client, cacheSize);
   cacheUpdateSemaphore.take(async function() {
+    // deleteOldCache(client, cacheSize);
      // highest video number in cache
     let cachedVideosResponse = (await getLimit(client, 'video', 'nodeType:' + cacheSize));
 
     let cachedVideos = 1;
     if(typeof cachedVideosResponse !== 'undefined' ) {
-      deleteCacheVideo(client, cacheSize, cachedVideosResponse.video, res); // remove last video
-      cachedVideos = cachedVideosResponse.video;
+      // deleteCacheVideo(client, cacheSize, cachedVideosResponse.video); // remove last video
+      // writeLine(res, "video " + cachedVideosResponse.video + ' of cache ' + cacheSize + " cleared");
+      writeLine(res, "cached videos: " + cachedVideosResponse.video);
+      cachedVideos = parseInt(cachedVideosResponse.video) + 1;
     }
 
-    writeLine(res, "cached videos: " + cachedVideos);
 
     let videos = (await getLimit(client, 'video')).video; // highest video number
     let categories = (await getLimit(client, 'category')).category; // highest category number
@@ -354,6 +355,8 @@ app.get('/update/:cache', async function cacheUpdateHandler(req, res) {
     let datacounter = 0;
     let startTime = new Date();
 
+    writeLine(res, "total videos: " + videos);
+
     for (let video = cachedVideos; video <= videos; video++) { // start with last cached video
       for (let category = 0; category <= categories; category++) {
         let bestKeyframe = await getBestKeyframe(client, video, 1, seconds, category, cacheSize);
@@ -361,14 +364,19 @@ app.get('/update/:cache', async function cacheUpdateHandler(req, res) {
         {
           // if this video has any entry in this category
 
+          let promises = [];
           for (let second = 1; second <= seconds; second += cacheSize) {
             // check every group of seconds from 1 to seconds
 
-            let bestKeyframe = await getBestKeyframe(client, video, second, second + cacheSize - 1, category, cacheSize);
-
-            if(bestKeyframe) // update cache array
-              data.push(bestKeyframe);
+            let bestKeyframePromise = getBestKeyframe(client, video, second, second + cacheSize - 1, category, cacheSize);
+            promises.push(bestKeyframePromise);
+            // if(bestKeyframe) // update cache array
+            //   data.push(bestKeyframe);
           }
+          Promise.all(promises).then(values => {
+            values = values.filter(element => element !== null);
+            data = data.concat(values);
+          });
         }
       }
 
@@ -405,8 +413,8 @@ app.get('/update/:cache', async function cacheUpdateHandler(req, res) {
     }
 
     // res.json("done: " + data.length + " Objects cached.");
-    res.end("done: " + data.length + " Objects cached.");
     cacheUpdateSemaphore.leave();
+    return res.end("<br/> done..");
   });
 
 });
