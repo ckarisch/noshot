@@ -18,7 +18,9 @@
   },
   "homepage": "https://github.com/ckarisch/DIVE-layout#readme",
   "dependencies": {
+    "convert-seconds": "^1.0.1",
     "express": "^4.17.1",
+    "semaphore": "^1.1.0",
     "solr-client": "^0.7.1"
   }
 }

@@ -5,6 +5,8 @@ var util = require('util');
 var querystring = require('querystring');
 var fs = require('fs');
 const url = require('url');
+const cacheUpdateSemaphore = require('semaphore')(1)
+var convertSeconds = require('convert-seconds');
 
 var solr = require('solr-client');
 var client = solr.createClient({
@@ -18,6 +20,7 @@ const hostname = '127.0.0.1';
 const port = 3001;
 const treefileName = '9k.tree';
 const namesfileName = '9k.names';
+let cacheRunning = false;
 
 const categoryNames = parseNamesFile(namesfileName);
 const categoryTree = parseTreeFile(treefileName);
@@ -39,7 +42,7 @@ app.use(function(req, res, next) {
   next();
 });
 
-app.get('/search/:net/:category/:cache', function userIdHandler(req, res) {
+app.get('/search/:net/:category/:cache', function searchHandler(req, res) {
   res.statusCode = 200;
   res.setHeader('Content-Type', 'application/json');
 
@@ -193,13 +196,27 @@ function parseTreeFile(treefileName) {
   return tree;
 }
 
-function deleteOldCache(client) {
-  var query = 'nodeType:180';
+function deleteOldCache(client, cacheSize) {
+  var query = 'nodeType:' + cacheSize;
   client.deleteByQuery(query,function(err,obj){
      if(err){
      	console.log(err);
      }else{
-     	console.log("cache cleared");
+     	console.log("cache " + cacheSize + " cleared");
+     }
+  });
+}
+
+function deleteCacheVideo(client, cacheSize, video, res) {
+  var query = 'nodeType:' + cacheSize + ' AND video:' + video;
+  client.deleteByQuery(query,function(err,obj){
+     if(err){
+     	console.log(err);
+     }else{
+
+      client.commit();
+     	console.log("video " + video + ' of cache ' + cacheSize + " cleared");
+      writeLine(res, "video " + video + ' of cache ' + cacheSize + " cleared");
      }
   });
 }
@@ -232,13 +249,13 @@ function getLimit(client, parameter, query) {
       query = '*:*';
     }
 
-    var query = client.createQuery()
+    var solrQuery = client.createQuery()
     				   .q(query)
                .sort(sort)
     				   .start(0)
     				   .rows(1);
 
-    client.search(query, (err, obj) => {
+    client.search(solrQuery, (err, obj) => {
       if(err) { reject(err) }
       else {
         resolve(obj.response.docs[0]);
@@ -247,7 +264,7 @@ function getLimit(client, parameter, query) {
   });
 }
 
-function getBestKeyframe(client, video, startSecond, endSecond, categoryId, callback) {
+function getBestKeyframe(client, video, startSecond, endSecond, categoryId, cacheSize) {
   return new Promise((resolve, reject) => {
     var query = client.createQuery()
     				   .q(util.format('nodeType:1 AND video:%i AND second:[%i TO %i] AND category:%i', video, startSecond, endSecond, categoryId))
@@ -267,7 +284,7 @@ function getBestKeyframe(client, video, startSecond, endSecond, categoryId, call
 
         bestKeyframe.startSecond = startSecond;
         bestKeyframe.endSecond = endSecond;
-        bestKeyframe.nodeType= 10;
+        bestKeyframe.nodeType= cacheSize;
         delete bestKeyframe.id;
         delete bestKeyframe._version_;
 
@@ -299,64 +316,104 @@ function generateDemoData(client, res) {
   });
 }
 
-app.get('/update', async function userIdHandler(req, res) {
+app.get('/update/:cache', async function cacheUpdateHandler(req, res) {
   res.statusCode = 200;
-  res.setHeader('Content-Type', 'application/json');
+  res.setHeader('Content-Type', 'text/html');
+  let allowedCaches = [10, 180];
 
-  deleteOldCache(client);
+  if(!cacheUpdateSemaphore.available()) {
+    writeLine(res, 'another cache request is running.' );
+    res.end();
+  }
 
   // uncomment if you want to delet all data and generate demo data
   // return generateDemoData(client, res);
 
-  let cacheSize = 180;
-
-  let videos = (await getLimit(client, 'video')).video; // highest video number
-  let categories = (await getLimit(client, 'category')).category; // highest category number
-  let seconds = (await getLimit(client, 'second')).second; // longest video
-  let data = [];
-  let datacounter = 0;
-
-  for (let video = 1; video <= videos; video++) {
-    for (let category = 0; category <= categories; category++) {
-      let bestKeyframe = await getBestKeyframe(client, video, 1, seconds, category);
-      if(bestKeyframe)
-      {
-        // if this video has any entry in this category
-
-        for (let second = 1; second <= seconds; second += cacheSize) {
-          // check every group of seconds from 1 to seconds
-
-          let bestKeyframe = await getBestKeyframe(client, video, second, second + cacheSize - 1, category);
-
-          if(bestKeyframe) // update cache array
-            data.push(bestKeyframe);
-        }
-      }
-    }
-
-
-    client.add(data,function(err,obj){
-      if(err){
-       console.log(err);
-      }else{
-        // console.log("uploaded data")
-        client.commit();
-        // console.log("data commit")
-      }
-
-    });
-
-    datacounter += data.length;
-    console.log("commited: " + data.length);
-    console.log("total: " + datacounter + "\n");
-
-    data = [];
+  let cacheSize = parseInt(req.params.cache);
+  if(!allowedCaches.includes(cacheSize)) {
+    return res.end("cacheSize " + cacheSize + " not allowed.");
   }
 
-  res.json("done: " + data.length + " Objects cached.");
+  // deleteOldCache(client, cacheSize);
+  cacheUpdateSemaphore.take(async function() {
+     // highest video number in cache
+    let cachedVideosResponse = (await getLimit(client, 'video', 'nodeType:' + cacheSize));
 
+    let cachedVideos = 1;
+    if(typeof cachedVideosResponse !== 'undefined' ) {
+      deleteCacheVideo(client, cacheSize, cachedVideosResponse.video, res); // remove last video
+      cachedVideos = cachedVideosResponse.video;
+    }
+
+    writeLine(res, "cached videos: " + cachedVideos);
+
+    let videos = (await getLimit(client, 'video')).video; // highest video number
+    let categories = (await getLimit(client, 'category')).category; // highest category number
+    let seconds = (await getLimit(client, 'second')).second; // longest video
+    let data = [];
+    let datacounter = 0;
+    let startTime = new Date();
+
+    for (let video = cachedVideos; video <= videos; video++) { // start with last cached video
+      for (let category = 0; category <= categories; category++) {
+        let bestKeyframe = await getBestKeyframe(client, video, 1, seconds, category, cacheSize);
+        if(bestKeyframe)
+        {
+          // if this video has any entry in this category
+
+          for (let second = 1; second <= seconds; second += cacheSize) {
+            // check every group of seconds from 1 to seconds
+
+            let bestKeyframe = await getBestKeyframe(client, video, second, second + cacheSize - 1, category, cacheSize);
+
+            if(bestKeyframe) // update cache array
+              data.push(bestKeyframe);
+          }
+        }
+      }
+
+
+      client.add(data,function(err,obj){
+        if(err){
+         console.log(err);
+        }else{
+          // console.log("uploaded data")
+          client.commit();
+          // console.log("data commit")
+        }
+
+      });
+
+      datacounter += data.length;
+
+      const time = (new Date() - startTime) / 1000;
+
+      console.log("video: " + video + " of " + videos);
+      console.log("commited: " + data.length);
+      console.log("total: " + datacounter + "\n");
+
+      writeLine(res, "");
+      writeLine(res, "video: " + video + " of " + videos + ' (' + Math.round(video/videos*10000)/100 + "%)");
+      writeLine(res, "commited: " + data.length);
+      writeLine(res, "total: " + datacounter);
+      writeLine(res, "time taken: " + JSON.stringify(convertSeconds(time)));
+      writeLine(res, "estimated time: " + JSON.stringify(convertSeconds(time / ((video - cachedVideos + 1)/(videos - cachedVideos + 1)))));
+
+  // console.info('Execution time: %dms', end)
+
+      data = [];
+    }
+
+    // res.json("done: " + data.length + " Objects cached.");
+    res.end("done: " + data.length + " Objects cached.");
+    cacheUpdateSemaphore.leave();
+  });
 
 });
+
+function writeLine(res, line) {
+  res.write('<br/>' + line);
+}
 
 
 let server = app.listen(port);
