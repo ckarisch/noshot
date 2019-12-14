@@ -47,29 +47,20 @@
                     </div>
                     <div class="searchNavigation">
                         <input placeholder="Suchbegriff" v-model="search.title" @keyup="fetchSolrSearch(search)" />
-                        <select v-model="search.selectedNetwork" @change="fetchSolrSearch(search)">
-                            <option v-for="net in nets" v-bind:key="net.name">{{ net }}</option>
-                        </select>
-                        <select v-model="search.selectedCache" @change="fetchSolrSearch(search)">
-                            <option v-for="cache in caches" v-bind:key="cache">{{ cache }}</option>
-                        </select>
-                        <div class="radiobuttons">
-                            <label class="radiobutton">
-                                <input type="radio" v-model="search.frames" :name="search.id" :checked="search.frames" value="1">
-                                <span class="iconmark icon-frames"></span>
-                            </label>
-
-                            <label class="radiobutton">
-                                <input type="radio" v-model="search.frames" :name="search.id" :checked="!search.frames" value="">
-                                <span class="iconmark icon-scene"></span>
-                            </label>
+                        <div class="slidecontainer">
+                          cache ({{ search.selectedCache }})
+                          <input type="range" min="1" max="180" value="1" class="slider" v-model="search.cacheRange" @change="updateCacheRange(search)">
+                        </div>
+                        <div class="slidecontainer">
+                          range ({{ search.videoRange }})
+                          <input type="range" min="0" max="7" value="1" class="slider" v-model="search.videoRange" @change="fetchSolrSearch(search)">
                         </div>
                     </div>
                     <div :class="{ showFrames: search.frames, resultContainer: true }">
                         <div>
                             <div v-for="img in search.images" :key="search.id + '_' + img.video + '_' + img.second" :data="search.id + '_' + img.video + '_' + img.second" :probability="img.probability">
                                 <NoshotImage :search="search" :img="img"/>
-                                <span class="imageDescription"><strong>{{img.categoryName}}</strong> <br/>P: {{img.parentName}} <br/>C: {{img.childs}} <br/> {{Math.round(img.probability * 100) / 100}}</span>
+                                <span class="imageDescription"><strong>{{img.categoryName}}</strong> <br/>Parent: <strong>{{img.parentName}}</strong> <br/>Confidence: <strong>{{Math.round(img.probability * 100) / 100}}</strong></span>
                             </div>
 
 
@@ -137,10 +128,11 @@ export default {
             activeWorkspace: undefined,
             selectedNetwork: 'cnn_googleyolo',
             nets: ['cnn_yolo'],
-            caches: [1, 10],
+            caches: [1, 10, 180],
             loading: false,
             post: null,
-            error: null
+            error: null,
+            cacheRange: 1
         };
     },
 
@@ -221,7 +213,8 @@ export default {
                 maximized: false,
                 selectedCache: 1,
                 images: [],
-                selectedNetwork: this.nets[0]
+                selectedNetwork: this.nets[0],
+                videoRange: 0
             }
             this.searches.push(s);
 
@@ -340,6 +333,19 @@ export default {
                     this.activeWorkspace = w;
                 }
             }
+        },
+
+        updateCacheRange: function(search) {
+          const temp = search.selectedCache;
+          search.selectedCache = this.getClosest(search.cacheRange, [1,10,180]);
+          if(temp != search.selectedCache)
+            this.fetchSolrSearch(search);
+        },
+
+        getClosest: function(goal, allowed) {
+          return allowed.reduce(function(prev, curr) {
+            return (Math.abs(curr - goal) < Math.abs(prev - goal) ? curr : prev);
+          });
         }
     },
 

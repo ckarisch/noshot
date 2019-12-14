@@ -1,8 +1,8 @@
 <template>
   <div>
-      <img class="preview" v-if="!search.frames" :alt="keyframeSrc(img, -1)" :src="keyframeSrc(img, -1)" />
+      <img class="small" v-for="n in generateRange(search.videoRange)" :alt="keyframeSrc(img, (-search.videoRange + n))" :src="keyframeSrc(img, (-search.videoRange + n))" :key="keyframeSrc(img, (-search.videoRange + n)) + '_' + n" />
       <img v-on:click="click" :alt="keyframeSrc(img, 0)" :src="keyframeSrc(img, 0)" />
-      <img class="preview" v-if="!search.frames" :alt="keyframeSrc(img, 1)" :src="keyframeSrc(img, 1)" />
+      <img class="small" v-for="n in generateRange(search.videoRange)" :alt="keyframeSrc(img, n+1)" :src="keyframeSrc(img, n+1)" :key="keyframeSrc(img, n+1) + '_' + n" />
 
   </div>
 </template>
@@ -33,8 +33,10 @@ export default {
     },
 
     methods: {
-      keyframeSrc: function(img) {
+      keyframeSrc: function(img, shift = 0) {
           let second = img.second;
+          second = parseInt(second) + parseInt(shift);
+          if(second < 0) second = 0;
           // return 'http://localhost:80/keyframes/'+ this.pad(img.video, 5) + '/' + this.pad(img.video, 5) + '_' + second + '_key.jpg';
           return this.appCfg.dataServer.url + ':' + this.appCfg.dataServer.port + '/' + this.appCfg.dataServer.keyframesLocation + '/' + this.pad(img.video, 5) + '/' + this.pad(img.video, 5) + '_' + second + '_key.jpg';
       },
@@ -49,6 +51,13 @@ export default {
         if (Object.keys(vInfo).length > 0) this.submit(vInfo.video, vInfo.frame);
         // window.log(event);
         // window.log("click!!");
+      },
+      generateRange: function(videoRange) {
+        let range = [];
+        for(let i = 0; i < videoRange; i++) {
+          range[i] = i;
+        }
+        return range;
       }
     },
 
