@@ -128,7 +128,7 @@ export default {
             activeWorkspace: undefined,
             selectedNetwork: 'cnn_googleyolo',
             nets: ['cnn_yolo'],
-            caches: [1, 10, 180],
+            caches: [1, 10, 30, 60, 180],
             loading: false,
             post: null,
             error: null,

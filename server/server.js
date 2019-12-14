@@ -322,7 +322,7 @@ function generateDemoData(client, res) {
 app.get('/update/:cache', async function cacheUpdateHandler(req, res) {
   res.statusCode = 200;
   res.setHeader('Content-Type', 'text/html');
-  let allowedCaches = [10, 180];
+  let allowedCaches = [10, 30, 60, 180];
 
   if(!cacheUpdateSemaphore.available()) {
     // writeLine(res, 'another cache request is running.' );
