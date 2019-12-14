@@ -19,5 +19,8 @@
     "port": 80,
     "keyframesLocation": "keyframes",
     "videosLocation": "videos"
+  },
+  "video": {
+      "width": 300
   }
 }

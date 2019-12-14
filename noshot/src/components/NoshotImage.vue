@@ -43,7 +43,12 @@ export default {
           while (s.length < size) s = "0" + s;
           return s;
       },
-      click: function(event, confirm=this.appCfg.preferences.isEnabled("confirmSubmit", true)) {
+      click: function(event) {
+        if (event.shiftKey) this.openVideo(event);
+        else this.submitFrame(event);
+      },
+
+      submitFrame: function(event, confirm=this.appCfg.preferences.isEnabled("confirmSubmit", true)) {
 
         let imgUrl = event.target.src;
         let frame = this.utils.frameFromUrl(imgUrl);
@@ -70,6 +75,13 @@ export default {
             });
         }
         else this.submit(frame.video, frame.number);
+      },
+
+      openVideo(event) {
+        let imgUrl = event.target.src;
+        let frame = this.utils.frameFromUrl(imgUrl);
+        if (Object.keys(frame).length === 0) return;
+        this.$parent.$emit('open-video', frame);
       }
     },
 

@@ -21,6 +21,9 @@ Vue.component(SidebarPlugin.name, SidebarComponent);
 import '../node_modules/@syncfusion/ej2-base/styles/material.css';
 import '../node_modules/@syncfusion/ej2-vue-navigations/styles/material.css';
 import '../node_modules/@syncfusion/ej2-buttons/styles/material.css';
+// https://www.npmjs.com/package/vue-draggable-resizable
+import VueDraggableResizable from 'vue-draggable-resizable'
+Vue.component('vue-draggable-resizable', VueDraggableResizable)
 
 
 // plugins

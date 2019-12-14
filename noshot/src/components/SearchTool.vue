@@ -2,6 +2,7 @@
 <div>
     <SideMenu ref="sideMenu" />
     <ejs-button id="toggleMenuButton" ref="togglebtn" class="e-btn e-info"  cssClass="e-flat" iconCss="e-icons burg-icon" isToggle="true" v-on:click.native="toggleSideMenu"></ejs-button>
+    <NoshotVideo v-for="vid of videos" :key="vid.frame.video + '_' + vid.frame.number" :video="vid"/>
     <div class="header">
         <div class="tabs">
             <ul class="">
@@ -94,6 +95,7 @@
 
 <script>
 import NoshotImage from './NoshotImage.vue'
+import NoshotVideo from './NoshotVideo.vue'
 import SideMenu from './SideMenu.vue'
 
 // localStorage persistence
@@ -126,7 +128,14 @@ export default {
     name: 'SearchTool',
     components: {
       NoshotImage,
+      NoshotVideo,
       SideMenu
+    },
+    created() {
+      // listener for opening videos
+      this.$on('open-video', (frame) => {
+        this.openVideo(frame);
+      });
     },
     props: {
         msg: String
@@ -146,7 +155,8 @@ export default {
             caches: [1, 10],
             loading: false,
             post: null,
-            error: null
+            error: null,
+            videos: []
         };
     },
 
@@ -359,6 +369,15 @@ export default {
               // this.$emit('openMenu');
               this.$refs.sideMenu.openMenu();
           }
+        },
+
+        openVideo: function(frame) {
+          let video = this.utils.videoFromFrame(frame);
+          for (let v of this.videos) {
+            // don't open same videos twice
+            if (v.id === video.id) return;
+          }
+          this.videos.push(video);
         }
     },
 
