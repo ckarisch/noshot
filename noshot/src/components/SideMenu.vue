@@ -2,7 +2,9 @@
   <ejs-sidebar id="default-sidebar" ref="sidebar" :type="type" :target="target" :enableGestures="enableGestures" :position="position" :enablePersistence="enablePersistence">
       <div class="menu-title"> Options </div>
        <div class="menu-sub-title"> Submission </div>
-       <div class='menu-option'><input type="checkbox" v-bind:checked="confirmSubmit" v-on:click="togglePreference" value="confirmSubmit"> <span>confirm submissions</span></div>
+       <div class='menu-option'><input type="checkbox" v-bind:checked="confirmSubmit" value="confirmSubmit" v-on:click="togglePreference"> <span>confirm submissions</span></div>
+       <div class="menu-sub-title"> Video </div>
+       <div class='menu-option'><input type="checkbox" v-bind:checked="videoAutoplay" value="videoAutoplay" v-on:click="togglePreference"> <span>autoplay</span></div>
        <div class="menu-sub-title"> Logging </div>
   </ejs-sidebar>
 </template>
@@ -11,6 +13,7 @@
   export default {
       created () {
         this.confirmSubmit = this.appCfg.preferences.isEnabled("confirmSubmit", true);
+        this.videoAutoplay = this.appCfg.preferences.isEnabled("videoAutoplay", true);
       },
       data () {
           return {
@@ -27,7 +30,7 @@
           // },
 
           togglePreference: function(event) {
-            window.log(event);
+            // window.log(event);
             let el = event.srcElement;
             let prefKey = el.value;
             this.appCfg.preferences.save(prefKey, el.checked);

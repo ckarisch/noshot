@@ -51,8 +51,8 @@ export default {
       submitFrame: function(event, confirm=this.appCfg.preferences.isEnabled("confirmSubmit", true)) {
 
         let imgUrl = event.target.src;
-        let frame = this.utils.frameFromUrl(imgUrl);
-        if (Object.keys(frame).length === 0) return;
+        let video = this.utils.videoFromThumbUrl(imgUrl);
+        if (Object.keys(video).length === 0) return;
 
         // let style ="display: block;margin-left: auto;margin-right: auto;width: 50%;"
         let imgTag = `<img style='width:100%;' src='${event.target.src}' />`;
@@ -63,25 +63,25 @@ export default {
             .confirm(`<div class="confirm_submission">
                         <div>Confirm submission of</div>
                         <div class='confirm_image'> ${imgTag}</div>
-                        <div>v ${frame.video} f ${frame.number}</div>
+                        <div>v ${video.id} f ${video.frame.number}</div>
                       </div>`,
               {html: true})
             .then(() => {
               window.log('Clicked on proceed');
-              this.submit(frame.video, frame.number);
+              this.submit(video.id, video.frame.number);
             })
             .catch(() => {
               window.log('submission cancelled');
             });
         }
-        else this.submit(frame.video, frame.number);
+        else this.submit(video.id, video.frame.number);
       },
 
       openVideo(event) {
         let imgUrl = event.target.src;
-        let frame = this.utils.frameFromUrl(imgUrl);
-        if (Object.keys(frame).length === 0) return;
-        this.$parent.$emit('open-video', frame);
+        let video = this.utils.videoFromThumbUrl(imgUrl);
+        if (Object.keys(video).length === 0) return;
+        this.$parent.$emit('open-video', video);
       }
     },
 

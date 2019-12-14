@@ -2,7 +2,7 @@
 <div>
     <SideMenu ref="sideMenu" />
     <ejs-button id="toggleMenuButton" ref="togglebtn" class="e-btn e-info"  cssClass="e-flat" iconCss="e-icons burg-icon" isToggle="true" v-on:click.native="toggleSideMenu"></ejs-button>
-    <NoshotVideo v-for="vid of videos" :key="vid.frame.video + '_' + vid.frame.number" :video="vid"/>
+    <NoshotVideo v-for="vid of videos" :key="vid.id + '_' + vid.frame.second" :video="vid"/>
     <div class="header">
         <div class="tabs">
             <ul class="">
@@ -132,9 +132,17 @@ export default {
       SideMenu
     },
     created() {
-      // listener for opening videos
-      this.$on('open-video', (frame) => {
-        this.openVideo(frame);
+      // listeners
+      this.$on('open-video', (video) => {
+        this.openVideo(video);
+      });
+      this.$on('close-video', (video) => {
+        this.closeVideo(video);
+      });
+      document.addEventListener('keyup', (evt) => {
+          if (evt.keyCode === 27) {
+              this.escape();
+          }
       });
     },
     props: {
@@ -371,13 +379,21 @@ export default {
           }
         },
 
-        openVideo: function(frame) {
-          let video = this.utils.videoFromFrame(frame);
+        openVideo: function(video) {
           for (let v of this.videos) {
             // don't open same videos twice
-            if (v.id === video.id) return;
+            if (v.getUniqueID() === video.getUniqueID()) return;
           }
           this.videos.push(video);
+        },
+
+        closeVideo: function(video) {
+          let idx = this.videos.indexOf(video);
+          if (idx > -1) this.videos.splice(idx, 1);
+        },
+
+        escape: function() {
+          this.closeVideo(this.videos[this.videos.length-1]);
         }
     },
 

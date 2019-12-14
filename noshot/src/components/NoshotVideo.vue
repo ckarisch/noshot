@@ -4,9 +4,9 @@
       <!-- <div style="height: 500px; width: 500px; border: 1px solid red; position: absolute;"> -->
       <vue-draggable-resizable class="videoWindow" ref="draggableVideo" :w="draggableWidth" :h="draggableHeight" :x="draggableX" :y="draggableY" :z="1050" :resizable="false" :parent="true" @dragging="onDrag">
         <div class="videoDragBar">
-          Drag me
+          v {{ video.id }} f {{ currentFrame }} <button v-on:click="close" class="videoCloseButton" type="button"><i class="fas fa-window-close"></i></button>
         </div>
-        <video ref="videoEl" v-bind:width="videoWidth" controls autoplay>
+        <video ref="videoEl" @timeupdate="onTimeUpdateListener" v-bind:width="videoWidth" controls v-bind:autoplay="videoAutoplay">
           <source v-bind:src="videoURL" type="video/mp4">
           Sorry, your browser doesn't support embedded videos.
         </video>
@@ -27,9 +27,10 @@ export default {
       this.videoURL = this.appCfg.dataServer.url + ':' +
                       this.appCfg.dataServer.port + '/' +
                       this.appCfg.dataServer.videosLocation + '/' +
-                      this.video.frame.video + '.mp4';
+                      this.video.id + '.mp4';
       this.videoWidth = this.appCfg.video.width + "px";
       this.draggableWidth = this.appCfg.video.width;
+      this.videoAutoplay = this.appCfg.preferences.isEnabled("videoAutoplay", true);
     },
     props: {
         video: Object,
@@ -39,6 +40,7 @@ export default {
         return {
           draggableX: this.video.pos.x,
           draggableY: this.video.pos.y,
+          currentFrame: this.video.frame.number
           // draggableHeight: this.$refs.videoEl.width
         };
     },
@@ -60,6 +62,14 @@ export default {
       },
       onDrag: function () {
 
+      },
+      close: function() {
+        this.$parent.$emit('close-video', this.video);
+      },
+      onTimeUpdateListener: function() {
+        // update current frame
+        if (!this.$refs.videoEl) return;
+        this.currentFrame = this.utils.secondToFrame(this.$refs.videoEl.currentTime, this.video.frame.fps);
       }
     },
 
@@ -71,7 +81,9 @@ export default {
     },
 
     mounted: function() {
-      
+      // jump to frame
+      let timeCode = this.video.frame.second;
+      this.$refs.videoEl.currentTime = timeCode;
     }
 }
 

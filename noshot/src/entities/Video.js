@@ -4,7 +4,9 @@ class Video {
     this.frame = frame;
     this.pos = pos;
   }
-
+  getUniqueID() {
+    return "#" + this.id + '_' + this.frame.second;
+  }
 }
 
 export default Video;

@@ -1,9 +1,9 @@
 import Vue from 'vue';
 import App from './App.vue';
 import config from '../public/config/default.json'; // default app cfg
+import fps from '../public/config/fps.json';
 import utils from './utils/utils.js';
 import Preferences from './utils/Preferences.js';
-
 
 /** 3rd party plugins **/
 // https://www.npmjs.com/package/@fortawesome/fontawesome-free
@@ -38,6 +38,7 @@ Vue.use(ButtonPlugin);
 // global cfg
 window.appCfg = config; // cfg (for non VUE components)
 window.appCfg.preferences = Preferences;
+window.appCfg.fps = fps;
 // global logging for debugging
 window.log = utils.debugLog;
 
