@@ -1,9 +1,9 @@
 <template>
   <ejs-sidebar id="default-sidebar" ref="sidebar" :type="type" :target="target" :enableGestures="enableGestures" :position="position" :enablePersistence="enablePersistence">
-      <div class="title"> Options </div>
-       <div class="sub-title"> Submission </div>
+      <div class="menu-title"> Options </div>
+       <div class="menu-sub-title"> Submission </div>
        <div class='menu-option'><input type="checkbox" value="confirmSubmit"> <span>confirm submissions</span></div>
-       <div class="sub-title"> Logging </div>
+       <div class="menu-sub-title"> Logging </div>
   </ejs-sidebar>
 </template>
 
