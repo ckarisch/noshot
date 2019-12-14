@@ -78,54 +78,57 @@ app.get('/search/:net/:category/:cache', function searchHandler(req, res) {
       categoryString += c;
     }
 
-    //const queryItems = [['categoryName', category], ['net', net], ['nodeType', cache]];
-    const queryItems = [['category', '(' + categoryString + ')'], ['net', net], ['nodeType', cache]];
-    let q = '';
-    for (let e of queryItems) {
-      if (q != '')
-        q += ' AND ';
-      q += e[0] + ':' + e[1];
-    }
-    q = q.replaceArray([' ', ':'], ['+', '%3A']);
+        //const queryItems = [['categoryName', category], ['net', net], ['nodeType', cache]];
+        const queryItems = [
+            ['category', '(' + categoryString + ')'],
+            ['net', net],
+            ['nodeType', cache]
+        ];
+        let q = '';
+        for (let e of queryItems) {
+            if (q != '')
+                q += ' AND ';
+            q += e[0] + ':' + e[1];
+        }
+        q = q.replaceArray([' ', ':'], ['+', '%3A']);
 
-    // const params = util.format('&rows=%i&sort=probability%20desc&group=true&group.field=video&group.main=true', 1000);
-    const params = util.format('&sort=probability%20desc&rows=%i', 500);
+        // const params = util.format('&rows=%i&sort=probability%20desc&group=true&group.field=video&group.main=true', 1000);
+        const params = util.format('&sort=probability%20desc&rows=%i', 500);
 
 
-    http.get({
-      hostname: 'localhost',
-      port: 8983,
-      path: '/solr/core1/select?q=' + q + params,
-      agent: false // Create a new agent just for this one request
-    }, (resp) => {
-      let data = '';
+        http.get({
+            hostname: 'localhost',
+            port: 8983,
+            path: '/solr/core1/select?q=' + q + params,
+            agent: false // Create a new agent just for this one request
+        }, (resp) => {
+            let data = '';
 
-      // A chunk of data has been recieved.
-      resp.on('data', (chunk) => {
-        data += chunk;
-      });
+            // A chunk of data has been recieved.
+            resp.on('data', (chunk) => {
+                data += chunk;
+            });
 
-      // The whole response has been received. Print out the result.
-      resp.on('end', () => {
-        const jdata = JSON.parse(data);
-        if(jdata.response && jdata.response.docs)
-          res.json(filterSolrResponse(jdata.response.docs));
-        else
-          res.json([]);
-      });
+            // The whole response has been received. Print out the result.
+            resp.on('end', () => {
+                const jdata = JSON.parse(data);
+                if (jdata.response && jdata.response.docs)
+                    res.json(filterSolrResponse(jdata.response.docs));
+                else
+                    res.json([]);
+            });
 
-    }).on("error", (err) => {
-      console.log("Error: " + err.message);
-      res.send("Error: " + err.message);
-    });
-  }
-  else
-    res.json([]);
+        }).on("error", (err) => {
+            console.log("Error: " + err.message);
+            res.send("Error: " + err.message);
+        });
+    } else
+        res.json([]);
 
 });
 
 function searchStringInArray(array, search){
-  return array.map(s => s == search ? array.indexOf(s): null).filter(element => element !== null);
+  return array.map(s => s.toLowerCase() == search.toLowerCase() ? array.indexOf(s): null).filter(element => element !== null);
 }
 
 // remove duplicate keyframes from solr resonse. Entries are identified by id field.
@@ -183,13 +186,13 @@ function getChildren(id) {
 
 function parseNamesFile(namesfileName) {
   const namesString = fs.readFileSync(namesfileName, 'utf8');
-  const names = namesString.split('\n');
+  const names = namesString.split(/\r?\n/);
   return names;
 }
 
 function parseTreeFile(treefileName) {
   const treestring = fs.readFileSync(treefileName, 'utf8');
-  const stringArray = treestring.split('\n');
+  const stringArray = treestring.split(/\r?\n/);
   const tree = stringArray.map(line => [line.split(' ')[0], parseInt(line.split(' ')[1])]);
   // tree = array[[<categoryName>, <parentId>], ...]
 
@@ -419,11 +422,13 @@ app.get('/update/:cache', async function cacheUpdateHandler(req, res) {
 
 });
 
+
 function writeLine(res, line) {
   res.write('<br/>' + line);
 }
 
 
+console.log(`Listening on ${port}`);
 let server = app.listen(port);
 
 server.timeout = 1000 * 1000;

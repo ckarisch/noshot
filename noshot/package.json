@@ -11,7 +11,9 @@
   "dependencies": {
     "@fortawesome/fontawesome-free": "^5.11.2",
     "core-js": "^3.3.2",
-    "vue": "^2.6.10"
+    "vue": "^2.6.10",
+    "vue-toastr": "^2.1.2",
+    "vuejs-dialog": "^1.4.1"
   },
   "devDependencies": {
     "@vue/cli-plugin-babel": "^4.0.0",

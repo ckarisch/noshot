@@ -16,6 +16,11 @@ var submission = {
       return url;
 
     },
+    submitList: function(frameList) {
+      for (let f in frameList) {        
+        this.submit(f);
+      }
+    },
     submit: function(video, frame) {
       let url = this.getSubmissionURL();
 
@@ -23,12 +28,20 @@ var submission = {
       url += "&frame=" + frame;
 
       window.log(`Submission: ${url}`);
+      this.$toastr.i(`v ${video} f ${frame}`, "Submission");
       fetch(url, {
-          method: "POST"
+          method: "POST",
+          mode: "cors"
         })
         .then(
-          response => window.log(response),
-          rejected => window.log(rejected)
+          response => {
+            window.log(response);
+            this.$toastr.s(`${response}`, "Submission succeeded");
+          },
+          rejected => {
+            window.log(rejected);
+            this.$toastr.e(`${rejected}`, "Submission failed");
+          }
         );
 
     }
