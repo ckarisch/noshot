@@ -43,13 +43,17 @@ fetch('./config/local.json', {
   .then(r => r.json()).then(json => {
     // override keys set in local cfg
     utils.updateJSONRecursive(window.appCfg, json);
-    // launch app
-    initApp();
+
+
   }, json => {
     // not found / unexpected error
-    let msg = `Local config: ${json}`;
+    let msg = `Local config: ${JSON.stringify(json)}`;
     window.log(msg);
-  });
+
+}).finally( () => {
+    // launch app in any case
+    initApp();
+});
 
 // creates VUE app
 function initApp() {
