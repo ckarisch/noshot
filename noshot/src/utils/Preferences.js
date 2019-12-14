@@ -12,27 +12,6 @@
  * IMPORTANT: Since this files is loaded before everything else, global does NOT yet exist.
  */
 
- // all noshot prefKeys defined in one place
- Preferences.prefKeys = {
-     TEAM: {
-         TEAM_ID: "teamId",
-         MEMBER_ID: "memberId",
-         LOCK_INPUT: "lockTeamInput",
-     },
-     VIDEO: {
-         AUTOPLAY: "videoAutoplay"
-     },
-     IMAGE: {
-         SIZE: "imageSize"
-     },
-     SUBMIT: {
-       CONFIRM: "confirmSubmit"
-     },
-     LOG: {
-         LOG_CACHE: "logObject"
-     }
- };
-
 class Preferences {
     static save(key, value) {
         localStorage[Preferences.suffix + key] = JSON.stringify(value);
@@ -69,5 +48,40 @@ class Preferences {
 
 }
 
+// all noshot prefKeys defined in one place
+Preferences.prefKeys = [
+  // team
+  "teamId", "memberId", "lockTeamInput",
+  // video
+  "videoAutoplay",
+  // image
+  "imageSize",
+  // submit
+  "confirmSubmit",
+  // logging
+  "logObject"
+];
+// Preferences.prefKeys = {
+//   TEAM: {
+//     TEAM_ID: "teamId",
+//     MEMBER_ID: "memberId",
+//     LOCK_INPUT: "lockTeamInput",
+//   },
+//   VIDEO: {
+//     AUTOPLAY: "videoAutoplay"
+//   },
+//   IMAGE: {
+//     SIZE: "imageSize"
+//   },
+//   SUBMIT: {
+//     CONFIRM: "confirmSubmit"
+//   },
+//   LOG: {
+//     LOG_CACHE: "logObject"
+//   }
+// };
+
 // support different preferences for different ecat installations
 Preferences.suffix = "noshot#" + location.host + location.pathname.replace("/", "") + "#";
+
+export default Preferences;

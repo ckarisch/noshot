@@ -43,12 +43,12 @@ export default {
           while (s.length < size) s = "0" + s;
           return s;
       },
-      click: function(event, confirm=true) {
+      click: function(event, confirm=this.appCfg.preferences.isEnabled("confirmSubmit", true)) {
 
         let imgUrl = event.target.src;
         let frame = this.utils.frameFromUrl(imgUrl);
         if (Object.keys(frame).length === 0) return;
-        window.log(event);
+
         // let style ="display: block;margin-left: auto;margin-right: auto;width: 50%;"
         let imgTag = `<img style='width:100%;' src='${event.target.src}' />`;
 
