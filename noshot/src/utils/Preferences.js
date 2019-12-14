@@ -12,6 +12,27 @@
  * IMPORTANT: Since this files is loaded before everything else, global does NOT yet exist.
  */
 
+ // all noshot prefKeys defined in one place
+ Preferences.prefKeys = {
+     TEAM: {
+         TEAM_ID: "teamId",
+         MEMBER_ID: "memberId",
+         LOCK_INPUT: "lockTeamInput",
+     },
+     VIDEO: {
+         AUTOPLAY: "videoAutoplay"
+     },
+     IMAGE: {
+         SIZE: "imageSize"
+     },
+     SUBMIT: {
+       CONFIRM: "confirmSubmit"
+     },
+     LOG: {
+         LOG_CACHE: "logObject"
+     }
+ };
+
 class Preferences {
     static save(key, value) {
         localStorage[Preferences.suffix + key] = JSON.stringify(value);
@@ -48,40 +69,5 @@ class Preferences {
 
 }
 
-// all diveXplore prefKeys defined in one place
-Preferences.prefKeys = {
-    TEAM: {
-        TEAM_ID: "teamId",
-        MEMBER_ID: "memberId",
-        LOCK_INPUT: "lockTeamInput",
-    },
-    SHOT_LIST: {
-        ZOOM: "shotListZoom",
-        GROUP_VIDEO: "shotListGroupVideo",
-        SHOW_TIMELINE: "shotListShowTimeline"
-    },
-    VIDEO: {
-        AUTOPLAY: "videoAutoplay",
-        HIGHLIGHT_RELEVANT_DIVE: "highlightRelevant",
-        JUMP_ON_SHOT_CHANGE: "jumpOnShotChange"
-    },
-    LOG: {
-        LOG_CACHE: "logObject"
-    },
-    NAV: {
-        BOOKMARKS: "showBookmarks",
-        SHOTINFO: "showShotInfo",
-        FILMSTRIP: "showFilmStrip",
-        QUICK_SUBMIT: "shotListQuickSubmit",
-        F_SUBMIT: "fButtonSubmit"
-    },
-    MAP_SEARCH: {
-        AUTOCLOSE_ON_SELECT: "autoCloseOnSelect"
-    },
-    CONCEPT_SEARCH: {
-        SELECT_IDX: "selectedConceptQueryIdx",
-    }
-};
-
 // support different preferences for different ecat installations
-Preferences.suffix = "diveXplore#" + location.host + location.pathname.replace("/featuremap.php", "") + "#";
+Preferences.suffix = "noshot#" + location.host + location.pathname.replace("/", "") + "#";
