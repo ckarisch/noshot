@@ -48,33 +48,13 @@ export default {
         else this.submitFrame(event);
       },
 
-      submitFrame: function(event, confirm=this.appCfg.preferences.isEnabled("confirmSubmit", true)) {
+      submitFrame: function(event) {
 
         let imgUrl = event.target.src;
         let video = this.utils.videoFromThumbUrl(imgUrl);
         if (Object.keys(video).length === 0) return;
 
-        // let style ="display: block;margin-left: auto;margin-right: auto;width: 50%;"
-        let imgTag = `<img style='width:100%;' src='${event.target.src}' />`;
-
-        // Trigger a confirmation dialog
-        if (confirm) {
-          this.$dialog
-            .confirm(`<div class="confirm_submission">
-                        <div>Confirm submission of</div>
-                        <div class='confirm_image'> ${imgTag}</div>
-                        <div>v ${video.id} f ${video.frame.number}</div>
-                      </div>`,
-              {html: true})
-            .then(() => {
-              window.log('Clicked on proceed');
-              this.submit(video.id, video.frame.number);
-            })
-            .catch(() => {
-              window.log('submission cancelled');
-            });
-        }
-        else this.submit(video.id, video.frame.number);
+        this.submitConfirm(video);
       },
 
       openVideo(event) {

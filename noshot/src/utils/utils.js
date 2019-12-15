@@ -57,7 +57,7 @@ const utilFuncs = {
       let videoID = parts[1].split("/")[1];
       let fps = utilFuncs.getVideoFPS(videoID);
       let second = parts[1].split("/")[2].split("_")[1];
-      let frame = new Frame(second, fps);
+      let frame = new Frame(second, fps, url);
 
       // video
       // place randomly
@@ -73,8 +73,46 @@ const utilFuncs = {
       if (!video.endsWith(".mp4")) video += '.mp4';
       return parseFloat(window.appCfg.fps[video]);
     },
+    frameToSecond: function(frame, fps) {
+      return parseFloat(frame) / fps;
+    },
     secondToFrame: function(second, fps) {
-      return Math.round(parseFloat(second) * fps);
+      return Math.floor(parseFloat(second) * fps);
+    },
+    /**
+     * Takes a screenshot from video.
+     * @param videoEl {Element} Video element
+     * @param scale {Number} Screenshot scale (default = 1)
+     * @returns {Element} Screenshot image element
+     */
+    getScreenshot: function(videoEl, scale) {
+        scale = scale || 1;
+
+        let canvas = document.createElement("canvas");
+        // canvas.useCORS = true;
+        canvas.allowTaint = false;
+        // canvas.crossOrigin = "anonymous";
+
+        canvas.width = videoEl.clientWidth * scale;
+        canvas.height = videoEl.clientHeight * scale;
+        canvas.getContext('2d').drawImage(videoEl, 0, 0, canvas.width, canvas.height);
+
+        // unfotunately does not work due to CORS policy...
+        return canvas.toDataURL();
+    },
+    copyCanvas: function(videoEl, scale) {
+      scale = scale || 1;
+
+      let canvas = document.createElement("canvas");
+      // canvas.useCORS = true;
+      canvas.allowTaint = false;
+      // canvas.crossOrigin = "anonymous";
+
+      canvas.width = videoEl.clientWidth * scale;
+      canvas.height = videoEl.clientHeight * scale;
+      canvas.getContext('2d').drawImage(videoEl, 0, 0, canvas.width, canvas.height);
+
+      return canvas;
     }
 };
 

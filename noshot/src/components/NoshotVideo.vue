@@ -1,19 +1,19 @@
 <template>
-  <!-- <div  > -->
 
-      <!-- <div style="height: 500px; width: 500px; border: 1px solid red; position: absolute;"> -->
-      <vue-draggable-resizable class="videoWindow" ref="draggableVideo" :w="draggableWidth" :h="draggableHeight" :x="draggableX" :y="draggableY" :z="1050" :resizable="false" :parent="true" @dragging="onDrag">
-        <div class="videoDragBar">
-          v {{ video.id }} f {{ currentFrame }} <button v-on:click="close" class="videoCloseButton" type="button"><i class="fas fa-window-close"></i></button>
-        </div>
-        <video ref="videoEl" @timeupdate="onTimeUpdateListener" v-bind:width="videoWidth" controls v-bind:autoplay="videoAutoplay">
-          <source v-bind:src="videoURL" type="video/mp4">
-          Sorry, your browser doesn't support embedded videos.
-        </video>
-      </vue-draggable-resizable>
-    <!-- </div> -->
+    <vue-draggable-resizable class="videoWindow" ref="draggableVideo" :w="draggableWidth" :h="draggableHeight" :x="draggableX" :y="draggableY" :z="1050" :resizable="false" :parent="true" @dragging="onDrag">
+      <div class="videoDragBar">
+        <b>v</b> {{ video.id }} <b>f</b> {{ currentFrame }}
+        <button v-on:click="submitFrame" class="frameSubmitButton" type="button"> <i class="fas fa-paper-plane"></i></button>
+        <button v-on:click="close" class="videoCloseButton" type="button"><i class="fas fa-window-close"></i></button>
+      </div>
+      <video ref="videoEl" @timeupdate="onTimeUpdateListener" v-bind:width="videoWidth" controls v-bind:autoplay="videoAutoplay">
+        <source v-bind:src="videoURL" type="video/mp4">
+        Sorry, your browser doesn't support embedded videos.
+      </video>
+      <div id="preview">
+      </div>
+    </vue-draggable-resizable>
 
-  <!-- </div> -->
 </template>
 
 <script>
@@ -70,6 +70,22 @@ export default {
         // update current frame
         if (!this.$refs.videoEl) return;
         this.currentFrame = this.utils.secondToFrame(this.$refs.videoEl.currentTime, this.video.frame.fps);
+      },
+      submitFrame: function() {
+        // clone video
+        let video_current = JSON.parse(JSON.stringify(this.video));
+        if (this.currentFrame !== this.video.frame.number) {
+          video_current.frame.number = this.currentFrame;
+          video_current.frame.second = this.utils.frameToSecond(this.currentFrame, video_current.frame.fps);
+          // get video screenshot (only for confirm = true, since it takes some time)
+          if (this.appCfg.preferences.isEnabled("confirmSubmit", true)) {
+            let cv = this.utils.copyCanvas(this.$refs.videoEl);
+            // let imgUrl = this.utils.getThumb(this.$refs.videoEl);
+            video_current.frame.url = null;
+            video_current.frame.canvas = cv;  
+          }
+        }
+        this.submitConfirm(video_current);
       }
     },
 

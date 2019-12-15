@@ -1,13 +1,11 @@
 class Frame {
-  constructor(second, fps) {
+  constructor(second, fps, url) {
     this.second = second;
     this.fps = fps;
-    this.number = this.second * this.fps;
+    this.number = Math.floor(this.second * this.fps);
+    this.url = url;
+    this.canvas = null;
   }
-  // calc exact seconds from frame
-  // toSeconds() {
-  //   return (parseFloat(this.number) / this.fps).toFixed(3);
-  // }
 }
 
 export default Frame;
