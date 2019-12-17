@@ -1,5 +1,8 @@
 <template>
 <div>
+    <SideMenu ref="sideMenu" />
+    <ejs-button id="toggleMenuButton" ref="togglebtn" class="e-btn e-info"  cssClass="e-flat" iconCss="e-icons burg-icon" isToggle="true" v-on:click.native="toggleSideMenu"></ejs-button>
+    <NoshotVideo v-for="vid of videos" :key="vid.id + '_' + vid.frame.second" :video="vid"/>
     <div class="header">
         <div class="tabs">
             <ul class="">
@@ -16,7 +19,6 @@
                 </li>
             </ul>
         </div>
-
         <input v-if="typeof activeWorkspace !== 'undefined'" class="new-search" autofocus autocomplete="off" placeholder="enter new search" v-model="newSearch" @keyup.enter="addSearch">
     </div>
     <section v-if="typeof activeWorkspace !== 'undefined'" class="main" v-show="searches.length" v-cloak>
@@ -62,15 +64,13 @@
                                 <NoshotImage :search="search" :img="img"/>
                                 <span class="imageDescription"><strong>{{img.categoryName}}</strong> <br/>Parent: <strong>{{img.parentName}}</strong> <br/>Confidence: <strong>{{Math.round(img.probability * 100) / 100}}</strong></span>
                             </div>
-
-
                         </div>
                     </div>
                 </div>
-                <input class="edit" type="text" v-model="search.title" v-search-focus="search == editedSearch" @blur="doneEdit(search)" @keyup.enter="doneEdit(search)" @keyup.esc="cancelEdit(search)">
-            </li>
+              </li>
         </ul>
     </section>
+
     <div class="footer" v-show="searches.length" v-cloak>
         <span class="search-count">
             Searches: <strong>{{ all }}</strong>
@@ -81,6 +81,8 @@
 
 <script>
 import NoshotImage from './NoshotImage.vue'
+import NoshotVideo from './NoshotVideo.vue'
+import SideMenu from './SideMenu.vue'
 
 // localStorage persistence
 var STORAGE_KEY = 'DIVE-layout'
@@ -111,7 +113,23 @@ var searchStorage = {
 export default {
     name: 'SearchTool',
     components: {
-      NoshotImage
+      NoshotImage,
+      NoshotVideo,
+      SideMenu
+    },
+    created() {
+      // listeners
+      this.$on('open-video', (video) => {
+        this.openVideo(video);
+      });
+      this.$on('close-video', (video) => {
+        this.closeVideo(video);
+      });
+      document.addEventListener('keyup', (evt) => {
+          if (evt.keyCode === 27) {
+              this.escape();
+          }
+      });
     },
     props: {
         msg: String
@@ -132,6 +150,7 @@ export default {
             loading: false,
             post: null,
             error: null,
+            videos: [],
             cacheRange: 1
         };
     },
@@ -333,6 +352,36 @@ export default {
                     this.activeWorkspace = w;
                 }
             }
+        },
+
+        toggleSideMenu: function(){
+          if(this.$refs.togglebtn.$el.classList.contains('e-active')){
+              this.$refs.togglebtn.Content = 'Open';
+              // this.$emit('closeMenu');
+              this.$refs.sideMenu.closeMenu();
+          }
+          else{
+              this.$refs.togglebtn.Content = 'Close';
+              // this.$emit('openMenu');
+              this.$refs.sideMenu.openMenu();
+          }
+        },
+
+        openVideo: function(video) {
+          for (let v of this.videos) {
+            // don't open same videos twice
+            if (v.getUniqueID() === video.getUniqueID()) return;
+          }
+          this.videos.push(video);
+        },
+
+        closeVideo: function(video) {
+          let idx = this.videos.indexOf(video);
+          if (idx > -1) this.videos.splice(idx, 1);
+        },
+
+        escape: function() {
+          this.closeVideo(this.videos[this.videos.length-1]);
         },
 
         updateCacheRange: function(search) {

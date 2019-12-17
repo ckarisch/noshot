@@ -46,22 +46,24 @@ export default {
           return s;
       },
       click: function(event) {
+        if (event.shiftKey) this.openVideo(event);
+        else this.submitFrame(event);
+      },
 
-        // Trigger a confirmation dialog
-        // this.$dialog
-        //   .confirm('Please confirm to continue')
-        //   .then(function() {
-        //     console.log('Clicked on proceed');
-        //   })
-        //   .catch(function() {
-        //     console.log('Clicked on cancel');
-        //   });
+      submitFrame: function(event) {
 
         let imgUrl = event.target.src;
-        let frame = this.utils.frameFromUrl(imgUrl);
-        if (Object.keys(frame).length > 0) this.submit(frame.video, frame.number);
-        // window.log(event);
-        // window.log("click!!");
+        let video = this.utils.videoFromThumbUrl(imgUrl);
+        if (Object.keys(video).length === 0) return;
+
+        this.submitConfirm(video);
+      },
+
+      openVideo(event) {
+        let imgUrl = event.target.src;
+        let video = this.utils.videoFromThumbUrl(imgUrl);
+        if (Object.keys(video).length === 0) return;
+        this.$parent.$emit('open-video', video);
       },
       generateRange: function(videoRange) {
         let range = [];

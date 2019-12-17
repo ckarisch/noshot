@@ -1,4 +1,5 @@
 import Frame from '../entities/Frame.js'
+import Video from '../entities/Video.js'
 
 // general utils
 const utilFuncs = {
@@ -48,12 +49,70 @@ const utilFuncs = {
         }
       }
     },
-    frameFromUrl: function(url, dataLocation = window.appCfg.dataServer.keyframesLocation) {
+    videoFromThumbUrl: function(url, dataLocation = window.appCfg.dataServer.keyframesLocation) {
+
+      // frame
       let parts = url.split(dataLocation);
       if (parts.length < 1) return {};
-      let video = parts[1].split("/")[1];
-      let frame = parts[1].split("/")[2].split("_")[1];
-      return new Frame(video, frame);
+      let videoID = parts[1].split("/")[1];
+      let fps = utilFuncs.getVideoFPS(videoID);
+      let second = parts[1].split("/")[2].split("_")[1];
+      let frame = new Frame(second, fps, url);
+
+      // video
+      // place randomly
+      let maxLeft = window.innerWidth - parseInt(window.appCfg.video.width+"px".replace("px",''));
+      let maxTop = window.innerHeight - parseInt(window.appCfg.video.width/16*9+20+"px".replace("px",''));
+      let rndLeft = Math.floor(Math.random() * (maxLeft+1));  // 0 - maxLeft
+      let rndTop = Math.floor(Math.random() * (maxTop+1));    // 0 - maxTop
+
+      let video = new Video(videoID, frame, {x: rndLeft, y: rndTop});
+      return video;
+    },
+    getVideoFPS: function(video) {
+      if (!video.endsWith(".mp4")) video += '.mp4';
+      return parseFloat(window.appCfg.fps[video]);
+    },
+    frameToSecond: function(frame, fps) {
+      return parseFloat(frame) / fps;
+    },
+    secondToFrame: function(second, fps) {
+      return Math.floor(parseFloat(second) * fps);
+    },
+    /**
+     * Takes a screenshot from video.
+     * @param videoEl {Element} Video element
+     * @param scale {Number} Screenshot scale (default = 1)
+     * @returns {Element} Screenshot image element
+     */
+    getScreenshot: function(videoEl, scale) {
+        scale = scale || 1;
+
+        let canvas = document.createElement("canvas");
+        // canvas.useCORS = true;
+        canvas.allowTaint = false;
+        // canvas.crossOrigin = "anonymous";
+
+        canvas.width = videoEl.clientWidth * scale;
+        canvas.height = videoEl.clientHeight * scale;
+        canvas.getContext('2d').drawImage(videoEl, 0, 0, canvas.width, canvas.height);
+
+        // unfotunately does not work due to CORS policy...
+        return canvas.toDataURL();
+    },
+    copyCanvas: function(videoEl, scale) {
+      scale = scale || 1;
+
+      let canvas = document.createElement("canvas");
+      // canvas.useCORS = true;
+      canvas.allowTaint = false;
+      // canvas.crossOrigin = "anonymous";
+
+      canvas.width = videoEl.clientWidth * scale;
+      canvas.height = videoEl.clientHeight * scale;
+      canvas.getContext('2d').drawImage(videoEl, 0, 0, canvas.width, canvas.height);
+
+      return canvas;
     }
 };
 

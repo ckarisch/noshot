@@ -48,40 +48,40 @@ class Preferences {
 
 }
 
-// all diveXplore prefKeys defined in one place
-Preferences.prefKeys = {
-    TEAM: {
-        TEAM_ID: "teamId",
-        MEMBER_ID: "memberId",
-        LOCK_INPUT: "lockTeamInput",
-    },
-    SHOT_LIST: {
-        ZOOM: "shotListZoom",
-        GROUP_VIDEO: "shotListGroupVideo",
-        SHOW_TIMELINE: "shotListShowTimeline"
-    },
-    VIDEO: {
-        AUTOPLAY: "videoAutoplay",
-        HIGHLIGHT_RELEVANT_DIVE: "highlightRelevant",
-        JUMP_ON_SHOT_CHANGE: "jumpOnShotChange"
-    },
-    LOG: {
-        LOG_CACHE: "logObject"
-    },
-    NAV: {
-        BOOKMARKS: "showBookmarks",
-        SHOTINFO: "showShotInfo",
-        FILMSTRIP: "showFilmStrip",
-        QUICK_SUBMIT: "shotListQuickSubmit",
-        F_SUBMIT: "fButtonSubmit"
-    },
-    MAP_SEARCH: {
-        AUTOCLOSE_ON_SELECT: "autoCloseOnSelect"
-    },
-    CONCEPT_SEARCH: {
-        SELECT_IDX: "selectedConceptQueryIdx",
-    }
-};
+// all noshot prefKeys defined in one place
+Preferences.prefKeys = [
+  // team
+  "teamId", "memberId", "lockTeamInput",
+  // video
+  "videoAutoplay",
+  // image
+  "imageSize",
+  // submit
+  "confirmSubmit",
+  // logging
+  "logObject"
+];
+// Preferences.prefKeys = {
+//   TEAM: {
+//     TEAM_ID: "teamId",
+//     MEMBER_ID: "memberId",
+//     LOCK_INPUT: "lockTeamInput",
+//   },
+//   VIDEO: {
+//     AUTOPLAY: "videoAutoplay"
+//   },
+//   IMAGE: {
+//     SIZE: "imageSize"
+//   },
+//   SUBMIT: {
+//     CONFIRM: "confirmSubmit"
+//   },
+//   LOG: {
+//     LOG_CACHE: "logObject"
+//   }
+// };
 
 // support different preferences for different ecat installations
-Preferences.suffix = "diveXplore#" + location.host + location.pathname.replace("/featuremap.php", "") + "#";
+Preferences.suffix = "noshot#" + location.host + location.pathname.replace("/", "") + "#";
+
+export default Preferences;
