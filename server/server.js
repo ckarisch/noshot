@@ -93,7 +93,7 @@ app.get('/search/:net/:category/:cache', function searchHandler(req, res) {
         q = q.replaceArray([' ', ':'], ['+', '%3A']);
 
         // const params = util.format('&rows=%i&sort=probability%20desc&group=true&group.field=video&group.main=true', 1000);
-        const params = util.format('&sort=probability%20desc&rows=%i', 500);
+        const params = util.format('&sort=probability%20desc&rows=%i', 200);
 
 
         http.get({

@@ -53,7 +53,7 @@
                         </div>
                         <div class="slidecontainer">
                           range ({{ search.videoRange }})
-                          <input type="range" min="0" max="7" value="1" class="slider" v-model="search.videoRange" @change="fetchSolrSearch(search)">
+                          <input type="range" min="0" max="5" value="1" class="slider" v-model="search.videoRange" @change="fetchSolrSearch(search)">
                         </div>
                     </div>
                     <div :class="{ showFrames: search.frames, resultContainer: true }">
@@ -337,7 +337,7 @@ export default {
 
         updateCacheRange: function(search) {
           const temp = search.selectedCache;
-          search.selectedCache = this.getClosest(search.cacheRange, [1,10,180]);
+          search.selectedCache = this.getClosest(search.cacheRange, this.caches);
           if(temp != search.selectedCache)
             this.fetchSolrSearch(search);
         },
