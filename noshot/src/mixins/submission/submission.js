@@ -51,7 +51,7 @@ var submission = {
             {
             html: true,
             // close on clicking outside
-            backdropClose: false
+            backdropClose: true
           }).then(() => {
             // window.log('Clicked on proceed');
             this.submit(video.id, video.frame.number);
