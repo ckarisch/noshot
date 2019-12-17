@@ -21,6 +21,13 @@ Started Solr server on port 8983. Happy searching!
 
 Make sure `[install_dir]` is writable by user `solr` (i.e. right click folder and un-check `Read-only`, apply for all subfolders). Copy [core1](../../appdata/solr/core1) folder to `[install_dir]\server\solr`.
 
+Example:
+```
+sudo chown -R user:solr /var/solr
+sudo chmod -R 775 /var/solr
+```
+
+
 Open [http://localhost:8983/solr/](http://localhost:8983/solr/). Create a new core using `Core Admin` using following config:
 
 ```
