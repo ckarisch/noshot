@@ -1,71 +1,58 @@
 class ActionLogger {
 
 /**
- * VBS 2019
+ * VBS 2020
  *
  * Action Logging:
- * Last year we introduced a rudimental interaction logging, so we can perform a more detailed analysis after the competition.
- * At VBS 2019, we refined the logging mechanism as follows:
- * Interaction logs are now sent as body of the HTTP POST request
- * They have to be encoded as JSON and should adhere to the agreed format that all teams received
- * If you issue multiple submissions during a task, always clear the log sequence after each submission to avoid unnecessary redundancy (no cumulative logging!).
- * A log message is usually sent in combination with an actual submission, but can also be sent independently of a submission (in case the target scene was not found). In that case, simply do not specify a video and frame/shot in the URL parameters
- * Log messages are also accepted after a task has ended (but don't forget to send it!)
+ * The first successful interaction logging attempt at VBS
+ * 2018 demonstrated that it is viable to instantly collect infor-
+ * mation on what actions were being used to solve a task and
+ * also how users interact with their systems. For VBS 2019,
+ * the employed log format was revisited to be more versatile
+ * (i.e., to support all expected actions in all participating tools),
+ * but still ensuring that teams use a general unified set of
+ * action categories. For the current iteration at VBS 2020, we
+ * tried to re-iterate on those efforts and further simplified the
+ * format based on the lessons learned. Furthermore, we added
+ * a method to log ranked lists of results in addition to the
+ * (inter-)actions submitted by the teams.
  *
  *
  * Message Format Example:
  *  {
- *      "teamId": "SIRET",
+ *      "teamId": "4",
  *      "memberId": 2,
  *      "timestamp": 1542960322, // time (UNIX) of when message was submitted
- *      "type": "submit",
+ *      "type": "submission",
  *
- *      "events": [
- *          { // (composite) event 1
- *              "timestamp": 1542960225,
- *              "actions": [
- *                  {
- *                      "timestamp": 1542960120,
- *                      "category": "text",
- *                      "type": "ASR",
- *                      "value": "how are you",
- *                      "attributes": "1000 NN"
- *                  },
- *                       ...
- *                     { ... }
- *              ]
- *          },
- *          { // (atomic) event 2
- *              "timestamp": 1542960136,
- *              "category": "browsing",
- *              "type": "rankedList",
- *              "value": "scrollDown"
- *          },
- *          { // (atomic) event 3
- *              "timestamp": 1542960145,
- *              "category": "image",
- *              "type": "globalFeature",
- *              "value": "VId10,FN35;VId65,FN228"
- *              "attributes": "rerank"
- *          },
- *
- *                      ...
- *
- *          { // (atomic) event n - 1
- *              "timestamp": 1542960290,
- *              "category": "text",
- *              "type": ["concept", "ocr"],
- *              "value": "horse",
- *              "attributes": "1000 NN; sort"
- *          },
- *          { // (atomic) event n
- *              "timestamp": 1542960305,
- *              "category": "browsing",
- *              "type": "videoPlayer",
- *              "value": "play VId10,FN160"
- *          }
- *      ]
- *
+ *      "events" :
+ *       [
+ *           { // Event 1
+ *               "timestamp" : 1542960120, // UNIX timestamp of when event was registered by client.
+ *               "category" : "text",
+ *               "type" : "ASR",
+ *               "value" : "how are you",
+ *           },
+ *           { // Event 2
+ *               "timestamp" : 1542960136,
+ *               "category" : "browsing",
+ *               "type" : "rankedList",
+ *               "value" : "scrollDown"
+ *           },
+ *           { // Event 3
+ *               "timestamp" : 1542960145,
+ *               "category" : "image",
+ *               "type" : "globalFeature",
+ *               "value" : "VId10,FN35;VId65,FN228"
+ *           },
+ *           ...
+ *           { // Event n
+ *               "timestamp" : 1542960305,
+ *               "category" : "browsing",
+ *               "type" : "videoPlayer",
+ *               "value" : "play VId10,FN160"
+ *           }
+ *       ]
  * }
  *
  *
@@ -442,5 +429,6 @@ class ActionLogger {
             return "" + v;
         }
     }
-
 }
+
+export default ActionLogger;

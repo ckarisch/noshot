@@ -50,3 +50,5 @@ class CompositeEvent {
         }
     }
 }
+
+export default CompositeEvent;
