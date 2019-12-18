@@ -1,5 +1,5 @@
 <template>
-      <section class="main" v-show="searches.length" v-cloak>
+      <section class="main" v-cloak>
 
           <input class="new-search" autofocus autocomplete="off" placeholder="enter new search" v-model="newSearch" @keyup.enter="addSearch">
 
@@ -94,7 +94,7 @@ export default {
             searches: searchStorage.fetchSearches(),
             newSearch: '',
             editedSearch: null,
-            selectedNetwork: 'cnn_googleyolo',
+            selectedNetwork: 'cnn_yolo',
             nets: ['cnn_yolo'],
             caches: [1, 10, 30, 60, 180],
             loading: false,
@@ -118,7 +118,7 @@ export default {
         filteredSearches: function() {
             let app = this;
             return this.searches.filter(function(search) {
-                var workspaceVisible = search.workspace == app.visibility || search.workspace == 0 || search.workspace === undefined;
+                var workspaceVisible = search.workspace == app.activeWorkspace.id || search.workspace === undefined;
                 return workspaceVisible && search.minimized == false;
             })
         },
@@ -126,7 +126,7 @@ export default {
             let app = this;
             // console.log(app.visibility)
             return this.searches.filter(function(search) {
-                var workspaceVisible = search.workspace == app.visibility || search.workspace == 0 || search.workspace === undefined;
+                var workspaceVisible = search.workspace == app.activeWorkspace.id || search.workspace === undefined;
                 return workspaceVisible && search.minimized == true;
             })
         },
@@ -146,7 +146,7 @@ export default {
                 id: searchStorage.uid++,
                 title: value,
                 frames: true,
-                workspace: this.visibility,
+                workspace: this.activeWorkspace.id,
                 minimized: false,
                 maximized: false,
                 selectedCache: 1,

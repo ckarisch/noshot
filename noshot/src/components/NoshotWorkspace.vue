@@ -22,7 +22,7 @@
         </div>
     <div class="content">
 
-        <SearchTool v-if="typeof activeWorkspace !== 'undefined'" :activeWorkspace="activeWorkspace" />
+        <SearchTool ref="searchTool" v-if="typeof activeWorkspace !== 'undefined'" :activeWorkspace="activeWorkspace" />
 
     </div>
 </div>
@@ -154,25 +154,27 @@ export default {
 
         removeWorkspace: function(workspace) {
             var temp = [];
-            for (let search of this.searches) {
+            let searches = this.$refs.searchTool.searches;
+
+            for (let search of searches) {
                 temp.push(search);
             }
 
-            for (var i = 0; i < this.searches.length; i++) {
-                if (this.searches[i].workspace == workspace.id) {
-                    this.searches.splice(this.searches.indexOf(this.searches[i]), 1)
+            for (var i = 0; i < searches.length; i++) {
+                if (searches[i].workspace == workspace.id) {
+                    searches.splice(searches.indexOf(searches[i]), 1)
                     i--;
                 }
             }
 
+            window.log(searches);
+
             this.workspaces.splice(this.workspaces.indexOf(workspace), 1);
-            // this.visibility = 'default';
         },
 
         // handle routing
         onHashChange: function() {
             var hash = window.location.hash.replace(/#\/?/, '')
-            // app.visibility = 'default'
 
             for(var w of this.workspaces)
             {
