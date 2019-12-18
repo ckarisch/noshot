@@ -63,7 +63,7 @@ export default {
         let imgUrl = event.target.src;
         let video = this.utils.videoFromThumbUrl(imgUrl);
         if (Object.keys(video).length === 0) return;
-        this.$parent.$emit('open-video', video);
+        this.notifyparents(this, 'open-video', video);
       },
       generateRange: function(videoRange) {
         let range = [];
@@ -71,6 +71,13 @@ export default {
           range[i] = i;
         }
         return range;
+      },
+      notifyparents(element, msg, object) {
+        let parent = element.$parent;
+        while(parent) {
+          parent.$emit(msg, object);
+          parent = parent.$parent;
+        }
       }
     },
 
