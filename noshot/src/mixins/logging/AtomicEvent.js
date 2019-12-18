@@ -39,3 +39,4 @@ class AtomicEvent {
     }
 
 }
+export default AtomicEvent;

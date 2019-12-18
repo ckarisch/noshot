@@ -1,10 +1,10 @@
 <template>
 
-    <vue-draggable-resizable class="videoWindow" ref="draggableVideo" :w="draggableWidth" :h="draggableHeight" :x="draggableX" :y="draggableY" :z="1050" :resizable="false" :parent="true" @dragging="onDrag">
+    <vue-draggable-resizable class="videoWindow" ref="draggableVideo" :w="draggableWidth" :x="draggableX" :y="draggableY" :z="1050" :resizable="false" :parent="true" @dragstop="onDragStop" @dragging="onDrag">
       <div class="videoDragBar">
+        <button v-on:click="submitFrame" class="frameSubmitButton videoButton" type="button"> <i class="fas fa-paper-plane"></i></button>
         <b>v</b> {{ video.id }} <b>f</b> {{ currentFrame }}
-        <button v-on:click="submitFrame" class="frameSubmitButton" type="button"> <i class="fas fa-paper-plane"></i></button>
-        <button v-on:click="close" class="videoCloseButton" type="button"><i class="fas fa-window-close"></i></button>
+        <button v-on:click="close" class="videoCloseButton videoButton" type="button"><i class="fas fa-window-close"></i></button>
       </div>
       <video ref="videoEl" @timeupdate="onTimeUpdateListener" v-bind:width="videoWidth" controls v-bind:autoplay="videoAutoplay">
         <source v-bind:src="videoURL" type="video/mp4">
@@ -31,17 +31,16 @@ export default {
       this.videoWidth = this.appCfg.video.width + "px";
       this.draggableWidth = this.appCfg.video.width;
       this.videoAutoplay = this.appCfg.preferences.isEnabled("videoAutoplay", true);
+      this.isDragged = false;
     },
     props: {
-        video: Object,
-        draggableHeight: Number
+        video: Object
     },
     data: function () {
         return {
           draggableX: this.video.pos.x,
           draggableY: this.video.pos.y,
           currentFrame: this.video.frame.number
-          // draggableHeight: this.$refs.videoEl.width
         };
     },
     mixins: [submission],
@@ -57,11 +56,11 @@ export default {
     },
 
     methods: {
-      click: function(event) {
-        window.log(event);
-      },
       onDrag: function () {
-
+        this.isDragged = true;
+      },
+      onDragStop: function () {
+        this.isDragged = false;
       },
       close: function() {
         this.$parent.$emit('close-video', this.video);
@@ -82,7 +81,7 @@ export default {
             let cv = this.utils.copyCanvas(this.$refs.videoEl);
             // let imgUrl = this.utils.getThumb(this.$refs.videoEl);
             video_current.frame.url = null;
-            video_current.frame.canvas = cv;  
+            video_current.frame.canvas = cv;
           }
         }
         this.submitConfirm(video_current);

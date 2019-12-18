@@ -21,56 +21,57 @@
         </div>
         <input v-if="typeof activeWorkspace !== 'undefined'" class="new-search" autofocus autocomplete="off" placeholder="enter new search" v-model="newSearch" @keyup.enter="addSearch">
     </div>
-    <section v-if="typeof activeWorkspace !== 'undefined'" class="main" v-show="searches.length" v-cloak>
-        <ul class="dive-layout searches minimized">
-            <li v-for="search in filteredSearchesMinimized" class="search searchContainer" :key="search.id" :class="{ marked: search.marked, editing: search == editedSearch, minimized: search.minimized, maximized: search.maximized }">
-                <div class="view">
-                    <div class="menu">
-                        <button class="minimize" @click="minimizeSearch(search)"></button>
-                        <button class="destroy" @click="removeSearch(search)"></button>
-                    </div>
-                    <div class="searchNavigation">
-                        <input placeholder="Suchbegriff" v-model="search.title" />
-                    </div>
-                </div>
-            </li>
-        </ul>
-        <ul class="dive-layout searches">
-            <li v-for="search in filteredSearches" :key="search.id" :class="{ search: true, searchContainer: true, minimized: search.minimized, maximized: search.maximized }">
-                <div class="view">
-                    <div class="menuLeft">
-
-                      <span>{{search.images.length}}</span>
-                    </div>
-                    <div class="menu">
-                        <button class="minimize" @click="minimizeSearch(search)"></button>
-                        <button class="maximize" @click="maximizeSearch(search)"></button>
-                        <button class="destroy" @click="removeSearch(search)"></button>
-                    </div>
-                    <div class="searchNavigation">
-                        <input placeholder="Suchbegriff" v-model="search.title" @keyup="fetchSolrSearch(search)" />
-                        <div class="slidecontainer">
-                          cache ({{ search.selectedCache }})
-                          <input type="range" min="1" max="180" value="1" class="slider" v-model="search.cacheRange" @change="updateCacheRange(search)">
-                        </div>
-                        <div class="slidecontainer">
-                          range ({{ search.videoRange }})
-                          <input type="range" min="0" max="5" value="1" class="slider" v-model="search.videoRange" @change="fetchSolrSearch(search)">
-                        </div>
-                    </div>
-                    <div :class="{ showFrames: search.frames, resultContainer: true }">
-                        <div>
-                            <div v-for="img in search.images" :key="search.id + '_' + img.video + '_' + img.second" :data="search.id + '_' + img.video + '_' + img.second" :probability="img.probability">
-                                <NoshotImage :search="search" :img="img"/>
-                                <span class="imageDescription"><strong>{{img.categoryName}}</strong> <br/>Parent: <strong>{{img.parentName}}</strong> <br/>Confidence: <strong>{{Math.round(img.probability * 100) / 100}}</strong></span>
-                            </div>
-                        </div>
-                    </div>
-                </div>
+    <div class="content">
+      <section v-if="typeof activeWorkspace !== 'undefined'" class="main" v-show="searches.length" v-cloak>
+          <ul class="dive-layout searches minimized">
+              <li v-for="search in filteredSearchesMinimized" class="search searchContainer" :key="search.id" :class="{ marked: search.marked, editing: search == editedSearch, minimized: search.minimized, maximized: search.maximized }">
+                  <div class="view">
+                      <div class="menu">
+                          <button class="minimize" @click="minimizeSearch(search)"></button>
+                          <button class="destroy" @click="removeSearch(search)"></button>
+                      </div>
+                      <div class="searchNavigation">
+                          <input placeholder="Suchbegriff" v-model="search.title" />
+                      </div>
+                  </div>
               </li>
-        </ul>
-    </section>
+          </ul>
+          <ul class="dive-layout searches">
+              <li v-for="search in filteredSearches" :key="search.id" :class="{ search: true, searchContainer: true, minimized: search.minimized, maximized: search.maximized }">
+                  <div class="view">
+                      <div class="menuLeft">
 
+                        <span>{{search.images.length}}</span>
+                      </div>
+                      <div class="menu">
+                          <button class="minimize" @click="minimizeSearch(search)"></button>
+                          <button class="maximize" @click="maximizeSearch(search)"></button>
+                          <button class="destroy" @click="removeSearch(search)"></button>
+                      </div>
+                      <div class="searchNavigation">
+                          <input placeholder="Suchbegriff" v-model="search.title" @keyup="fetchSolrSearch(search)" />
+                          <div class="slidecontainer">
+                            cache ({{ search.selectedCache }})
+                            <input type="range" min="1" max="180" value="1" class="slider" v-model="search.cacheRange" @change="updateCacheRange(search)">
+                          </div>
+                          <div class="slidecontainer">
+                            range ({{ search.videoRange }})
+                            <input type="range" min="0" max="5" value="1" class="slider" v-model="search.videoRange" @change="fetchSolrSearch(search)">
+                          </div>
+                      </div>
+                      <div :class="{ showFrames: search.frames, resultContainer: true }">
+                          <div>
+                              <div v-for="img in search.images" :key="search.id + '_' + img.video + '_' + img.second" :data="search.id + '_' + img.video + '_' + img.second" :probability="img.probability">
+                                  <NoshotImage :search="search" :img="img"/>
+                                  <span class="imageDescription"><strong>{{img.categoryName}}</strong> <br/>Parent: <strong>{{img.parentName}}</strong> <br/>Confidence: <strong>{{Math.round(img.probability * 100) / 100}}</strong></span>
+                              </div>
+                          </div>
+                      </div>
+                  </div>
+                </li>
+          </ul>
+      </section>
+    </div>
     <div class="footer" v-show="searches.length" v-cloak>
         <span class="search-count">
             Searches: <strong>{{ all }}</strong>

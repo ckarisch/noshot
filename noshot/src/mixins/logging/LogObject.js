@@ -68,3 +68,4 @@ class LogObject {
         }
     }
 }
+export default LogObject;
