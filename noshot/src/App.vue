@@ -1,18 +1,18 @@
 <template>
   <div id="app" class="app">
-    <SearchTool msg="Welcome to Your Vue.js App"/>
+    <NoshotWorkspace />
   </div>
 </template>
 
 <script>
-import SearchTool from './components/SearchTool.vue'
+import NoshotWorkspace from './components/NoshotWorkspace.vue'
 import './scss/main/style.scss'
 
 
 export default {
   name: 'app',
   components: {
-    SearchTool
+    NoshotWorkspace
   }
 }
 </script>
