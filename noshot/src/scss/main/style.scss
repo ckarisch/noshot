@@ -205,6 +205,8 @@ li.tab.selected a {
         background: #fff;
         padding: .2em;
         text-align: center;
+        pointer-events: none;
+        opacity: .9;
       }
     }
 
