@@ -14,3 +14,13 @@ cat x* > yolo9000.weights
 rm xaa
 rm xab
 
+
+
+install solr
+goto solr install dir
+copy noshot/appdata/solr/noshot_solr_config to server/solr/configsets
+
+bin/solr create -c noshot -d noshot_solr_config -n noshot_solr_config
+
+import json:
+curl -X POST -H 'Content-Type: application/json' 'http://localhost:8983/solr/noshot/update' --data-binary @data.json

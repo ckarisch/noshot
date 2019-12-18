@@ -12,7 +12,7 @@ var solr = require('solr-client');
 var client = solr.createClient({
     host: '127.0.0.1',
     port: '8983',
-    core: 'core1',
+    core: 'noshot',
     protocol: 'http'
 });
 
@@ -58,7 +58,7 @@ app.get('/search/:net/:category/:cache', function searchHandler(req, res) {
     // console.log(category);
     //
     // category = escape('(' + category + ')');
-    // const path = util.format('/solr/core1/select?q=categoryName%3A%s%20AND%20net%3A%s%20AND%20nodeType%3A%s&rows=%i&sort=probability%20desc', category, net, cache, 1000);
+    // const path = util.format('/solr/noshot/select?q=categoryName%3A%s%20AND%20net%3A%s%20AND%20nodeType%3A%s&rows=%i&sort=probability%20desc', category, net, cache, 1000);
 
 
 
@@ -69,7 +69,7 @@ app.get('/search/:net/:category/:cache', function searchHandler(req, res) {
 
     // add searched category
     children.push(categoryId[0]);
-    const solrGetUrl = new url.URL('http://' + hostname + ':8983/solr/core1/select');
+    const solrGetUrl = new url.URL('http://' + hostname + ':8983/solr/noshot/select');
 
     let categoryString = '';
     for (let c of children) {
@@ -99,7 +99,7 @@ app.get('/search/:net/:category/:cache', function searchHandler(req, res) {
         http.get({
             hostname: 'localhost',
             port: 8983,
-            path: '/solr/core1/select?q=' + q + params,
+            path: '/solr/noshot/select?q=' + q + params,
             agent: false // Create a new agent just for this one request
         }, (resp) => {
             let data = '';
@@ -267,6 +267,34 @@ function getLimit(client, parameter, query) {
   });
 }
 
+function getKeyframe(client, video, second) {
+  return new Promise((resolve, reject) => {
+    var query = client.createQuery()
+    				   .q(util.format('nodeType:1 AND video:%i AND second:%i', video, second))
+               .sort({'probability': 'desc'})
+               .start(0)
+    				   .rows(1);
+
+    client.search(query,(err, obj) => {
+      if(err) reject(err)
+      else {
+        let keyframe = obj.response.docs[0];
+
+        if(typeof keyframe === 'undefined')
+        {
+          return resolve(null);
+        }
+
+        delete keyframe.id;
+        delete keyframe._version_;
+
+        resolve(keyframe);
+      }
+    });
+  });
+
+}
+
 function getBestKeyframe(client, video, startSecond, endSecond, categoryId, cacheSize) {
   return new Promise((resolve, reject) => {
     var query = client.createQuery()
@@ -422,6 +450,62 @@ app.get('/update/:cache', async function cacheUpdateHandler(req, res) {
 
 });
 
+
+app.get('/generate-docs', async function cacheUpdateHandler(req, res) {
+  res.statusCode = 200;
+  res.setHeader('Content-Type', 'text/html');
+
+  client.deleteByQuery("keyframe:*",function(err,obj){
+     if(err){
+     	console.log(err);
+     }else{
+     	console.log("old docs cleared");
+     }
+  });
+
+
+    let videos = (await getLimit(client, 'video')).video; // highest video number
+    let categories = (await getLimit(client, 'category')).category; // highest category number
+    let seconds = (await getLimit(client, 'second')).second; // longest video
+    let data = [];
+    let datacounter = 0;
+    let startTime = new Date();
+
+    writeLine(res, "total videos: " + videos);
+
+    for (let video = 1; video <= videos; video++) {
+      data = [];
+      for (let second = 1; second <= seconds; second += 1) {
+          let keyframe = await getKeyframe(client, video, second);
+          if(keyframe)
+          {
+            keyframe.keyframe = video + "_" + second;
+            data.push(keyframe);
+          }
+      }
+
+      client.add(data,function(err,obj){
+        if(err){
+         console.log(err);
+        }else{
+          client.commit();
+        }
+      });
+
+      const time = (new Date() - startTime) / 1000;
+
+      console.log("video: " + video + " of " + videos);
+
+      writeLine(res, "");
+      writeLine(res, "video: " + video + " of " + videos + ' (' + Math.round(video/videos*10000)/100 + "%)");
+      writeLine(res, "time taken: " + JSON.stringify(convertSeconds(time)));
+      writeLine(res, "estimated time: " + JSON.stringify(convertSeconds(time / (video/videos))));
+
+    }
+
+    return res.end("<br/> done..");
+
+});
 
 function writeLine(res, line) {
   res.write('<br/>' + line);

@@ -24,6 +24,8 @@
     <field name="parentCategory" type="plong" indexed="true" stored="true" multiValued="false" />
     <field name="category" type="plong" indexed="true" stored="true" multiValued="false" />
     <field name="probability" type="pdoubles" indexed="true" stored="true" multiValued="false" />
+    <field name="nodeType" type="plong" indexed="true" stored="true" multiValued="false" />
+    <field name="keyframe" type="string" indexed="true" stored="true" multiValued="false" />
 
     <field name="boundingBox" type="plong" stored="true" multiValued="true"/>
 
