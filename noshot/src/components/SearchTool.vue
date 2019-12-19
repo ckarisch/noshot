@@ -7,8 +7,8 @@
               <li v-for="search in filteredSearchesMinimized" class="search searchContainer" :key="search.id" :class="{ marked: search.marked, editing: search == editedSearch, minimized: search.minimized, maximized: search.maximized }">
                   <div class="view">
                       <div class="menu">
-                          <button class="minimize" @click="minimizeSearch(search)"></button>
-                          <button class="destroy" @click="removeSearch(search)"></button>
+                          <button class="minimize" @click="minimizeWindow(search)"></button>
+                          <button class="destroy" @click="removeWindow(search)"></button>
                       </div>
                       <div class="searchNavigation">
                           <input placeholder="Suchbegriff" v-model="search.title" />
@@ -17,7 +17,7 @@
               </li>
           </ul>
           <ul class="dive-layout searches">
-              <NoshotWindow v-for="search in filteredSearches" :search="search" :searches="searches" :key="search.id" :class="{search: true, searchContainer: true, minimized: search.minimized, maximized: search.maximized }"/>
+              <NoshotWindow v-for="search in filteredSearches" :search="search" :key="search.id" :class="{search: true, searchContainer: true, minimized: search.minimized, maximized: search.maximized }"/>
           </ul>
 
           <div class="footer" v-show="searches.length" v-cloak>
@@ -43,6 +43,15 @@ export default {
       });
       this.$on('open-video-summary', (video) => {
         this.addSearch(this.createSearchForType(window.searchStorage.type.VIDEO_SUMMARY, video));
+      });
+      this.$on('minimize-window', (search) => {
+        this.minimizeWindow(search);
+      });
+      this.$on('maximize-window', (search) => {
+        this.maximizeWindow(search);
+      });
+      this.$on('remove-window', (search) => {
+        this.removeWindow(search);
       });
     },
     props: {
@@ -109,19 +118,19 @@ export default {
 
         },
 
-        removeSearch: function(search) {
+        removeWindow: function(search) {
             this.searches.splice(this.searches.indexOf(search), 1)
         },
 
-        minimizeSearch: function(search) {
+        minimizeWindow: function(search) {
             search.minimized = !search.minimized;
             search.maximized = false;
         },
 
-        // maximizeSearch: function(search) {
-        //     search.maximized = !search.maximized;
-        //     search.minimized = false;
-        // },
+        maximizeWindow: function(search) {
+            search.maximized = !search.maximized;
+            search.minimized = false;
+        },
 
         fetchSolrSearch: function(search) {
             this.error = this.post = null

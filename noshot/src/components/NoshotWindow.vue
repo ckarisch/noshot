@@ -25,8 +25,7 @@ export default {
     created() {
     },
     props: {
-      search: Object,
-      searches: Array
+      search: Object
     },
     data: () => {
         return {
@@ -38,15 +37,13 @@ export default {
 
         },
         minimize: function() {
-          this.search.minimized = !this.search.minimized;
-          this.search.maximized = false;
+          this.notifyParents(this, 'minimize-window', this.search);
         },
         maximize: function() {
-          this.search.maximized = !this.search.maximized;
-          this.search.minimized = false;
+          this.notifyParents(this, 'maximize-window', this.search);
         },
         remove: function() {
-          this.searches.splice(this.searches.indexOf(this.search), 1)
+          this.notifyParents(this, 'remove-window', this.search);
         }
     }
 }
