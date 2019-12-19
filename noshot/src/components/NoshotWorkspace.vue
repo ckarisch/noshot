@@ -167,7 +167,7 @@ export default {
                 }
             }
 
-            window.log(searches);
+            // window.log(searches);
 
             this.workspaces.splice(this.workspaces.indexOf(workspace), 1);
         },

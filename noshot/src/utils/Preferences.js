@@ -49,37 +49,38 @@ class Preferences {
 }
 
 // all noshot prefKeys defined in one place
-Preferences.prefKeys = [
-  // team
-  "teamId", "memberId", "lockTeamInput",
-  // video
-  "videoAutoplay",
-  // image
-  "imageSize",
-  // submit
-  "confirmSubmit",
-  // logging
-  "logObject"
-];
-// Preferences.prefKeys = {
-//   TEAM: {
-//     TEAM_ID: "teamId",
-//     MEMBER_ID: "memberId",
-//     LOCK_INPUT: "lockTeamInput",
-//   },
-//   VIDEO: {
-//     AUTOPLAY: "videoAutoplay"
-//   },
-//   IMAGE: {
-//     SIZE: "imageSize"
-//   },
-//   SUBMIT: {
-//     CONFIRM: "confirmSubmit"
-//   },
-//   LOG: {
-//     LOG_CACHE: "logObject"
-//   }
-// };
+Preferences.prefKeys = {
+  TEAM: {
+    TEAM_ID: "teamId",
+    MEMBER_ID: "memberId",
+    LOCK_INPUT: "lockTeamInput",
+  },
+  VIDEO: {
+    AUTOPLAY: "videoAutoplay"
+  },
+  IMAGE: {
+    SIZE: "imageSize"
+  },
+  SUBMIT: {
+    CONFIRM: "confirmSubmit"
+  },
+  LOG: {
+    LOG_CACHE: "logObject"
+  }
+};
+// Preferences.prefKeys = [
+//   // team
+//   "teamId", "memberId", "lockTeamInput",
+//   // video
+//   "videoAutoplay",
+//   // image
+//   "imageSize",
+//   // submit
+//   "confirmSubmit",
+//   // logging
+//   "logObject"
+// ];
+
 
 // support different preferences for different ecat installations
 Preferences.suffix = "noshot#" + location.host + location.pathname.replace("/", "") + "#";
