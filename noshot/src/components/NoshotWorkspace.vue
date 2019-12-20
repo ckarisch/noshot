@@ -2,7 +2,7 @@
 <div>
     <SideMenu ref="sideMenu" />
     <ejs-button id="toggleMenuButton" ref="togglebtn" class="e-btn e-info"  cssClass="e-flat" iconCss="e-icons burg-icon" isToggle="true" v-on:click.native="toggleSideMenu"></ejs-button>
-    <NoshotVideo v-for="vid of videos" :key="vid.id + '_' + vid.frame.second" :video="vid"/>
+    <NoshotVideo v-for="vid of videos" :key="vid.id + '_' + vid.frame.second" :ref="vid.id + '_' + vid.frame.second" :video="vid" :class="{flashvideoborder: false}"/>
     <div class="header">
         <div class="tabs">
             <ul class="">
@@ -201,8 +201,14 @@ export default {
 
         openVideo: function(video) {
           for (let v of this.videos) {
-            // don't open same videos twice
-            if (v.getUniqueID() === video.getUniqueID()) return;
+            // don't open same videos twice (but jump to frame)
+            if (v.getUniqueID() === video.getUniqueID()) {
+              let vid_ref = this.$refs[video.id + '_' + video.frame.second][0];
+              // vid_ref.$el.classList.remove('flashvideoborder');
+              // vid_ref.$el.classList.add('flashvideoborder');
+              vid_ref.reset(); // reset video
+              return;
+            }
           }
           this.videos.push(video);
         },

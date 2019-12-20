@@ -32,7 +32,6 @@
   top: 5px;
 }
 
-
 .frameSubmitButton {
   position: absolute;
   left: 5px;
@@ -45,3 +44,12 @@
 .videoButton:hover {
   color: #a6cee3;
 }
+
+.flashvideoborder {
+  border: 1px #ff0000 solid;
+
+  animation: blink 1s;
+  animation-iteration-count: 3;
+  transition: width 2s;
+}
+@keyframes blink { 50% { border-color:#fff; }  }
