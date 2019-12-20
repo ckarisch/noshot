@@ -114,7 +114,7 @@ export default {
             this.activeWorkspace.searches.push(s);
             this.newSearch = '';
 
-            this.fetchSolrSearch(s);
+            if (s.type === window.searchStorage.type.SOLR_SEARCH) this.fetchSolrSearch(s);
 
         },
 
