@@ -34,7 +34,7 @@ export default {
       NoshotImage
     },
     created() {
-      this.notifyParents(this, 'fetch-solr-search', this.search);
+      this.notifyParents(this, 'fetch-solr-search', this.search);  
     },
     props: {
       search: Object

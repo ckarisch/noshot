@@ -2,6 +2,7 @@ import Vue from 'vue';
 import App from './App.vue';
 import config from '../public/config/default.json'; // default app cfg
 import fps from '../public/config/fps.json';
+import keyCount from '../public/config/keyCount.json';
 import utils from './utils/utils.js';
 import Preferences from './utils/Preferences.js';
 import SearchStorage from './utils/SearchStorage.js';
@@ -42,6 +43,7 @@ window.appCfg = config; // cfg (for non VUE components)
 window.appCfg.preferences = Preferences;
 window.searchStorage = SearchStorage;
 window.appCfg.fps = fps;
+window.appCfg.keyCount = keyCount;
 // global logging for debugging
 window.log = utils.debugLog;
 

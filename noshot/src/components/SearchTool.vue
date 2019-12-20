@@ -114,7 +114,7 @@ export default {
             this.activeWorkspace.searches.push(s);
             this.newSearch = '';
 
-            this.fetchSolrSearch(s);
+            if (s.type === window.searchStorage.type.SOLR_SEARCH) this.fetchSolrSearch(s);
 
         },
 
@@ -180,12 +180,29 @@ export default {
               sObject.title = payload.id;
               sObject.video = payload;
               sObject.selectedCache = 1;
+              sObject.images = this.getVideoSummaryImages(payload);
               break;
             case window.searchStorage.type.NONE:
             default:
               return null;
         }
         return sObject;
+      },
+      getVideoSummaryImages: function(video) {
+        let keyframeBase = this.appCfg.dataServer.url + ':' + this.appCfg.dataServer.port + '/' + this.appCfg.dataServer.keyframesLocation + '/';
+        // let testimg = document.querySelector('.testimg');
+        let totalKeyFrames = parseInt(this.appCfg.keyCount[video.id]);
+        let s = [];
+        for (let i = 0; i < totalKeyFrames; i++) {
+          let src = `${keyframeBase}${video.id}/${video.id}_${i}_key.jpg`;
+          let v = this.utils.videoFromThumbUrl(src);
+          v.second = i;
+          let fakeDBResult = this.utils.videoToDBResult(v);
+          s.push(fakeDBResult);
+        }
+        return s;
+        // if (s.length > 0) this.search.images = s;
+        // console.log(this.search.images);
       }
     },
 

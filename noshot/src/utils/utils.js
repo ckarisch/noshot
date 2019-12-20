@@ -69,6 +69,19 @@ const utilFuncs = {
       let video = new Video(videoID, frame, {x: rndLeft, y: rndTop});
       return video;
     },
+    // fake db result
+    videoToDBResult: function(video) {
+      return {
+        id:video.getUniqueID().slice(1),
+        video: video.id,
+        second: video.frame.second,
+        startSecond: video.frame.second,
+        endSecond: video.frame.second,
+        count: "N/A",
+        parent: "N/A",
+        probability: "N/A"
+      };
+    },
     getVideoFPS: function(video) {
       if (!video.endsWith(".mp4")) video += '.mp4';
       return parseFloat(window.appCfg.fps[video]);
