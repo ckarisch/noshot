@@ -59,7 +59,10 @@ def printFile(root, filename, synsets):
 		exit(1)
 
 
+	first = True
 	for entry in classes:
+		if(first == False):
+			sys.stdout.write(",")
 		sys.stdout.write('"add": { "doc": {')
 		sys.stdout.write('"nodeType": {0}, '.format(int(1)))
 		sys.stdout.write('"startSecond": {0}, "endSecond": {1}, '.format(int(afilename[1]), int(afilename[1])))
@@ -70,6 +73,7 @@ def printFile(root, filename, synsets):
 		sys.stdout.write(', "boundingBox": [{0}, {1}, {2}, {3}]'.format(entry[4], entry[5], entry[6], entry[7]))
 		sys.stdout.write(', "categoryName": "{0}"'.format(synsets[netName][int(entry[1])]))
 		sys.stdout.write('}}')
+		first = False
 
 def walkRootFilename(directory, skipRoot):
 	walk = os.walk(directory)
