@@ -54,12 +54,17 @@ def printFile(root, filename, synsets):
 	netName = "_".join(afilename[2:]).split(".")[0]
 	classes = file2json(fullpath)
 
+	if ((netName in synsets) == False):
+		sys.stderr.write("error: synset " + netName + "-synset.txt not found in synset folder!\n");
+		exit(1)
+
 
 	for entry in classes:
 		sys.stdout.write('"add": { "doc": {')
 		sys.stdout.write('"nodeType": {0}, '.format(int(1)))
 		sys.stdout.write('"startSecond": {0}, "endSecond": {1}, '.format(int(afilename[1]), int(afilename[1])))
 		sys.stdout.write('"video": {0}, "second": {1}, "net": "{2}", '.format(int(afilename[0]), int(afilename[1]), netName))
+		sys.stdout.write('"keyframe": "{0}", '.format(str(int(afilename[0])) + "_" + str(int(afilename[1]))))
 		sys.stdout.write('"count": {0}'.format(entry[2]))
 		sys.stdout.write(', "parentCategory": {0}, "category": {1}, "probability": {2}'.format(entry[0], entry[1], entry[3]))
 		sys.stdout.write(', "boundingBox": [{0}, {1}, {2}, {3}]'.format(entry[4], entry[5], entry[6], entry[7]))
