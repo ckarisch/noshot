@@ -85,20 +85,21 @@ export default {
           }
         }
         this.submitConfirm(video_current);
+      },
+      reset: function() {
+        // jump to frame
+        let timeCode = this.video.frame.second;
+        this.$refs.videoEl.currentTime = timeCode;
       }
     },
-
     // a custom directive to wait for the DOM to be updated
     // before focusing on the input field.
     // http://vuejs.org/guide/custom-directive.html
     directives: {
 
     },
-
     mounted: function() {
-      // jump to frame
-      let timeCode = this.video.frame.second;
-      this.$refs.videoEl.currentTime = timeCode;
+      this.reset();
     }
 }
 

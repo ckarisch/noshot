@@ -4,6 +4,8 @@ import config from '../public/config/default.json'; // default app cfg
 import fps from '../public/config/fps.json';
 import utils from './utils/utils.js';
 import Preferences from './utils/Preferences.js';
+import SearchStorage from './utils/SearchStorage.js';
+import globalMixinMethods from './mixins/globalMixinMethods.js'
 
 /** 3rd party plugins **/
 // https://www.npmjs.com/package/@fortawesome/fontawesome-free
@@ -38,6 +40,7 @@ Vue.use(ButtonPlugin);
 // global cfg
 window.appCfg = config; // cfg (for non VUE components)
 window.appCfg.preferences = Preferences;
+window.searchStorage = SearchStorage;
 window.appCfg.fps = fps;
 // global logging for debugging
 window.log = utils.debugLog;
@@ -67,15 +70,16 @@ function initApp() {
   // set globals (cfg, utils) for all vue components as a global mixins
   // https://stackoverflow.com/questions/40896261/apply-global-variable-to-vuejs
   Vue.mixin({
-    data: function () {
+    data: function() {
       return  {
         appCfg: window.appCfg,
         utils: utils
       }
-    }
+    },
+    methods: globalMixinMethods
   });
 
-  Vue.config.productionTip = false
+  Vue.config.productionTip = false;
 
   new Vue({
     render: h => h(App)

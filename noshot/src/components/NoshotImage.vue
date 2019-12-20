@@ -47,6 +47,7 @@ export default {
       },
       click: function(event) {
         if (event.shiftKey) this.openVideo(event);
+        else if(event.ctrlKey) this.openVideoSummary(event);
         else this.submitFrame(event);
       },
 
@@ -58,12 +59,17 @@ export default {
 
         this.submitConfirm(video);
       },
-
       openVideo(event) {
         let imgUrl = event.target.src;
         let video = this.utils.videoFromThumbUrl(imgUrl);
         if (Object.keys(video).length === 0) return;
-        this.notifyparents(this, 'open-video', video);
+        this.notifyParents(this, 'open-video', video);
+      },
+      openVideoSummary(event) {
+        let imgUrl = event.target.src;
+        let video = this.utils.videoFromThumbUrl(imgUrl);
+        if (Object.keys(video).length === 0) return;
+        this.notifyParents(this, 'open-video-summary', video);
       },
       generateRange: function(videoRange) {
         let range = [];
@@ -71,22 +77,8 @@ export default {
           range[i] = i;
         }
         return range;
-      },
-      notifyparents(element, msg, object) {
-        let parent = element.$parent;
-        while(parent) {
-          parent.$emit(msg, object);
-          parent = parent.$parent;
-        }
       }
     },
-
-    // a custom directive to wait for the DOM to be updated
-    // before focusing on the input field.
-    // http://vuejs.org/guide/custom-directive.html
-    directives: {
-    },
-
     mounted: function() {
     }
 }
