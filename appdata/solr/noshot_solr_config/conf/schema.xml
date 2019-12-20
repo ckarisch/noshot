@@ -1,20 +1,5 @@
 <?xml version="1.0" encoding="UTF-8" ?>
 <schema name="ph_config" version="1.6">
-  "nodeType":[1],
-        "startSecond":[1047],
-        "endSecond":[1047],
-        "video":[7252],
-        "second":[1047],
-        "net":["cnn_yolo"],
-        "count":[1],
-        "parentCategory":[5177],
-        "category":[8554],
-        "probability":[0.15551641583442688],
-        "boundingBox":[360,
-          108,
-          70,
-          227],
-        "categoryName":["person"],
     <field name="id" type="string" indexed="true" stored="true" required="true" multiValued="false" />
     <field name="startSecond" type="plong" indexed="true" stored="true" multiValued="false" />
     <field name="endSecond" type="plong" indexed="true" stored="true" multiValued="false" />
