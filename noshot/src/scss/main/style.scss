@@ -186,14 +186,14 @@ li.tab.selected a {
 
    >div {
     > div {
-      display: flex;
+      width: 120px;
       align-items: center;
-      height: 100px;
+      height: auto;
       justify-content: center;
       overflow: hidden;
       border: 5px solid #fff;
       > div {
-        height: 100%;
+        height: auto;
         display: flex;
       }
 
@@ -237,12 +237,12 @@ li.tab.selected a {
 }
 
 .search.maximized .resultContainer.showFrames>div>div {
-  width: auto;
+  width: 100px;
 }
 
 .resultContainer img {
-  width: auto;
-  height: 100%;
+  width: 100%;
+  height: auto;
   position: relative;
   display: block;
   border: 5px solid #fff;
