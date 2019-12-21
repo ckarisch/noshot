@@ -6,8 +6,8 @@
           <button class="maximize" @click="maximize()"></button>
           <button class="destroy" @click="remove()"></button>
       </div>
-      <NoshotSearch v-if="search.type === searchStorage.type.SOLR_SEARCH" :search="search" />
-      <NoshotVideoSummary v-if="search.type === searchStorage.type.VIDEO_SUMMARY" :search="search" />
+      <NoshotSearch :searchToolSettings="searchToolSettings" v-if="search.type === searchStorage.type.SOLR_SEARCH" :search="search" />
+      <NoshotVideoSummary :searchToolSettings="searchToolSettings" v-if="search.type === searchStorage.type.VIDEO_SUMMARY" :search="search" />
     </div>
   </li>
 </template>
@@ -25,7 +25,8 @@ export default {
     created() {
     },
     props: {
-      search: Object
+      search: Object,
+      searchToolSettings: Object
     },
     data: () => {
         return {

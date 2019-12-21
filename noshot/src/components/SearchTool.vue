@@ -17,7 +17,7 @@
               </li>
           </ul>
           <ul class="dive-layout searches">
-              <NoshotWindow v-for="search in filteredSearches" :search="search" :key="search.id" :class="{search: true, searchContainer: true, minimized: search.minimized, maximized: search.maximized }"/>
+              <NoshotWindow :searchToolSettings="searchToolSettings" v-for="search in filteredSearches" :search="search" :key="search.id" :class="{search: true, searchContainer: true, minimized: search.minimized, maximized: search.maximized }"/>
           </ul>
 
           <div class="footer" v-show="searches.length" v-cloak>
@@ -55,7 +55,8 @@ export default {
       });
     },
     props: {
-      activeWorkspace: Object
+      activeWorkspace: Object,
+      searchToolSettings: Object
     },
     data: () => {
         return {
@@ -180,7 +181,7 @@ export default {
               sObject.title = payload.id;
               sObject.video = payload;
               sObject.selectedCache = 1;
-              sObject.images = this.getVideoSummaryImages(payload);
+              sObject.images = [];
               break;
             case window.searchStorage.type.NONE:
             default:
@@ -188,22 +189,6 @@ export default {
         }
         return sObject;
       },
-      getVideoSummaryImages: function(video) {
-        let keyframeBase = this.appCfg.dataServer.url + ':' + this.appCfg.dataServer.port + '/' + this.appCfg.dataServer.keyframesLocation + '/';
-        // let testimg = document.querySelector('.testimg');
-        let totalKeyFrames = parseInt(this.appCfg.keyCount[video.id]);
-        let s = [];
-        for (let i = 0; i < totalKeyFrames; i++) {
-          let src = `${keyframeBase}${video.id}/${video.id}_${i}_key.jpg`;
-          let v = this.utils.videoFromThumbUrl(src);
-          v.second = i;
-          let fakeDBResult = this.utils.videoToDBResult(v);
-          s.push(fakeDBResult);
-        }
-        return s;
-        // if (s.length > 0) this.search.images = s;
-        // console.log(this.search.images);
-      }
     },
 
     // a custom directive to wait for the DOM to be updated

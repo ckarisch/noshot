@@ -22,7 +22,7 @@
         </div>
     <div class="content">
 
-        <SearchTool ref="searchTool" v-if="typeof activeWorkspace !== 'undefined'" :activeWorkspace="activeWorkspace" />
+        <SearchTool :searchToolSettings="searchToolSettings" ref="searchTool" v-if="typeof activeWorkspace !== 'undefined'" :activeWorkspace="activeWorkspace" />
 
     </div>
 </div>
@@ -61,6 +61,9 @@ export default {
       this.$on('close-video', (video) => {
         this.closeVideo(video);
       });
+      this.$on('update-image-size', (imageSize) => {
+        this.searchToolSettings = {imageSize};
+      });
       document.addEventListener('keyup', (evt) => {
           if (evt.keyCode === 27) {
               this.escape();
@@ -79,7 +82,8 @@ export default {
             loading: false,
             post: null,
             error: null,
-            videos: []
+            videos: [],
+            searchToolSettings: { imageSize: 100 }
         };
     },
 
@@ -232,6 +236,9 @@ export default {
     mounted: function() {
         window.addEventListener('hashchange', this.onHashChange)
         this.onHashChange()
+        this.searchToolSettings = {
+          imageSize: this.appCfg.preferences.load(this.appCfg.preferences.prefKeys.IMAGE.SIZE, 100)
+        }
     }
 }
 
