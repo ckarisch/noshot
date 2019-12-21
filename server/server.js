@@ -147,7 +147,7 @@ function filterSolrResponse(docs) {
   // HOT FIX
 
   for(let i = 0; i < result.length; i++) {
-    result[i].categoryName = getCategoryName(result[i].category);
+    // result[i].categoryName = getCategoryName(result[i].category);
 
     // let children = getChildren(result[i].category)
     // let childNames = [];
