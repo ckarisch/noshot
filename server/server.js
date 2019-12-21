@@ -8,6 +8,8 @@ const url = require('url');
 const cacheUpdateSemaphore = require('semaphore')(1)
 var convertSeconds = require('convert-seconds');
 
+let keyCount = require('../noshot/public/config/keyCount.json');
+
 var solr = require('solr-client');
 var client = solr.createClient({
     host: '127.0.0.1',
@@ -389,14 +391,14 @@ app.get('/update/:cache', async function cacheUpdateHandler(req, res) {
     writeLine(res, "total videos: " + videos);
 
     for (let video = cachedVideos; video <= videos; video++) { // start with last cached video
+      let promises = [];
       for (let category = 0; category <= categories; category++) {
         let bestKeyframe = await getBestKeyframe(client, video, 1, seconds, category, cacheSize);
         if(bestKeyframe)
         {
           // if this video has any entry in this category
 
-          let promises = [];
-          for (let second = 1; second <= seconds; second += cacheSize) {
+          for (let second = 1; second <= keyCount[video.toString().padStart(5, '0')]; second += cacheSize) {
             // check every group of seconds from 1 to seconds
 
             let bestKeyframePromise = getBestKeyframe(client, video, second, second + cacheSize - 1, category, cacheSize);
@@ -404,15 +406,14 @@ app.get('/update/:cache', async function cacheUpdateHandler(req, res) {
             // if(bestKeyframe) // update cache array
             //   data.push(bestKeyframe);
           }
-          Promise.all(promises).then(values => {
-            values = values.filter(element => element !== null);
-            data = data.concat(values);
-          });
         }
       }
 
+      let values = await Promise.all(promises);
+      values = values.filter(element => element !== null);
+      // data = data.concat(values);
 
-      client.add(data,function(err,obj){
+      client.add(values,function(err,obj){
         if(err){
          console.log(err);
         }else{
@@ -423,17 +424,18 @@ app.get('/update/:cache', async function cacheUpdateHandler(req, res) {
 
       });
 
-      datacounter += data.length;
+      datacounter += values.length;
 
       const time = (new Date() - startTime) / 1000;
 
       console.log("video: " + video + " of " + videos);
-      console.log("commited: " + data.length);
+      console.log("commited: " + values.length);
       console.log("total: " + datacounter + "\n");
 
       writeLine(res, "");
       writeLine(res, "video: " + video + " of " + videos + ' (' + Math.round(video/videos*10000)/100 + "%)");
-      writeLine(res, "commited: " + data.length);
+      writeLine(res, "keyframes: " + keyCount[video.toString().padStart(5, '0')]);
+      writeLine(res, "commited: " + values.length);
       writeLine(res, "total: " + datacounter);
       writeLine(res, "time taken: " + JSON.stringify(convertSeconds(time)));
       writeLine(res, "estimated time: " + JSON.stringify(convertSeconds(time / ((video - cachedVideos + 1)/(videos - cachedVideos + 1)))));

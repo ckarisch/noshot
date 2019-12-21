@@ -9,4 +9,4 @@ fi
 args=("$@")
 IN_FILE="${args[0]}"
 
-curl -X POST -H 'Content-Type: application/json' 'http://localhost:8983/solr/core1/update' --data-binary @"${IN_FILE}"
+curl -X POST -H 'Content-Type: application/json' 'http://localhost:8983/solr/noshot/update' --data-binary @"${IN_FILE}"

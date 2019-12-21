@@ -24,3 +24,7 @@ bin/solr create -c noshot -d noshot_solr_config -n noshot_solr_config
 
 import json:
 curl -X POST -H 'Content-Type: application/json' 'http://localhost:8983/solr/noshot/update' --data-binary @data.json
+
+
+export:
+curl "http://localhost:8983/solr/noshot/select?q=*%3A*&wt=json&indent=true&start=0&rows=2000000000&fl=nodeType,startSecond,endSecond,video,second,net,count,parentCategory,category,probability,boundingBox,categoryName" > solr-export.json
