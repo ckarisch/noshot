@@ -17,7 +17,7 @@
               </li>
           </ul>
           <ul class="dive-layout searches">
-              <NoshotWindow v-for="search in filteredSearches" :search="search" :key="search.id" :class="{search: true, searchContainer: true, minimized: search.minimized, maximized: search.maximized }"/>
+              <NoshotWindow :searchToolSettings="searchToolSettings" v-for="search in filteredSearches" :search="search" :key="search.id" :class="{search: true, searchContainer: true, minimized: search.minimized, maximized: search.maximized }"/>
           </ul>
 
           <div class="footer" v-show="searches.length" v-cloak>
@@ -55,7 +55,8 @@ export default {
       });
     },
     props: {
-      activeWorkspace: Object
+      activeWorkspace: Object,
+      searchToolSettings: Object
     },
     data: () => {
         return {

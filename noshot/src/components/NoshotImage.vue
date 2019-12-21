@@ -1,8 +1,8 @@
 <template>
   <div>
-      <img class="small" v-for="n in generateRange(search.videoRange)" :alt="keyframeSrc(img, (-search.videoRange + n))" :src="keyframeSrc(img, (-search.videoRange + n))" :key="keyframeSrc(img, (-search.videoRange + n)) + '_' + n" />
-      <img v-on:click="click" :alt="keyframeSrc(img, 0)" :src="keyframeSrc(img, 0)" />
-      <img class="small" v-for="n in generateRange(search.videoRange)" :alt="keyframeSrc(img, n+1)" :src="keyframeSrc(img, n+1)" :key="keyframeSrc(img, n+1) + '_' + n" />
+      <img :style="keyframeStyle" class="small" v-for="n in generateRange(search.videoRange)" :alt="keyframeSrc(img, (-search.videoRange + n))" :src="keyframeSrc(img, (-search.videoRange + n))" :key="keyframeSrc(img, (-search.videoRange + n)) + '_' + n" />
+      <img :style="keyframeStyle" v-on:click="click" :alt="keyframeSrc(img, 0)" :src="keyframeSrc(img, 0)" />
+      <img :style="keyframeStyle" class="small" v-for="n in generateRange(search.videoRange)" :alt="keyframeSrc(img, n+1)" :src="keyframeSrc(img, n+1)" :key="keyframeSrc(img, n+1) + '_' + n" />
 
   </div>
 </template>
@@ -15,7 +15,8 @@ export default {
     name: 'NoshotImage',
     props: {
         img: Object,
-        search: Object
+        search: Object,
+        searchToolSettings: Object
     },
     data: function () {
         return {
@@ -23,13 +24,23 @@ export default {
     },
     mixins: [submission],
 
-    watch: {
-    },
+    // watch searches change for localStorage persistence
+    // watch: {
+    //     searches: {
+    //         handler: function(searches) {
+    //             window.searchStorage.save(searches)
+    //         },
+    //         deep: true
+    //     }
+    // },
 
     filters: {
     },
 
     computed: {
+      keyframeStyle: function() {
+        return { "max-width": 100/(this.search.videoRange * 2 + 1) + "%", width: this.searchToolSettings.imageSize + "px" };
+      }
     },
 
     methods: {
