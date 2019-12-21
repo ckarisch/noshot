@@ -7,7 +7,7 @@
           <button class="destroy" @click="remove()"></button>
       </div>
       <NoshotSearch :searchToolSettings="searchToolSettings" v-if="search.type === searchStorage.type.SOLR_SEARCH" :search="search" />
-      <NoshotVideoSummary v-if="search.type === searchStorage.type.VIDEO_SUMMARY" :search="search" />
+      <NoshotVideoSummary :searchToolSettings="searchToolSettings" v-if="search.type === searchStorage.type.VIDEO_SUMMARY" :search="search" />
     </div>
   </li>
 </template>

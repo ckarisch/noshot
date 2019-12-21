@@ -7,7 +7,7 @@
       <div :class="{ showFrames: true, resultContainer: true }">
           <div>
               <div v-for="img in search.images" :key="search.id + '_' + img.video + '_' + img.second" :data="search.id + '_' + img.video + '_' + img.second" >
-                  <NoshotImage :search="search" :img="img"/>
+                  <NoshotImage :searchToolSettings="searchToolSettings" :search="search" :img="img"/>
                   <!-- <span class="imageDescription"><strong>{{img.categoryName}}</strong> <br/>Parent: <strong>{{img.parentName}}</strong> <br/>Confidence: <strong>{{Math.round(img.probability * 100) / 100}}</strong></span> -->
               </div>
           </div>
@@ -28,7 +28,8 @@ export default {
       NoshotImage
     },
     props: {
-      search: Object
+      search: Object,
+      searchToolSettings: Object
     },
     data: () => {
       return {
