@@ -11,7 +11,7 @@
     "url": "http://localhost",
     "port": 3100,
     "teamName": "ITEC",
-    "teamId": 1,
+    "teamId": 10,
     "memberId": 1
   },
   "dataServer": {

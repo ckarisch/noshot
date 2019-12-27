@@ -71,20 +71,32 @@ var submission = {
 
       window.log(`Submission: ${url}`);
       this.$toastr.i(`v ${video} f ${frame}`, "Submission");
+      // issue submit
       fetch(url, {
           method: "POST",
           mode: "cors"
-        })
-        .then(
-          response => {
-            window.log(response);
-            this.$toastr.s(`${response}`, "Submission succeeded");
-          },
-          rejected => {
-            window.log(rejected);
-            this.$toastr.e(`${rejected}`, "Submission failed");
-          }
-        );
+      })
+      .then(
+        response => {
+          // response returns text
+          response.text().then(
+            res => {
+              window.log(res);
+              // parse result for correctness (only show info for AVS)
+              let isCorrect = res.toLowerCase().includes("correct");
+              let isWrong = res.toLowerCase().includes("wrong");
+              if (isCorrect) this.$toastr.s(`${res}`, "Submission successful");
+              else if (isWrong) this.$toastr.e(`${res}`, "Submission wrong");
+              else this.$toastr.i(`${res}`, "Server response");
+            });
+        },
+        rejected => {
+          // let responseText = rejected.body;
+          // window.log(responseText);
+          window.log(rejected);
+          this.$toastr.e(`Server not reachable...`, "Submission failed");
+      })
+      .catch(err => console.log(err));
 
     }
   }
