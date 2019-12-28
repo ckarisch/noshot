@@ -1,4 +1,11 @@
 .vs__list {
   background-color: #fff;
-  z-index: 999;
+  z-index: 999999;
+}
+
+.vs__list > div > div:first-child {
+  padding-bottom: 1em;
+}
+.vs__list > div > div:last-child {
+  padding-top: 1em;
 }

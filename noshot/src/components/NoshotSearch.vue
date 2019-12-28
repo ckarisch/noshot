@@ -4,11 +4,11 @@
       <span>{{search.images.length}}</span>
     </div>
     <div class="searchNavigation">
-        <input placeholder="Suchbegriff" v-model="search.title" @keyup="fetchSolrSearch(search)" />
         <vue-suggestion :items="items"
-                  v-model="search.title"
+                  v-model="searchText"
                   :setLabel="setLabel"
                   :itemTemplate="itemTemplate"
+                  @keyup="keyup"
                   @changed="inputChange"
                   @selected="itemSelected">
         </vue-suggestion>
@@ -43,6 +43,7 @@ export default {
     },
     created() {
       this.notifyParents(this, 'fetch-solr-search', this.search);
+      this.searchText.id = this.search.title;
     },
     props: {
       search: Object,
@@ -54,7 +55,8 @@ export default {
             nets: ['cnn_yolo'],
             caches: [1, 10, 30, 60, 180],
             cacheRange: 1,
-            categories: [{id: "person", name: "person"},{id: "person", name: "person"},{id: "person", name: "person"},{id: "person", name: "person"},{id: "person", name: "person"},{id: "person", name: "person"},{id: "person", name: "person"},{id: "person", name: "person"},{id: "person", name: "person"},{id: "person", name: "person"},{id: "person", name: "person"},{id: "person", name: "person"},{id: "person", name: "person"},{id: "person", name: "person"},{id: "person", name: "person"},{id: "person", name: "person"},{id: "person", name: "person"},{id: "person", name: "person"},{id: "person", name: "person"},{id: "person", name: "person"},{id: "person", name: "person"},{id: "person", name: "person"},{id: "person", name: "person"},{id: "person", name: "person"},{id: "person", name: "person"},{id: "person", name: "person"},{id: "person", name: "person"},{id: "person", name: "person"},{id: "person", name: "person"},{id: "person", name: "person"},{id: "person", name: "person"},{id: "person", name: "person"},{id: "person", name: "person"},{id: "person", name: "person"},{id: "person", name: "person"},{id: "person", name: "person"},{id: "person", name: "person"},{id: "person", name: "person"},{id: "person", name: "person"},{id: "person", name: "person"},{id: "person", name: "person"},{id: "person", name: "person"},{id: "person", name: "person"},{id: "person", name: "person"},{id: "person", name: "person"},{id: "person", name: "person"},{id: "person", name: "person"},{id: "person", name: "person"},{id: "person", name: "person"},{id: "person", name: "person"},{id: "person", name: "person"},{id: "person", name: "person"},{id: "person", name: "person"}],
+            categories: window.appCfg.categoryNames,
+            searchText: {},
             item: null,
             items: [],
             itemTemplate
@@ -89,15 +91,43 @@ export default {
         },
 
         itemSelected (item) {
-          this.item = item;
+          console.log("selected")
+          this.item = item.id;
+          this.search.title = item.id;
+          // if(this.search.title)
+          //   this.fetchSolrSearch(this.search);
         },
         setLabel (item) {
-          return item.name;
+          console.log("labe")
+          this.search.title = item.id;
+          this.searchText = item;
+          if(this.search.title)
+            this.updateFilter(this.search.title);
+          return this.searchText.id;
         },
         inputChange (text) {
-          // your search method
-          this.items = this.categories.filter(item => item.name.includes(text)).slice(0,10);
-          // now `items` will be showed in the suggestion list
+          console.log("change")
+          this.updateFilter(text);
+        },
+        updateFilter(text) {
+
+          const filtered = this.categories.filter(item => item.includes(text));
+          const found = filtered.includes(text);
+          const msg = found ? "" : " (not found)";
+
+          this.items = filtered.slice(0,20);
+          this.items = this.items.map(item => {return { id: item, name: item}});
+
+          this.items.unshift({id: text, name: text + msg });
+          this.items.push({id: filtered[0], name: "showing " + Math.min(20, filtered.length) + " of " + filtered.length });
+
+          if(found) {
+            this.search.title = text;
+            this.fetchSolrSearch(this.search);
+          }
+        },
+        keyup () {
+          console.log("keyup");
         }
     },
 

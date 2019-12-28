@@ -128,6 +128,10 @@ li.tab.selected a {
   order: 1;
 }
 
+.searchContent {
+  min-height: calc(100vh - 23em);
+}
+
 
 .searches.minimized {
 
