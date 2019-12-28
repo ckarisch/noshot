@@ -15,6 +15,7 @@
     "core-js": "^3.3.2",
     "vue": "^2.6.10",
     "vue-draggable-resizable": "^2.1.0",
+    "vue-suggestion": "^1.0.0",
     "vue-toastr": "^2.1.2",
     "vuejs-dialog": "^1.4.1"
   },

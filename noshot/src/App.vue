@@ -5,9 +5,13 @@
 </template>
 
 <script>
+import Vue from 'vue'
+import VueSuggestion from 'vue-suggestion'
 import NoshotWorkspace from './components/NoshotWorkspace.vue'
 import './scss/main/style.scss'
 
+
+Vue.use(VueSuggestion);
 
 export default {
   name: 'app',
