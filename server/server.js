@@ -27,6 +27,7 @@ let cacheRunning = false;
 const categoryNames = parseNamesFile(namesfileName);
 const categoryTree = parseTreeFile(treefileName);
 const categoryIdTree = categoryTree.map(a => a[1]); // only ids
+const categoryChildrenArray = generateChildrenArray();
 
 String.prototype.replaceArray = function(find, replace) {
   var replaceString = this;
@@ -67,7 +68,9 @@ app.get('/search/:net/:category/:cache', function searchHandler(req, res) {
     categoryId = searchStringInArray(categoryNames, category) // search category and get id;
     let children = [];
     if (categoryId.length > 0)
-      children = getChildren(categoryId[0]); // get childs
+      children = categoryChildrenArray[categoryId[0]]; // get childs
+
+    console.log(children);
 
     // add searched category
     children.push(categoryId[0]);
@@ -184,6 +187,17 @@ function getChildren(id) {
   }
   return children.slice(0,1000);
 
+}
+
+function generateChildrenArray() {
+  childrenArray = [];
+
+  console.log("generating children array");
+  for (let i = 0; i < categoryTree.length; i++) {
+    childrenArray[i] = getChildren(i);
+  }
+  console.log("done");
+  return childrenArray;
 }
 
 function parseNamesFile(namesfileName) {
