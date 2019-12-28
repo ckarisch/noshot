@@ -61,8 +61,10 @@ const utilFuncs = {
 
       // video
       // place randomly
-      let maxLeft = window.innerWidth - parseInt(window.appCfg.video.width+"px".replace("px",''));
-      let maxTop = window.innerHeight - parseInt(window.appCfg.video.width/16*9+20+"px".replace("px",''));
+      let curvidWidth = parseInt(window.appCfg.preferences.load(window.appCfg.preferences.prefKeys.VIDEO.WIDTH, 300));
+      let maxLeft = window.innerWidth - curvidWidth;
+        // video.width+"px".replace("px",''));
+      let maxTop = window.innerHeight - parseInt(curvidWidth/16*9+20+"px".replace("px",''));
       let rndLeft = Math.floor(Math.random() * (maxLeft+1));  // 0 - maxLeft
       let rndTop = Math.floor(Math.random() * (maxTop+1));    // 0 - maxTop
 

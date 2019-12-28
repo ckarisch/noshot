@@ -1,12 +1,12 @@
 <template>
 
-    <vue-draggable-resizable class="videoWindow" ref="draggableVideo" :w="draggableWidth" :x="draggableX" :y="draggableY" :z="1050" :resizable="false" :parent="true" @dragstop="onDragStop" @dragging="onDrag">
+    <vue-draggable-resizable class="videoWindow" ref="draggableVideo" :w="draggableWidth" :h="draggableHeight" :x="draggableX" :y="draggableY" :z="1050" :resizable="false" :parent="true" @dragstop="onDragStop" @dragging="onDrag">
       <div class="videoDragBar">
         <button v-on:click="submitFrame" class="frameSubmitButton videoButton" type="button"> <i class="fas fa-paper-plane"></i></button>
         <b>v</b> {{ video.id }} <b>f</b> {{ currentFrame }}
         <button v-on:click="close" class="videoCloseButton videoButton" type="button"><i class="fas fa-window-close"></i></button>
       </div>
-      <video ref="videoEl" @timeupdate="onTimeUpdateListener" v-bind:width="videoWidth" controls v-bind:autoplay="videoAutoplay">
+      <video ref="videoEl" @canplay="onCanPlay" @timeupdate="onTimeUpdateListener" v-bind:width="videoWidth" controls v-bind:autoplay="videoAutoplay">
         <source v-bind:src="videoURL" type="video/mp4">
         Sorry, your browser doesn't support embedded videos.
       </video>
@@ -28,8 +28,10 @@ export default {
                       this.appCfg.dataServer.port + '/' +
                       this.appCfg.dataServer.videosLocation + '/' +
                       this.video.id + '.mp4';
-      this.videoWidth = this.appCfg.video.width + "px";
-      this.draggableWidth = this.appCfg.video.width;
+      let curvidWidth = parseInt(this.appCfg.preferences.load(this.appCfg.preferences.prefKeys.VIDEO.WIDTH, 300));
+      this.videoWidth = curvidWidth + "px";
+      this.draggableWidth = curvidWidth;
+      // this.draggableHeight = curvidWidth;
       this.videoAutoplay = this.appCfg.preferences.isEnabled("videoAutoplay", true);
       this.isDragged = false;
     },
@@ -40,7 +42,8 @@ export default {
         return {
           draggableX: this.video.pos.x,
           draggableY: this.video.pos.y,
-          currentFrame: this.video.frame.number
+          currentFrame: this.video.frame.number,
+          draggableHeight: 10
         };
     },
     mixins: [submission],
@@ -90,6 +93,11 @@ export default {
         // jump to frame
         let timeCode = this.video.frame.second;
         this.$refs.videoEl.currentTime = timeCode;
+      },
+      onCanPlay() {
+        // window.log(this.$refs.videoEl.videoWidth);
+        // set height according to current video height
+        this.draggableHeight = this.$refs.videoEl.offsetHeight + 50;
       }
     },
     // a custom directive to wait for the DOM to be updated

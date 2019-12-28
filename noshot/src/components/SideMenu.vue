@@ -3,10 +3,11 @@
       <div class="menu-title"> Options </div>
        <div class="menu-sub-title"> Submission </div>
        <div class='menu-option'><input type="checkbox" v-bind:checked="confirmSubmit" prefKey="confirmSubmit" v-on:click="togglePreference"> <span>confirm submissions</span></div>
-       <div class="menu-sub-title"> Video </div>
+       <div class="menu-sub-title"> Videos </div>
        <div class='menu-option'><input type="checkbox" v-bind:checked="videoAutoplay" prefKey="videoAutoplay" v-on:click="togglePreference"> <span>autoplay</span></div>
+       <div class='menu-option'><span>Width</span> <input type="number" prefKey="videoWidth" :value="videoWidth" @change="togglePreference" @keyup="togglePreference" /></div>
        <div class="menu-sub-title"> Images </div>
-       <div class='menu-option'><input type="number" prefKey="imageSize" :value="imageSize" @change="saveAndFire('update-image-size', $event)" @keyup="saveAndFire('update-image-size', $event)" /></div>
+       <div class='menu-option'><span>Width</span> <input type="number" prefKey="imageSize" :value="imageSize" @change="saveAndFire('update-image-size', $event)" @keyup="saveAndFire('update-image-size', $event)" /></div>
        <div class="menu-sub-title"> Logging </div>
   </ejs-sidebar>
 </template>
@@ -17,6 +18,7 @@
         this.confirmSubmit = this.appCfg.preferences.isEnabled("confirmSubmit", true);
         this.videoAutoplay = this.appCfg.preferences.isEnabled("videoAutoplay", true);
         this.imageSize = this.appCfg.preferences.load(this.appCfg.preferences.prefKeys.IMAGE.SIZE, 100);
+        this.videoWidth = this.appCfg.preferences.load(this.appCfg.preferences.prefKeys.VIDEO.WIDTH, 300);
       },
       data () {
           return {

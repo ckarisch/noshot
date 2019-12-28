@@ -56,7 +56,8 @@ Preferences.prefKeys = {
     LOCK_INPUT: "lockTeamInput",
   },
   VIDEO: {
-    AUTOPLAY: "videoAutoplay"
+    AUTOPLAY: "videoAutoplay",
+    WIDTH: "videoWidth"
   },
   IMAGE: {
     SIZE: "imageSize"
