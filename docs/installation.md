@@ -64,7 +64,7 @@ Trobleshooting:
   * Error: `The system cannot find the batch label specified - parse_create_args`,
     Solution: `unix2dos C:\tools\solr-8.3.0\bin\solr.cmd`
 
-4. Import YOLO9000 JSON (`data.json`):
+4. Import YOLO9000 JSON (`data.json`) - Replace `'` with `"` in Windows:
 ```
 curl -X POST -H 'Content-Type: application/json' 'http://localhost:8983/solr/noshot/update' --data-binary @data.json
 ```
