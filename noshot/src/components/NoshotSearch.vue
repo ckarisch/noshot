@@ -4,7 +4,14 @@
       <span>{{search.images.length}}</span>
     </div>
     <div class="searchNavigation">
-        <input placeholder="Suchbegriff" v-model="search.title" @keyup="fetchSolrSearch(search)" />
+        <vue-suggestion :items="items"
+                  v-model="searchText"
+                  :setLabel="setLabel"
+                  :itemTemplate="itemTemplate"
+                  @keyup="keyup"
+                  @changed="inputChange"
+                  @selected="itemSelected">
+        </vue-suggestion>
         <div class="slidecontainer">
           cache ({{ search.selectedCache }})
           <input type="range" min="1" max="180" value="1" class="slider" v-model="search.cacheRange" @change="updateCacheRange(search)">
@@ -27,6 +34,7 @@
 
 <script>
 import NoshotImage from './NoshotImage.vue'
+import itemTemplate from './NoshotSuggestion.vue';
 
 export default {
     name: 'NoshotSearch',
@@ -35,6 +43,7 @@ export default {
     },
     created() {
       this.notifyParents(this, 'fetch-solr-search', this.search);
+      this.searchText.id = this.search.title;
     },
     props: {
       search: Object,
@@ -45,7 +54,12 @@ export default {
             selectedNetwork: 'cnn_yolo',
             nets: ['cnn_yolo'],
             caches: [1, 10, 30, 60, 180],
-            cacheRange: 1
+            cacheRange: 1,
+            categories: window.appCfg.categoryNames,
+            searchText: {},
+            item: null,
+            items: [],
+            itemTemplate
         };
     },
 
@@ -74,6 +88,46 @@ export default {
           return allowed.reduce(function(prev, curr) {
             return (Math.abs(curr - goal) < Math.abs(prev - goal) ? curr : prev);
           });
+        },
+
+        itemSelected (item) {
+          console.log("selected")
+          this.item = item.id;
+          this.search.title = item.id;
+          // if(this.search.title)
+          //   this.fetchSolrSearch(this.search);
+        },
+        setLabel (item) {
+          console.log("labe")
+          this.search.title = item.id;
+          this.searchText = item;
+          if(this.search.title)
+            this.updateFilter(this.search.title);
+          return this.searchText.id;
+        },
+        inputChange (text) {
+          console.log("change")
+          this.updateFilter(text);
+        },
+        updateFilter(text) {
+
+          const filtered = this.categories.filter(item => item.includes(text));
+          const found = filtered.includes(text);
+          const msg = found ? "" : " (not found)";
+
+          this.items = filtered.slice(0,20);
+          this.items = this.items.map(item => {return { id: item, name: item}});
+
+          this.items.unshift({id: text, name: text + msg });
+          this.items.push({id: filtered[0], name: "showing " + Math.min(20, filtered.length) + " of " + filtered.length });
+
+          if(found) {
+            this.search.title = text;
+            this.fetchSolrSearch(this.search);
+          }
+        },
+        keyup () {
+          console.log("keyup");
         }
     },
 

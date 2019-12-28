@@ -17,6 +17,7 @@ $layout-padding: 1rem;
 @import '../import/side-menu';
 @import '../import/range';
 @import '../import/vue';
+@import '../import/suggestions';
 
 
 
@@ -125,6 +126,10 @@ li.tab.selected a {
   margin-right: $layout-padding;
   min-width: 450px;
   order: 1;
+}
+
+.searchContent {
+  min-height: calc(100vh - 23em);
 }
 
 
