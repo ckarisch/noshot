@@ -98,7 +98,6 @@ export default {
           //   this.fetchSolrSearch(this.search);
         },
         setLabel (item) {
-          console.log("labe")
           this.search.title = item.id;
           this.searchText = item;
           if(this.search.title)

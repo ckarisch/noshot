@@ -2,7 +2,13 @@
   <li>
     <div class="videoSummaryContent">
       <div class="videoSummaryControls">
-        I am video summary content of video {{ search.video.id }}.
+        <div>Video summary for</div>
+        <input type="number" ref="vidInput" :value="displayVideoId" min="1" :max="Object.keys(appCfg.keyCount).length + 1" @change="changeVideo" />
+        <div class="slidecontainer">
+          cache ({{ search.selectedCache }})
+          <input ref="cacheRangeSlider" type="range" min="1" max="180" :value="search.selectedCache" class="slider" @input="updateCacheRange">
+        </div>
+        <div>{{ search.images.length }} results.</div>
       </div>
       <div :class="{ showFrames: true, resultContainer: true }">
           <div>
@@ -26,6 +32,7 @@ export default {
         if (this.search.images.length === 0) {
             this.search.images = this.getVideoSummaryImages(this.search.video);
         }
+        this.displayVideoId = this.search.video.id;
     },
     components: {
       NoshotImage
@@ -36,10 +43,10 @@ export default {
     },
     data: () => {
       return {
+        componentKey: 0,
         // errorLoading: (e) => {this.errorLoading(e)}
       }
     },
-
     methods: {
         getVideoSummaryImages: function(video) {
           let keyframeBase = this.appCfg.dataServer.url + ':' + this.appCfg.dataServer.port + '/' + this.appCfg.dataServer.keyframesLocation + '/';
@@ -51,9 +58,40 @@ export default {
             let v = this.utils.videoFromThumbUrl(src);
             v.second = i;
             let fakeDBResult = this.utils.videoToDBResult(v);
-            s.push(fakeDBResult);
+            // push images according to current cache
+            if (i % this.search.selectedCache === 0) s.push(fakeDBResult);
           }
           return s;
+        },
+        changeVideo: function() {
+          let inputNumber = parseInt(this.$refs.vidInput.value);
+          if (Number.isNaN(inputNumber)) inputNumber = parseInt(this.search.video.id);
+          if (inputNumber < this.$refs.vidInput.min) inputNumber = parseInt(this.$refs.vidInput.min);
+          if (inputNumber > this.$refs.vidInput.max) inputNumber = parseInt(this.$refs.vidInput.max);
+          let inputString = String(inputNumber);
+          let inputStringPadded = inputString.padStart(5, '0');
+
+          // update number input (zero padded)
+          this.$refs.vidInput.value = inputStringPadded;
+
+          // update search if video id changed
+          if (this.search.id !== inputStringPadded) {
+            let firstSecondUrl = this.utils.thumbUrlFromVideoPosition(inputStringPadded, 0);
+            let newVideo = this.utils.videoFromThumbUrl(firstSecondUrl);
+            this.search.title = newVideo.id;
+            this.search.video = newVideo;
+            // this.search.selectedCache = 1; // TODO get current cache
+            // this.search.images = this.getVideoSummaryImages(this.search.video);
+            this.displayVideoId = this.search.video.id;
+            this.search.images = this.getVideoSummaryImages(this.search.video); // forces re-render imgs
+              }
+        },
+        updateCacheRange: function() {
+          let sliderValue = parseInt(this.$refs.cacheRangeSlider.value);
+          if (this.search.selectedCache !== sliderValue) {
+            this.search.selectedCache = sliderValue;
+            this.search.images = this.getVideoSummaryImages(this.search.video); // forces re-render
+          }
         }
     },
     mounted: function() {

@@ -45,6 +45,15 @@
   color: #a6cee3;
 }
 
+.videoSummaryControls {
+  display: flex;
+  align-items: center;
+}
+.videoSummaryControls > * {
+  padding-left: 5px;
+  padding-right: 5px;
+}
+
 .flashvideoborder {
   border: 1px #ff0000 solid;
 

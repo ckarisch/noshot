@@ -49,6 +49,9 @@ const utilFuncs = {
         }
       }
     },
+    thumbUrlFromVideoPosition: function(videoNr, second) {
+      return `${window.appCfg.dataServer.keyframesLocation}/${videoNr}/${videoNr}_${second}_key.jpg`;
+    },
     videoFromThumbUrl: function(url, dataLocation = window.appCfg.dataServer.keyframesLocation) {
 
       // frame

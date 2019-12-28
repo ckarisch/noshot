@@ -181,7 +181,6 @@ export default {
               sObject.title = payload.id;
               sObject.video = payload;
               sObject.selectedCache = 1;
-              sObject.images = [];
               break;
             case window.searchStorage.type.NONE:
             default:
