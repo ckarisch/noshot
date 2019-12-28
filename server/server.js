@@ -70,8 +70,6 @@ app.get('/search/:net/:category/:cache', function searchHandler(req, res) {
     if (categoryId.length > 0)
       children = categoryChildrenArray[categoryId[0]]; // get childs
 
-    console.log(children);
-
     // add searched category
     children.push(categoryId[0]);
     const solrGetUrl = new url.URL('http://' + hostname + ':8983/solr/noshot/select');
