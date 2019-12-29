@@ -46,6 +46,8 @@ window.searchStorage = SearchStorage;
 window.appCfg.fps = fps;
 window.appCfg.keyCount = keyCount;
 window.appCfg.categoryNames = categoryNames;
+// utils
+window.utils = utils;
 // global logging for debugging
 window.log = utils.debugLog;
 

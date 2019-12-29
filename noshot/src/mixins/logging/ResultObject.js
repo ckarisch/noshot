@@ -1,9 +1,48 @@
-class LogObject {
-
+class ResultObject {
+/*
+  * Message Format Example:
+  *  {
+  *      "teamId": "4",
+  *      "memberId": 2,
+  *      "timestamp": 1542960322, // time (UNIX) of when message was submitted
+  *      "type": "result",
+  *      "usedCategories" : ["Text", "Sketch"],
+  *      "usedTypes" : ["ASR", "Color"],
+  *      "sortType" : ["ASR"],
+  *      "resultSetAvailability" : "all",
+  *
+  *      "results" :
+  *       [
+  *           { // Entry 1
+  *               "video" : "02521",
+  *               "shot" : 7,
+  *               "score" : 0.94,
+  *               "rank" : 1
+  *           },
+  *           { // Entry 2
+  *               "video" : "02521",
+  *               "frame" : 957,
+  *               "score" : 0.91,
+  *               "rank" : 2
+  *           },
+  *           { // Entry 3
+  *               "video" : "02525",
+  *               "shot" : 34,
+  *               "score" : 0.85
+  *           },
+  *           ...
+  *           { // Entry n
+  *               "video" : "02528",
+  *               "frame" : 1547
+  *           }
+  *       ]
+  * }
+  *
+ */
     constructor(team, member) {
         this.teamId = team;
         this.memberId = member;
-        this.startTimestamp = ts2Unix(Date.now()); // start time: remember when logging started
+        this.startTimestamp = window.utils.ts2Unix(Date.now()); // start time: remember when logging started
         this.timestamp = null; // submission timestamp
         this.type = null;
         this.events = [];
@@ -28,7 +67,7 @@ class LogObject {
         // calls superclass toJSON setting its own type
         return Object.assign({}, this, {
             events: eventArray,
-            timestamp: ts2Unix(Date.now()) // get current timestamp for submission
+            timestamp: window.utils.ts2Unix(Date.now()) // get current timestamp for submission
         });
     }
 
@@ -51,14 +90,7 @@ class LogObject {
             let eventArray = [];
             for (let i = 0; i < jsonOrString.events.length; i++) {
                 let event = jsonOrString.events[i];
-                if (event.hasOwnProperty("actions")) {
-                    // composite event
-                    event = CompositeEvent.fromJSON(event);
-                }
-                else {
-                    // atomic event
-                    event = AtomicEvent.fromJSON(event);
-                }
+                event = Event.fromJSON(event);
                 eventArray.push(event);
             }
 
@@ -68,4 +100,4 @@ class LogObject {
         }
     }
 }
-export default LogObject;
+export default ResultObject;

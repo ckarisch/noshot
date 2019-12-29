@@ -1,15 +1,16 @@
 import Event from './Event.js'
-import InteractObject from './InteractObject.js';
+import ResultObject from './ResultObject.js';
 
 /*
-  The interaction log is a MANDATORY part of each
-  submission AND should at least be posted to the VBS server
-  once with a ﬂush submission after an unsuccessful search.
-  Ideally, the interaction logs could be ﬂushed automatically
-  every 10-15 seconds.
+  In order to be able to capture the ranked list of results
+  and its development at any given point in time, each team
+  should submit (to “vbs/log/” endpoint) a list of results every
+  time that list is updated in their tool either proactively, e.g.
+  as a result of a user interaction, or in the background due
+  to some internal processing.
  */
 
-function ActionLogger (teamName, teamId, memberId) {
+function ResultLogger (teamName, teamId, memberId) {
   return {
     created: function() {
       this.teamName = teamName;
@@ -30,13 +31,13 @@ function ActionLogger (teamName, teamId, memberId) {
 
       createNewLog: function() {
 
-          this.logObject = new InteractObject(this.teamId, this.memberId);
+          this.logObject = new ResultObject(this.teamId, this.memberId);
           window.appCfg.preferences.save(this.getCacheKey(), this.logToJSONString());
           this.startLogging();
       },
 
       resumeLog: function() {
-          this.logObject = InteractObject.fromJSON(window.appCfg.preferences.load(this.getCacheKey(), new InteractObject(this.teamName, this.memberId)));
+          this.logObject = ResultObject.fromJSON(window.appCfg.preferences.load(this.getCacheKey(), new ResultObject(this.teamName, this.memberId)));
           this.startLogging();
       },
 
@@ -84,7 +85,7 @@ function ActionLogger (teamName, teamId, memberId) {
                   msg += succeeded ? "YES" : "NO";
                   msg += ", saved locally: NO.";
                   this.$toastr.e(msg);
-                  this.logObject = InteractObject.fromJSON(window.appCfg.preferences.load(this.getCacheKey(), new InteractObject(this.teamName, this.memberId)));
+                  this.logObject = ResultObject.fromJSON(window.appCfg.preferences.load(this.getCacheKey(), new ResultObject(this.teamName, this.memberId)));
                   console.log("Task restored...");
               }
 
@@ -116,7 +117,7 @@ function ActionLogger (teamName, teamId, memberId) {
           //     data : data,
           //     success: (response) =>
           //     {
-          //         let tempLog = InteractObject.fromJSON(jsonString);
+          //         let tempLog = ResultObject.fromJSON(jsonString);
           //         // console.log(tempLog);
           //         if (isSubmitted) this.totalLoggedEvents.submitted = this.totalLoggedEvents.submitted.concat(tempLog.events);
           //
@@ -252,7 +253,7 @@ function ActionLogger (teamName, teamId, memberId) {
       },
 
       logFromJSON: function(jsonOrString) {
-          return InteractObject.fromJSON(jsonOrString);
+          return ResultObject.fromJSON(jsonOrString);
       },
 
       getLogSequence: function() {
@@ -300,4 +301,4 @@ function ActionLogger (teamName, teamId, memberId) {
   } // return mixin
 } // function Actionlogger
 
-export default ActionLogger;
+export default ResultLogger;

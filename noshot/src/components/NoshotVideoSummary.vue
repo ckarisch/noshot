@@ -84,7 +84,7 @@ export default {
             // this.search.images = this.getVideoSummaryImages(this.search.video);
             this.displayVideoId = this.search.video.id;
             this.search.images = this.getVideoSummaryImages(this.search.video); // forces re-render imgs
-              }
+          }
         },
         updateCacheRange: function() {
           let sliderValue = parseInt(this.$refs.cacheRangeSlider.value);

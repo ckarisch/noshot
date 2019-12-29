@@ -1,10 +1,28 @@
 var global = global || {};
 global.log = {};
 
+/**
+ * VBS 2020
+ *
+ * Action Logging:
+ * The first successful interaction logging attempt at VBS
+ * 2018 demonstrated that it is viable to instantly collect infor-
+ * mation on what actions were being used to solve a task and
+ * also how users interact with their systems. For VBS 2019,
+ * the employed log format was revisited to be more versatile
+ * (i.e., to support all expected actions in all participating tools),
+ * but still ensuring that teams use a general unified set of
+ * action categories. For the current iteration at VBS 2020, we
+ * tried to re-iterate on those efforts and further simplified the
+ * format based on the lessons learned. Furthermore, we added
+ * a method to log ranked lists of results in addition to the
+ * (inter-)actions submitted by the teams.
+ *
+ */
+
 global.log.submitType = {
-    SUBMIT: "submission",
     INTERACT: "interaction",
-    FLUSH: "flush"
+    RESULT: "result"
 }
 Object.freeze(global.log.submitType);
 
@@ -51,9 +69,7 @@ global.log.category = {
             B_W: "bw", // black and white filter
             DOM_COL: "dominantColor", // user selects a dominant color
             RESOLUTION: "resolution", // user searches for specific video resolution
-            //TODO: ask for permission
-            // SHOTS: "videoShots" // user browses all shots of single video
-            MAP: "featuremap" // user browses all shots of single video
+            NUM_OBJECTS: "numberOfObjects" // user searches for # of objects
         }
     },
     BROWSE: {
@@ -65,6 +81,7 @@ global.log.category = {
             TEMP_CONTEXT: "temporalContext", // user inspects temporal context of a selected frame in a visualization component (not video player)
             VID_PLAYER: "videoPlayer", // user navigates an integrated video player
             EXPLORE: "exploration", // user employs a precomputed exploration or visualization structure (e.g. image map, value contains actions like zoom in , pan etc.)
+            RANDOM_SELECTION: "randomSelection", // a result set obtained purely by a random sampling
             TOOL_LAYOUT: "toolLayout", // user changes a GUI panel
             EXP_SORT: "explicitSort", // user sorts current result by selecting button/checkbox (query is not changed)
             RESET_ALL: "resetAll" // sets the tool to the initial setting

@@ -1,6 +1,6 @@
-class AtomicEvent {
+class Event {
     constructor(actionString) {
-        this.timestamp = ts2Unix(Date.now());
+        this.timestamp = window.utils.ts2Unix(Date.now());
         this.category;
         this.type;
         this.value;
@@ -22,7 +22,7 @@ class AtomicEvent {
     // reviver can be passed as the second parameter to JSON.parse
     // to automatically call Class.fromJSON on the resulting value.
     static reviver(key, value) {
-        return key === "" ? AtomicEvent.fromJSON(value) : value;
+        return key === "" ? Event.fromJSON(value) : value;
     }
 
     // fromJSON is used to convert a serialized version
@@ -30,13 +30,13 @@ class AtomicEvent {
     static fromJSON(jsonOrString) {
         if (typeof jsonOrString === "string") {
             // if it's a string, parse it first
-            return JSON.parse(jsonOrString, AtomicEvent.reviver);
+            return JSON.parse(jsonOrString, Event.reviver);
         }
         else {
-            let atomicEvent = new AtomicEvent();
-            return Object.assign(atomicEvent, jsonOrString);
+            let Event = new Event();
+            return Object.assign(Event, jsonOrString);
         }
     }
 
 }
-export default AtomicEvent;
+export default Event;
