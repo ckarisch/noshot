@@ -4,10 +4,13 @@ import config from '../public/config/default.json'; // default app cfg
 import fps from '../public/config/fps.json';
 import keyCount from '../public/config/keyCount.json';
 import categoryNames from '../public/config/categoryNames.json';
+import { saveAs } from 'file-saver';
 import utils from './utils/utils.js';
 import Preferences from './utils/Preferences.js';
 import SearchStorage from './utils/SearchStorage.js';
-import globalMixinMethods from './mixins/globalMixinMethods.js'
+import globalMixinMethods from './mixins/globalMixinMethods.js';
+import ActionLogger from './mixins/logging/ActionLogger.js';
+import logging from './mixins/logging/logging.js';
 
 /** 3rd party plugins **/
 // https://www.npmjs.com/package/@fortawesome/fontawesome-free
@@ -28,6 +31,8 @@ import '../node_modules/@syncfusion/ej2-buttons/styles/material.css';
 // https://www.npmjs.com/package/vue-draggable-resizable
 import VueDraggableResizable from 'vue-draggable-resizable'
 Vue.component('vue-draggable-resizable', VueDraggableResizable)
+// https://www.npmjs.com/package/v-tooltip
+import VTooltip from 'v-tooltip';
 
 
 // plugins
@@ -38,6 +43,14 @@ Vue.use(VueToastr, {
 Vue.use(VuejsDialog);
 Vue.use(SidebarPlugin);
 Vue.use(ButtonPlugin);
+let tooltipOptions = {
+    // Default tooltip placement relative to target element
+    defaultPlacement: 'top',
+    // Default CSS classes applied to the tooltip element
+    defaultClass: 'vue-tooltip-theme'
+}
+Vue.use(VTooltip, tooltipOptions);
+
 
 // global cfg
 window.appCfg = config; // cfg (for non VUE components)
@@ -48,8 +61,13 @@ window.appCfg.keyCount = keyCount;
 window.appCfg.categoryNames = categoryNames;
 // utils
 window.utils = utils;
+window.utils.saveAs = saveAs;
 // global logging for debugging
 window.log = utils.debugLog;
+
+// file-save usage
+// var blob = new Blob(["Hello, world!"], {type: "text/plain;charset=utf-8"});
+// window.utils.saveAs(blob, "hello world.txt");
 
 // local cfg
 // try getting local cfg ('public' is served under serverurl:port/)
@@ -71,6 +89,11 @@ fetch('./config/local.json', {
     initApp();
 });
 
+// logging
+window.logging = {}
+window.logging.actionLogger = new ActionLogger(window.appCfg.vbsServer.teamName, window.appCfg.vbsServer.teamId, window.appCfg.vbsServer.memberId);
+
+
 // creates VUE app
 function initApp() {
   // set globals (cfg, utils) for all vue components as a global mixins
@@ -84,6 +107,7 @@ function initApp() {
     },
     methods: globalMixinMethods
   });
+  Vue.mixin(logging);
 
   Vue.config.productionTip = false;
 

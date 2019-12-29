@@ -1,0 +1,44 @@
+#logOverlay {
+  color: white;
+  background-color: black;
+  opacity: 0.75;
+  position: absolute;
+  z-index: 10000;
+  display: flex;
+  align-items: center;
+  left: 50%;
+  transform: translate(-50%);
+  padding: 5px;
+  border-bottom-left-radius: 10px;
+  border-bottom-right-radius: 10px;
+}
+
+#logOverlay > * {
+  margin: 2px;
+}
+
+.logButton {
+  cursor: pointer;
+}
+.logButton:hover {
+  color: #a6cee3;
+}
+
+.disabledLog {
+
+}
+
+.toggleLogButton {
+    cursor: pointer;
+}
+
+.timedisplay {
+  color: black;
+  // height: 1.5em;
+  // line-height: 1.5em;
+  padding-left: 2px;
+  padding-right: 2px;
+  text-align: center;
+  background-color: lightgray;
+  border-radius: 5px;
+}

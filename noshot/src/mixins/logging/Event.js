@@ -10,9 +10,9 @@ class Event {
 
     // TODO: maybe define format String like format as internal representation,
     // which can then be parsed by this class in order to create an Event?
-    fromActionString(string) {
-        // let parts = string.split("::");
-    }
+    // fromActionString(string) {
+    //     // let parts = string.split("::");
+    // }
 
     toJSON() {
         // calls superclass toJSON setting its own type

@@ -19,5 +19,9 @@
     "port": 80,
     "keyframesLocation": "keyframes",
     "videosLocation": "videos"
+  },
+  "logging": {
+    "interactionIntervalMS": 15000,
+    "taskDurationSeconds": 300
   }
 }

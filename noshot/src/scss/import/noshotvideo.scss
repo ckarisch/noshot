@@ -47,11 +47,16 @@
 
 .videoSummaryControls {
   display: flex;
-  align-items: center;
+  align-items: baseline;
 }
 .videoSummaryControls > * {
   padding-left: 5px;
   padding-right: 5px;
+}
+
+.videoSummaryInfo {
+  display: flex;
+  flex-direction: column;
 }
 
 .flashvideoborder {
