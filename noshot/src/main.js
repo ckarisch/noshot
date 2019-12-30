@@ -8,9 +8,8 @@ import { saveAs } from 'file-saver';
 import utils from './utils/utils.js';
 import Preferences from './utils/Preferences.js';
 import SearchStorage from './utils/SearchStorage.js';
-import globalMixinMethods from './mixins/globalMixinMethods.js';
-import ActionLogger from './mixins/logging/ActionLogger.js';
-import logging from './mixins/logging/logging.js';
+import globalMixin from './mixins/globalMixin.js';
+import ActionLogger from './utils/logging/ActionLogger.js';
 
 /** 3rd party plugins **/
 // https://www.npmjs.com/package/@fortawesome/fontawesome-free
@@ -105,9 +104,9 @@ function initApp() {
         utils: utils
       }
     },
-    methods: globalMixinMethods
+    // methods: globalMixinMethods
   });
-  Vue.mixin(logging);
+  Vue.mixin(globalMixin);
 
   Vue.config.productionTip = false;
 

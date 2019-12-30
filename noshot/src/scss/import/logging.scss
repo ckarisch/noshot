@@ -3,7 +3,7 @@
   background-color: black;
   opacity: 0.75;
   position: absolute;
-  z-index: 10000;
+  z-index: 1000;
   display: flex;
   align-items: center;
   left: 50%;
@@ -24,13 +24,26 @@
   color: #a6cee3;
 }
 
-.disabledLog {
-
+// enabled state
+.toggleLogButton  {
+  &.enabledLog {
+    color: #4daf4a;
+  }
 }
-
+.toggleLogButton:hover {
+  &.enabledLog:hover {
+    color: #e41a1c;
+  }
+}
+// disabled state
 .toggleLogButton {
     cursor: pointer;
+    color: #e41a1c;
 }
+.toggleLogButton:hover {
+    color: #4daf4a;
+}
+
 
 .timedisplay {
   color: black;

@@ -74,7 +74,7 @@ class ResultObject {
     // reviver can be passed as the second parameter to JSON.parse
     // to automatically call Class.fromJSON on the resulting value.
     static reviver(key, value) {
-        return key === "" ? LogObject.fromJSON(value) : value;
+        return key === "" ? ResultObject.fromJSON(value) : value;
     }
 
     // fromJSON is used to convert a serialized version
@@ -82,10 +82,10 @@ class ResultObject {
     static fromJSON(jsonOrString) {
         if (typeof jsonOrString === "string") {
             // if it's a string, parse it first
-            return JSON.parse(jsonOrString, LogObject.reviver);
+            return JSON.parse(jsonOrString, ResultObject.reviver);
         }
         else {
-            let logObj = new LogObject();
+            let logObj = new ResultObject();
 
             let eventArray = [];
             for (let i = 0; i < jsonOrString.events.length; i++) {
