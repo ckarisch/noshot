@@ -3,6 +3,13 @@
     <div class="menuLeft">
       <span>{{search.images.length}}</span>
     </div>
+    <paginate
+      :page-count="search.pages"
+      :click-handler="changePage"
+      :prev-text="'Prev'"
+      :next-text="'Next'"
+      :container-class="'pagination'">
+    </paginate>
     <div class="searchNavigation">
         <vue-suggestion :items="items"
                   v-model="searchText"
@@ -64,6 +71,10 @@ export default {
     },
 
     methods: {
+        changePage: function(pageNum) {
+          this.search.page = pageNum;
+          this.fetchSolrSearch(this.search);
+        },
 
         fetchSolrSearch: function(search) {
           this.notifyParents(this, 'fetch-solr-search', search);

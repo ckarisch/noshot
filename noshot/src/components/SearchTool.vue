@@ -139,13 +139,14 @@ export default {
             let net = search.selectedNetwork;
             let cache = search.selectedCache;
 
-            getFromSolr(net, search.title, cache, (err, docs) => {
+            getFromSolr(net, search.title, cache, (err, response) => {
                 this.loading = false
                 if (err) {
                     this.error = err.toString();
                 } else {
-                    search.images = docs;
-                    this.logCategories(docs);
+                    search.pages = Math.ceil(response.numFound / 200) + 1;
+                    search.images = response.docs;
+                    this.logCategories(response.docs);
                 }
             });
         },
@@ -176,6 +177,8 @@ export default {
               sObject.selectedCache = 1;
               sObject.selectedNetwork = this.nets[0];
               sObject.videoRange = 0;
+              sObject.page = 1;
+              sObject.pages = 1;
               break;
             case window.searchStorage.type.VIDEO_SUMMARY:
               sObject.title = payload.id;
@@ -210,7 +213,9 @@ function getFromSolr(net, category, cache, callback) {
     Http.send();
     Http.onreadystatechange = (e) => {
         if (e.currentTarget.readyState == 4 && e.currentTarget.status == 200) {
-            callback(null, JSON.parse(Http.responseText));
+            const response = JSON.parse(Http.responseText);
+
+            callback(null, response);
         }
     }
 }

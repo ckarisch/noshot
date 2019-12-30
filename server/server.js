@@ -116,7 +116,10 @@ app.get('/search/:net/:category/:cache', function searchHandler(req, res) {
             resp.on('end', () => {
                 const jdata = JSON.parse(data);
                 if (jdata.response && jdata.response.docs)
-                    res.json(filterSolrResponse(jdata.response.docs));
+                {
+                    jdata.response.docs = filterSolrResponse(jdata.response.docs);
+                    res.json(jdata.response);
+                }
                 else
                     res.json([]);
             });

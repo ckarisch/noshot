@@ -17,7 +17,8 @@
     "vue-draggable-resizable": "^2.1.0",
     "vue-suggestion": "^1.0.0",
     "vue-toastr": "^2.1.2",
-    "vuejs-dialog": "^1.4.1"
+    "vuejs-dialog": "^1.4.1",
+    "vuejs-paginate": "^2.1.0"
   },
   "devDependencies": {
     "@vue/cli-plugin-babel": "^4.0.0",

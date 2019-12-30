@@ -7,11 +7,13 @@
 <script>
 import Vue from 'vue'
 import VueSuggestion from 'vue-suggestion'
+import Paginate from 'vuejs-paginate'
 import NoshotWorkspace from './components/NoshotWorkspace.vue'
 import './scss/main/style.scss'
 
 
 Vue.use(VueSuggestion);
+Vue.component('paginate', Paginate)
 
 export default {
   name: 'app',
