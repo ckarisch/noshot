@@ -64,9 +64,6 @@ window.utils.saveAs = saveAs;
 // global logging for debugging
 window.log = utils.debugLog;
 
-// file-save usage
-// var blob = new Blob(["Hello, world!"], {type: "text/plain;charset=utf-8"});
-// window.utils.saveAs(blob, "hello world.txt");
 
 // local cfg
 // try getting local cfg ('public' is served under serverurl:port/)

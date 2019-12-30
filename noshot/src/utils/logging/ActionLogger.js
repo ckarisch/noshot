@@ -23,8 +23,16 @@ class ActionLogger {
     }; // store all logged events for summary display
   }
 
+  reset() {
+    this.logObject = undefined;
+  }
+
   isTaskRunning() {
     return window.appCfg.preferences.load(this.getCacheKey(), false);
+  }
+
+  isActive() {
+    return (this.taskTimeInterval && this.logInterval);
   }
 
   getCacheKey() {
@@ -32,27 +40,40 @@ class ActionLogger {
   }
 
   createNewLog() {
-
     this.logObject = new InteractObject(this.teamId, this.memberId);
     window.appCfg.preferences.save(this.getCacheKey(), this.logToJSONString());
     this.startLogging();
   }
 
-  resumeLog() {
+  resumeLog(startLogging = true) {
     this.logObject = InteractObject.fromJSON(window.appCfg.preferences.load(this.getCacheKey(), new InteractObject(this.teamName, this.memberId)));
-    this.startLogging();
+    if (startLogging) this.startLogging();
   }
 
   startLogging() {
+    window.log("Logging ON");
     this.startInterval();
     this.startTimer();
   }
 
-  resetLog() {
-    window.log("Actionlog reset (" + this.logObject.events.length + " items)");
-    this.logObject.reset();
-    this.startInterval();
+  stopLogging() {
+    window.log("Logging OFF");
+    clearInterval(this.logInterval);
+    clearInterval(this.taskTimeInterval);
+    this.logInterval = null;
+    this.taskTimeInterval = null;
+    this.displayCurrentTime();
   }
+
+  displayCurrentTime() {
+    document.querySelector(".timedisplay").innerHTML = this.getFormattedTimeIndicator(false);
+  }
+
+  // resetLog() {
+  //   window.log("Actionlog reset (" + this.logObject.events.length + " items)");
+  //   this.logObject.reset();
+  //   this.startInterval();
+  // }
 
   formatForSubmission() {
     this.logObject.type = global.log.submitType.INTERACT;
@@ -62,11 +83,11 @@ class ActionLogger {
   }
 
   deleteLog() {
-    window.log("Task Ended...");
-    clearInterval(this.logInterval);
-    clearInterval(this.taskTimeInterval);
-    this.logObject = undefined;
+    this.stopLogging();
+    this.reset();
     window.appCfg.preferences.save(this.getCacheKey(), undefined);
+    document.querySelector(".timedisplay").innerHTML = "00:00:00";
+    window.log("Delete log " + this.getCacheKey());
   }
 
   onMessageSent(sentString, success = false) {
@@ -95,18 +116,26 @@ class ActionLogger {
     });
   }
 
-  // jsonString should already have been posted to server
-  save(jsonString, isSubmitted = false, onSuccess = null, onFailure = null) {
+  // creates file save dialog for saving log
+  // isSubmitted: has already been submitted to server
+  save(isSubmitted = false) {
 
     // revive json to get human readable date
-    let postedLog = this.logFromJSON(jsonString);
-    let filePath = this.createFilePathFromLog(postedLog, isSubmitted);
+    // let postedLog = this.logFromJSON(jsonString);
+    // let filePath = this.createFilePathFromLog(postedLog, isSubmitted);
+
+    let jsonString = this.logToJSONString();
+    let filePath = this.createFilePathFromLog(this.logObject, isSubmitted);
+    // window.log(filePath);
+    // window.log(jsonString);
 
     // window.log(relativeFolder);
 
-    // TODO save to file
-    window.log(onSuccess + " " + onFailure + " " + filePath);
+    var blob = new Blob([jsonString], {type: "text/plain;charset=utf-8"});
+    // var blob = new Blob(this.logObject, {type: "application/json;charset=utf-8"});
+    window.utils.saveAs(blob, filePath);
 
+    // TODO automatic saving
     // var data = {
     //     operation: "save",
     //     file: filePath,
@@ -141,43 +170,6 @@ class ActionLogger {
 
   }
 
-  // deletes all serverside actionlogs (appdata/logs/actionLog)
-  // clearActionLog() {
-  //   this.clearLogFolder("clearActionLog");
-  // }
-
-  // clearLogFolder(action, onSuccess = null, onFailure = null) {
-  //
-  //   //TODO
-  //   window.log(onSuccess + " " + onFailure);
-  //
-  //
-  //   // var data = {
-  //   //     operation: action
-  //   // }
-  //
-  //   // $.ajax({
-  //   //     type : "POST",
-  //   //     url : global.config.baseURL + "log.php",
-  //   //     dataType: "json",
-  //   //     data : data,
-  //   //     success: (response) =>
-  //   //     {
-  //   //         if(response.success) {
-  //   //             window.log("Clear log msg: " + response.message);
-  //   //             toastr.info("Action Log: " + response.message);
-  //   //             if(onSuccess) onSuccess(response);
-  //   //         }
-  //   //         else {
-  //   //             window.log("Clear log msg: " + response.message);
-  //   //             toastr.error("Action Log: " + response.message);
-  //   //             if(onFailure) onFailure(response);
-  //   //         }
-  //   //
-  //   //     }
-  //   // });
-  // }
-
   createFilePathFromLog(log, isSubmitted = false) {
     let date = new Date(log.startTimestamp * 1000); // folder from task start time
     let fileName = Date.now() + ".json"; //  file from current timestamp
@@ -201,22 +193,20 @@ class ActionLogger {
   startTimer() {
     // update task time every 500 ms
     this.taskTimeInterval = setInterval(() => {
-      console.log("timer interval fired...");
-      // TODO: display
-      // $("#taskTimeIndication")[0].innerHTML = this.getFormattedTimeIndicator();
+      // console.log("timer interval fired...");
+      this.displayCurrentTime();
     }, 500);
-    let taskDurationFormatted = this.getFormattedTime(new Date(window.appCfg.logging.taskDurationSeconds * 1000));
-    window.log(taskDurationFormatted);
+    // let taskDurationFormatted = this.getFormattedTime(new Date(window.appCfg.logging.taskDurationSeconds * 1000));
+    // window.log(taskDurationFormatted);
     // TODO: display
     // $("#taskTimeInfo")[0].dataset.tootik = "Task duration: " + taskDurationFormatted;
   }
-
 
   startInterval() {
     // featureMap position is logged every 5 seconds (provided that it has changed)
     // var prevMapState = controller.featureMap.stringifyCurrentState();
     this.logInterval = setInterval(() => {
-      console.log("log interval fired...");
+      // console.log("log interval fired...");
       window.appCfg.preferences.save(this.getCacheKey(), this.logToJSONString());
     }, window.appCfg.logging.interactionIntervalMS);
   }
@@ -247,7 +237,7 @@ class ActionLogger {
     event.value = value;
     if (typeof attributes !== "undefined") event.attributes = attributes;
 
-    let logDebug = "Atomic Event - " + category + " " + type;
+    let logDebug = "Event - " + category + " " + type;
     window.log("Action Logger: " + logDebug);
     // toastr.info("Action Logger: " + logDebug);
     this.logObject.addEvent(event);
@@ -265,27 +255,35 @@ class ActionLogger {
     return this.teamId + ";" + this.logObject + "time " + this.getCurrentTime();
   }
 
+  // time stince start of logging
   getElapsedLogTime() {
     let time = window.utils.ts2Unix(Date.now()) - this.logObject.startTimestamp;
     let date = new Date(time * 1000);
     return this.getFormattedTime(date);
   }
 
-  getFormattedTimeIndicator() {
-    let time = window.utils.ts2Unix(Date.now()) - this.logObject.startTimestamp;
-    let date = new Date(time * 1000);
-    let formattedTime = this.getFormattedTime(date);
-    let style = "color:#4daf4a;";
+  // time spent logging
+  getFormattedTimeIndicator(colored = true) {
 
-    // half time
-    if (time > global.config.taskDurationSeconds * 0.5)
-      style = "color:#ffff33;";
-    // 90%
-    if (time > global.config.taskDurationSeconds * 0.9)
-      style = "color:#e41a1c;";
-    // time over
-    if (time > global.config.taskDurationSeconds)
-      style = "color:#999999;";
+    let logTime = Date.now() - this.logObject.startTime;
+    // let date = new Date(logTime * 1000);
+    let date = new Date(logTime);
+    let formattedTime = this.getFormattedTime(date);
+
+    let style = "";
+
+    if (colored) {
+      style = "color:#4daf4a;";
+      // half time
+      if (logTime > window.appCfg.logging.taskDurationSeconds * 0.5)
+        style = "color:#ffff33;";
+      // 90%
+      if (logTime > window.appCfg.logging.taskDurationSeconds * 0.9)
+        style = "color:#e41a1c;";
+      // time over
+      if (logTime > window.appCfg.logging.taskDurationSeconds)
+        style = "color:#999999;";
+    }
 
     return "<span style='" + style + "'>" + formattedTime + "</span>";
   }

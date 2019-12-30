@@ -41,7 +41,8 @@ class InteractObject {
     constructor(team, member) {
         this.teamId = team;
         this.memberId = member;
-        this.startTimestamp = window.utils.ts2Unix(Date.now()); // start time: remember when logging started
+        this.startTime = Date.now();
+        this.startTimestamp = window.utils.ts2Unix(this.startTime); // start time: remember when logging started
         this.timestamp = null; // submission timestamp
         this.type = null;
         this.events = [];
