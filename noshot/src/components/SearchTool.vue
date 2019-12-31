@@ -139,12 +139,12 @@ export default {
             let net = search.selectedNetwork;
             let cache = search.selectedCache;
 
-            getFromSolr(net, search.title, cache, (err, response) => {
+            getFromSolr(net, search.title, cache, search.page, (err, response) => {
                 this.loading = false
                 if (err) {
                     this.error = err.toString();
                 } else {
-                    search.pages = Math.ceil(response.numFound / 200) + 1;
+                    search.pages = Math.ceil(response.numFound / 200);
                     search.images = response.docs;
                     this.logCategories(response.docs);
                 }
@@ -205,9 +205,9 @@ export default {
     }
 }
 
-function getFromSolr(net, category, cache, callback) {
+function getFromSolr(net, category, cache, page, callback) {
     const Http = new XMLHttpRequest();
-    const url = 'http://' + location.hostname + ':3001/search/' + net + '/' + category + '/' + cache;
+    const url = 'http://' + location.hostname + ':3001/search/' + net + '/' + category + '/' + cache + '/' + page;
 
     Http.open("GET", url);
     Http.send();

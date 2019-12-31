@@ -45,13 +45,15 @@ app.use(function(req, res, next) {
   next();
 });
 
-app.get('/search/:net/:category/:cache', function searchHandler(req, res) {
+app.get('/search/:net/:category/:cache/:page', function searchHandler(req, res) {
   res.statusCode = 200;
   res.setHeader('Content-Type', 'application/json');
 
+  const rows = 200;
   let net = req.params.net;
   let category = req.params.category;
   let cache = req.params.cache;
+  let page = req.params.page;
   if(category !== typeof(undefined))
   {
     // category = category.replace(/ *, */g, "OR");
@@ -96,7 +98,7 @@ app.get('/search/:net/:category/:cache', function searchHandler(req, res) {
         q = q.replaceArray([' ', ':'], ['+', '%3A']);
 
         // const params = util.format('&rows=%i&sort=probability%20desc&group=true&group.field=video&group.main=true', 1000);
-        const params = util.format('&sort=probability%20desc&rows=%i', 200);
+        const params = util.format('&sort=probability%20desc&rows=%i&start=%i', rows, rows * (page - 1));
 
 
         http.get({
