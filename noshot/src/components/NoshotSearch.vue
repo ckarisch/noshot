@@ -49,7 +49,8 @@ export default {
       NoshotImage
     },
     created() {
-      this.notifyParents(this, 'fetch-solr-search', this.search);
+      // Andi: disabled due to double multi-dispatch of searches
+      // this.notifyParents(this, 'fetch-solr-search', this.search);
       this.searchText.id = this.search.title;
     },
     props: {
@@ -105,14 +106,16 @@ export default {
           console.log("selected")
           this.item = item.id;
           this.search.title = item.id;
-          // if(this.search.title)
-          //   this.fetchSolrSearch(this.search);
+          // Andi: enabled, this only dispatches single search on selecting item
+          if(this.search.title)
+            this.fetchSolrSearch(this.search);
         },
         setLabel (item) {
           this.search.title = item.id;
           this.searchText = item;
-          if(this.search.title)
-            this.updateFilter(this.search.title);
+          // Andi: disabled due to double multi-dispatch of searches
+          // if(this.search.title)
+          //   this.updateFilter(this.search.title);
           return this.searchText.id;
         },
         inputChange (text) {

@@ -1,5 +1,6 @@
 <template>
 <div>
+    <NoshotLogging ref="logging"></NoshotLogging>
     <SideMenu ref="sideMenu" />
     <ejs-button id="toggleMenuButton" ref="togglebtn" class="e-btn e-info"  cssClass="e-flat" iconCss="e-icons burg-icon" isToggle="true" v-on:click.native="toggleSideMenu"></ejs-button>
     <NoshotVideo v-for="vid of videos" :key="vid.id + '_' + vid.frame.second" :ref="vid.id + '_' + vid.frame.second" :video="vid" :class="{flashvideoborder: false}"/>
@@ -32,6 +33,7 @@
 import SearchTool from './SearchTool.vue'
 import NoshotVideo from './NoshotVideo.vue'
 import SideMenu from './SideMenu.vue'
+import NoshotLogging from './NoshotLogging.vue'
 
 
 // localStorage persistence
@@ -51,7 +53,8 @@ export default {
     components: {
       SearchTool,
       NoshotVideo,
-      SideMenu
+      SideMenu,
+      NoshotLogging
     },
     created() {
       // listeners
@@ -68,6 +71,12 @@ export default {
           if (evt.keyCode === 27) {
               this.escape();
           }
+      });
+      this.$on('log-created', () => {
+        this.$refs.sideMenu.checkForLogs();
+      });
+      this.$on('log-event', (data) => {
+        this.$refs.logging.logEvent(data);
       });
     },
     props: {

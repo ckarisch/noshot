@@ -131,6 +131,10 @@ const utilFuncs = {
       canvas.getContext('2d').drawImage(videoEl, 0, 0, canvas.width, canvas.height);
 
       return canvas;
+    },
+    ts2Unix: function(timestamp) {
+      return Math.floor(timestamp / 1000);
+      // return parseInt((timestamp / 1000).toFixed(0));
     }
 };
 

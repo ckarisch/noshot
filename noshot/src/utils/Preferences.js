@@ -66,7 +66,8 @@ Preferences.prefKeys = {
     CONFIRM: "confirmSubmit"
   },
   LOG: {
-    LOG_CACHE: "logObject"
+    LOG_INTERACT: "logInteract",
+    LOG_RESULT: "logResult"
   }
 };
 // Preferences.prefKeys = [

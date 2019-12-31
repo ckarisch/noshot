@@ -13,6 +13,8 @@
     "@syncfusion/ej2-vue-buttons": "^17.3.27",
     "@syncfusion/ej2-vue-navigations": "^17.3.34",
     "core-js": "^3.3.2",
+    "file-saver": "^2.0.2",
+    "v-tooltip": "^2.0.2",
     "vue": "^2.6.10",
     "vue-draggable-resizable": "^2.1.0",
     "vue-suggestion": "^1.0.0",

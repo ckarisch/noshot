@@ -1,6 +1,7 @@
 {
   "dbServer": {
     "url": "http://localhost",
+    "logRoute": "/log",
     "port": 3001
   },
   "vueServer": {
@@ -10,6 +11,8 @@
   "vbsServer": {
     "url": "http://localhost",
     "port": 3100,
+    "submitRoute": "/vbs/submit",
+    "logRoute": "/vbs/log",
     "teamName": "ITEC",
     "teamId": 10,
     "memberId": 1
@@ -19,5 +22,9 @@
     "port": 80,
     "keyframesLocation": "keyframes",
     "videosLocation": "videos"
+  },
+  "logging": {
+    "interactionIntervalMS": 15000,
+    "taskDurationSeconds": 300
   }
 }

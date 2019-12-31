@@ -2,9 +2,11 @@
   <li>
     <div class="videoSummaryContent">
       <div class="videoSummaryControls">
-        <div>Video summary for</div>
-        <input type="number" ref="vidInput" :value="displayVideoId" min="1" :max="Object.keys(appCfg.keyCount).length + 1" @change="changeVideo" />
-        <div class="slidecontainer">
+        <div class="videoSummaryInfo">
+          <div>Video summary</div>
+          <input v-tooltip.top-center="tooltips.videoInput" type="number" ref="vidInput" :value="displayVideoId" min="1" :max="Object.keys(appCfg.keyCount).length + 1" @change="changeVideo" />
+        </div>
+        <div class="slidecontainer" v-tooltip.top-center="tooltips.cache">
           cache ({{ search.selectedCache }})
           <input ref="cacheRangeSlider" type="range" min="1" max="180" :value="search.selectedCache" class="slider" @input="updateCacheRange">
         </div>
@@ -32,7 +34,7 @@ export default {
         if (this.search.images.length === 0) {
             this.search.images = this.getVideoSummaryImages(this.search.video);
         }
-        this.displayVideoId = this.search.video.id;
+        this.displayVideoId = this.search.title;
     },
     components: {
       NoshotImage
@@ -44,6 +46,10 @@ export default {
     data: () => {
       return {
         componentKey: 0,
+        tooltips: {
+          videoInput: "Enter video ID",
+          cache: "Select seconds interval"
+        }
         // errorLoading: (e) => {this.errorLoading(e)}
       }
     },
@@ -51,6 +57,19 @@ export default {
         getVideoSummaryImages: function(video) {
           let keyframeBase = this.appCfg.dataServer.url + ':' + this.appCfg.dataServer.port + '/' + this.appCfg.dataServer.keyframesLocation + '/';
           // let testimg = document.querySelector('.testimg');
+
+          // log video summary action
+          let cat = window.logging.logTypes.category.BROWSE;
+          let data  = {
+             category: cat.key,
+             type: cat.types.VID_SUMMARY,
+             value: {
+               video: video.id,
+               cache: this.search.selectedCache
+             }
+          }
+          this.notifyParents(this, 'log-event', data);
+
           let totalKeyFrames = parseInt(this.appCfg.keyCount[video.id]);
           let s = [];
           for (let i = 0; i < totalKeyFrames; i++) {
@@ -65,7 +84,7 @@ export default {
         },
         changeVideo: function() {
           let inputNumber = parseInt(this.$refs.vidInput.value);
-          if (Number.isNaN(inputNumber)) inputNumber = parseInt(this.search.video.id);
+          if (Number.isNaN(inputNumber)) inputNumber = parseInt(this.search.title);
           if (inputNumber < this.$refs.vidInput.min) inputNumber = parseInt(this.$refs.vidInput.min);
           if (inputNumber > this.$refs.vidInput.max) inputNumber = parseInt(this.$refs.vidInput.max);
           let inputString = String(inputNumber);
@@ -82,9 +101,9 @@ export default {
             this.search.video = newVideo;
             // this.search.selectedCache = 1; // TODO get current cache
             // this.search.images = this.getVideoSummaryImages(this.search.video);
-            this.displayVideoId = this.search.video.id;
+            this.displayVideoId = this.search.title;
             this.search.images = this.getVideoSummaryImages(this.search.video); // forces re-render imgs
-              }
+          }
         },
         updateCacheRange: function() {
           let sliderValue = parseInt(this.$refs.cacheRangeSlider.value);
@@ -95,7 +114,10 @@ export default {
         }
     },
     mounted: function() {
-
+      if (this.search.title != this.search.video.id) {
+        // search has been modified in minimized mode
+        this.changeVideo();
+      }
     }
 
 }

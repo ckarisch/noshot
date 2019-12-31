@@ -139,7 +139,22 @@ export default {
             let net = search.selectedNetwork;
             let cache = search.selectedCache;
 
-            getFromSolr(net, search.title, cache, search.page, (err, response) => {
+            // log search action
+            let cat = window.logging.logTypes.category.TEXT;
+            let data  = {
+               category: cat.key,
+               type: cat.types.CONCEPT,
+               value: {
+                 title: search.title,
+                 net: net,
+                 cache: cache,
+                 range: search.videoRange
+               }
+            }
+            this.notifyParents(this, 'log-event', data);
+            // console.log("Window: "+ search.id +" SOLR SEARCH: " + search.title);
+
+            getFromSolr(net, search.title, cache, search.page, (err, docs) => {
                 this.loading = false
                 if (err) {
                     this.error = err.toString();
@@ -207,7 +222,7 @@ export default {
 
 function getFromSolr(net, category, cache, page, callback) {
     const Http = new XMLHttpRequest();
-    const url = 'http://' + location.hostname + ':3001/search/' + net + '/' + category + '/' + cache + '/' + page;
+    const url = window.appCfg.dbServer.url + ':' + window.appCfg.dbServer.port + '/search/' + net + '/' + category + '/' + cache + '/' + page;
 
     Http.open("GET", url);
     Http.send();
