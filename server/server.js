@@ -7,6 +7,17 @@ var fs = require('fs');
 const url = require('url');
 const cacheUpdateSemaphore = require('semaphore')(1)
 var convertSeconds = require('convert-seconds');
+// bodyparser for sending different http request bodies
+let bodyParser = require('body-parser');
+app.use(bodyParser.urlencoded({ extended: true }));     // support encoded bodies
+app.use(bodyParser.json());                             // support json encoded bodies
+var rimraf = require("rimraf");         // folder manipulation
+var path = require('path');             // path handling
+var recursive = require("recursive-readdir");
+const directoryExists = require('directory-exists');
+var mkdirp = require('mkdirp');         // create multiple dirs
+let cors = require('cors');             // cross origin requests (localhost -> localhost:3001)
+app.use(cors());                        // allow all origins -> Access-Control-Allow-Origin: *
 
 let keyCount = require('../noshot/public/config/keyCount.json');
 
@@ -23,6 +34,7 @@ const port = 3001;
 const treefileName = '9k.tree';
 const namesfileName = '9k.names';
 let cacheRunning = false;
+const logDir = 'logs';
 
 const categoryNames = parseNamesFile(namesfileName);
 const categoryTree = parseTreeFile(treefileName);
@@ -525,6 +537,84 @@ function writeLine(res, line) {
   res.write('<br/>' + line);
 }
 
+/* LOGGING */
+
+// write log file (make sure 'logs' folder is writable!)
+app.put('/log', createLogDir, (req, res) => {
+  let savePath = logDir + '/' + req.body.file;
+  let data = req.body.json;
+  fs.writeFile(savePath, data, (err) => {
+    if (err) {
+      res.status(500).end();
+      throw err;
+    }
+    // success case, the file was saved
+    console.log('Log saved: ' + savePath);
+    res.sendStatus(200);
+  });
+});
+
+app.get('/log', createLogDir, (req, res) => {
+  recursive(logDir, function (err, files) {
+    //handling error
+    if (err) {
+        console.log('Unable to scan directory: ' + err);
+        res.status(500).end();
+        throw err;
+    }
+    res.status(200).send({files: files});
+  });
+});
+
+app.delete('/log', (req, res) => {
+  rimraf(logDir, (err) => {
+    if (err) {
+      res.status(500).end();
+      throw err;
+    }
+    // success: the dir was deleted
+    console.log("Cleared log!");
+    res.sendStatus(200);
+  });
+});
+
+// create log middleware route
+function createLogDir(req, res, next) {
+  dirPath = logDir;
+  if (req.body.file !== undefined) dirPath = logDir + "/" + path.dirname(req.body.file);
+  directoryExists(dirPath, (error, exists) => {
+    if (exists) {
+      // folder exists, continue route
+      next();
+      return;
+    }
+    createFolder(dirPath,
+      (err) => {
+        if (err) {
+          console.log("Could not create logs folder - make sure server folder is writable.");
+          res.status(500).end();
+          return;
+        }
+        // dir created/exists, call next route
+        next();
+      }
+    );
+  });
+}
+
+// folder creation helper
+function createFolder(dirPath, cb) {
+    mask = 0775;
+    mkdirp(dirPath, {"mode": mask}, function(err) {
+        if (err) {
+          return cb(err);  // something went wrong
+        } else {
+          // successfully created folder
+          console.log("Created folder: " + dirPath);
+          cb(null);
+        }
+    });
+}
 
 console.log(`Listening on ${port}`);
 let server = app.listen(port);

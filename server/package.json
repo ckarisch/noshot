@@ -19,7 +19,13 @@
   "homepage": "https://github.com/ckarisch/DIVE-layout#readme",
   "dependencies": {
     "convert-seconds": "^1.0.1",
+    "cors": "^2.8.5",
+    "directory-exists": "^2.0.1",
     "express": "^4.17.1",
+    "mkdirp": "^0.5.1",
+    "path": "^0.12.7",
+    "recursive-readdir": "^2.2.2",
+    "rimraf": "^3.0.0",
     "semaphore": "^1.1.0",
     "solr-client": "^0.7.1"
   }

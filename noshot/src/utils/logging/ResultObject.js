@@ -1,3 +1,5 @@
+import Result from './Result.js';
+
 class ResultObject {
 /*
   * Message Format Example:
@@ -42,31 +44,43 @@ class ResultObject {
     constructor(team, member) {
         this.teamId = team;
         this.memberId = member;
-        this.startTimestamp = window.utils.ts2Unix(Date.now()); // start time: remember when logging started
-        this.timestamp = null; // submission timestamp
-        this.type = null;
-        this.events = [];
+        this.timestamp = window.utils.ts2Unix(Date.now());          // UNIX TS, submission timestamp
+        this.type = window.logging.logTypes.RESULT;
+        this.usedCategories = [];
+        this.usedTypes = [];
+        this.sortType = [];
+        this.resultSetAvailability = "",
+        this.results = [];
     }
 
-    reset() {
-        this.type = null;
-        this.events = [];
+    static getCacheKey() {
+      return window.appCfg.preferences.prefKeys.LOG.LOG_RESULT;
+    }
+    getCacheKey() {
+      return ResultObject.getCacheKey();
     }
 
-    // composite or atomic event
-    addEvent(event) {
-        this.events.push(event);
+    flush() {
+        this.type = null;
+        this.beginTimestamp  = this.timestamp;
+        this.timestamp = null;
+        this.results = [];
+    }
+
+    // result
+    addResult(result) {
+        this.results.push(result);
     }
 
     toJSON() {
-        let eventArray = [];
-        for (let i = 0; i < this.events.length; i++) {
-            eventArray.push(this.events[i].toJSON());
+        let resultArray = [];
+        for (let i = 0; i < this.results.length; i++) {
+            resultArray.push(this.results[i].toJSON());
         }
 
         // calls superclass toJSON setting its own type
         return Object.assign({}, this, {
-            events: eventArray,
+            results: resultArray,
             timestamp: window.utils.ts2Unix(Date.now()) // get current timestamp for submission
         });
     }
@@ -87,15 +101,15 @@ class ResultObject {
         else {
             let logObj = new ResultObject();
 
-            let eventArray = [];
-            for (let i = 0; i < jsonOrString.events.length; i++) {
-                let event = jsonOrString.events[i];
-                event = Event.fromJSON(event);
-                eventArray.push(event);
+            let resultArray = [];
+            for (let i = 0; i < jsonOrString.results.length; i++) {
+                let result = jsonOrString.results[i];
+                result = Result.fromJSON(result);
+                resultArray.push(result);
             }
 
             return Object.assign(logObj, jsonOrString, {
-                events: eventArray
+                results: resultArray
             });
         }
     }

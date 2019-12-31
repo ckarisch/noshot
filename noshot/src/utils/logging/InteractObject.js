@@ -1,3 +1,5 @@
+import Event from './Event.js';
+
 class InteractObject {
 /*
   * Message Format Example:
@@ -41,15 +43,23 @@ class InteractObject {
     constructor(team, member) {
         this.teamId = team;
         this.memberId = member;
-        this.startTime = Date.now();
-        this.startTimestamp = window.utils.ts2Unix(this.startTime); // start time: remember when logging started
-        this.timestamp = null; // submission timestamp
-        this.type = null;
+        this.startTime = Date.now();    // Non UNIX TS, log start time (convert via: window.utils.ts2Unix(this.startTime))
+        this.beginTimestamp = window.utils.ts2Unix(this.startTime); // UNIX TS, submission timestamp
+        this.timestamp = null;          // UNIX TS, submission timestamp
+        this.type = window.logging.logTypes.INTERACT;
         this.events = [];
     }
 
-    reset() {
-        this.type = null;
+    static getCacheKey() {
+      return window.appCfg.preferences.prefKeys.LOG.LOG_INTERACT;
+    }
+    getCacheKey() {
+      return InteractObject.getCacheKey();
+    }
+
+    flush() {  
+        this.beginTimestamp  = this.timestamp;
+        this.timestamp = null;
         this.events = [];
     }
 

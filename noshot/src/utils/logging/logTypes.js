@@ -1,5 +1,4 @@
-var global = global || {};
-global.log = {};
+var logTypes = logTypes || {};
 
 /**
  * VBS 2020
@@ -20,17 +19,17 @@ global.log = {};
  *
  */
 
-global.log.submitType = {
+logTypes.submitType = {
     INTERACT: "interaction",
     RESULT: "result"
 }
-Object.freeze(global.log.submitType);
+Object.freeze(logTypes.submitType);
 
-global.log.event.type = {
+logTypes.eventType = {
   // TODO
 };
 
-global.log.category = {
+logTypes.category = {
     TEXT: {
         key: "text", // used whenever user enters a text, while various data sources can be selected from listed types
         types: {
@@ -95,4 +94,6 @@ global.log.category = {
         }
     }
 };
-Object.freeze(global.log.category);
+Object.freeze(logTypes.category);
+
+export default logTypes;

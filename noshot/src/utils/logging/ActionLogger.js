@@ -1,5 +1,5 @@
-import Event from './Event.js'
 import InteractObject from './InteractObject.js';
+import ResultObject from './ResultObject.js';
 
 /*
   The interaction log is a MANDATORY part of each
@@ -15,38 +15,55 @@ class ActionLogger {
     this.teamName = teamName;
     this.teamId = teamId;
     this.memberId = memberId;
-    this.logInterval;
-    this.taskTimeInterval; // update interval for task time
+    this.logInterval;       // interval for logging
+    this.taskTimeInterval;  // update interval for task time
+    this.interactLog;
     this.totalLoggedEvents = {
       local: [],
       submitted: []
     }; // store all logged events for summary display
+    this.noshotLoggingComponent = null;
   }
 
-  reset() {
-    this.logObject = undefined;
+  setVueComponent(component) {
+    this.noshotLoggingComponent = component;
+  }
+
+  resetLog() {
+    window.appCfg.preferences.save(this.interactLog.getCacheKey(), undefined);
+    this.interactLog = undefined;
   }
 
   isTaskRunning() {
-    return window.appCfg.preferences.load(this.getCacheKey(), false);
+    return window.appCfg.preferences.load(InteractObject.getCacheKey(), false);
+  }
+
+  isLogEmpty() {
+    if (!this.isTaskRunning()) return false;
+    let tempLog = InteractObject.fromJSON(
+      window.appCfg.preferences.load(InteractObject.getCacheKey(),
+      new InteractObject(this.teamName, this.memberId)));
+    return tempLog.events > 0;
   }
 
   isActive() {
     return (this.taskTimeInterval && this.logInterval);
   }
 
-  getCacheKey() {
-    return window.appCfg.preferences.prefKeys.LOG.LOG_CACHE;
-  }
+  // getCacheKey() {
+  //   return window.appCfg.preferences.prefKeys.LOG.LOG_CACHE;
+  // }
 
   createNewLog() {
-    this.logObject = new InteractObject(this.teamId, this.memberId);
-    window.appCfg.preferences.save(this.getCacheKey(), this.logToJSONString());
+    this.interactLog = new InteractObject(this.teamId, this.memberId);
+    this.saveToLocalStorage();
     this.startLogging();
   }
 
   resumeLog(startLogging = true) {
-    this.logObject = InteractObject.fromJSON(window.appCfg.preferences.load(this.getCacheKey(), new InteractObject(this.teamName, this.memberId)));
+    this.interactLog = InteractObject.fromJSON(
+      window.appCfg.preferences.load(InteractObject.getCacheKey(),
+      new InteractObject(this.teamName, this.memberId)));
     if (startLogging) this.startLogging();
   }
 
@@ -69,50 +86,53 @@ class ActionLogger {
     document.querySelector(".timedisplay").innerHTML = this.getFormattedTimeIndicator(false);
   }
 
-  // resetLog() {
-  //   window.log("Actionlog reset (" + this.logObject.events.length + " items)");
-  //   this.logObject.reset();
-  //   this.startInterval();
-  // }
-
-  formatForSubmission() {
-    this.logObject.type = global.log.submitType.INTERACT;
-    let objJson = this.logToJSONString();
-    this.resetLog();
-    return objJson;
+  flushLog() {
+    window.log("Actionlog flush (" + this.interactLog.events.length + " items)");
+    this.interactLog.flush();
   }
 
   deleteLog() {
+    window.log("Delete log " + this.interactLog.getCacheKey());
     this.stopLogging();
-    this.reset();
-    window.appCfg.preferences.save(this.getCacheKey(), undefined);
+    this.resetLog(this.interactLog);
     document.querySelector(".timedisplay").innerHTML = "00:00:00";
-    window.log("Delete log " + this.getCacheKey());
   }
 
-  onMessageSent(sentString, success = false) {
-    this.submitSent(sentString, success);
-  }
+  // submit to vbs server
+  submit() {
+    this.interactLog.timestamp = window.utils.ts2Unix(Date.now()); // set submission ts
+    let jsonString = this.logToJSONString(this.interactLog);
+    let vbsServerUrl = window.appCfg.vbsServer.url + ":" + window.appCfg.vbsServer.port;
+    let url = vbsServerUrl + window.appCfg.vbsServer.logRoute;
 
-  submitSent(sentString, succeeded = false) {
-    // attempt to save log locally
-    this.save(sentString, succeeded, () => {
-      // save success
-
-    }, () => {
-      // saving failed
-
-      // restore log
-      if (!succeeded) {
-        let msg = "Keeping action log - submitted: ";
-        msg += succeeded ? "YES" : "NO";
-        msg += ", saved locally: NO.";
-        // this.$toastr.e(msg);
-        window.log(msg);
-        this.logObject = InteractObject.fromJSON(window.appCfg.preferences.load(this.getCacheKey(), new InteractObject(this.teamName, this.memberId)));
-        window.log("Task restored...");
-      }
-
+    fetch(url, {
+        method: "POST",
+        mode: "cors",
+        headers: {
+            "Content-Type": "application/json"
+        },
+        body: jsonString
+    }).then(response => {
+        console.log(response);
+        let txt = response.text();
+        // status ok
+        if (response.ok) {
+          txt.then(result => {
+            window.log(`Submitted log to ${vbsServerUrl}.`);
+            // save locally
+            this.save(true);
+            return result;
+          });
+        } else {
+          // error
+          return txt.then(err => {throw err;});
+        }
+    }).catch(error => {
+        // let msg = error.message ? error.message : error;
+        console.log(`Error submiting log to ${vbsServerUrl}.`);
+        window.log(error);
+        // save locally
+        this.save(false);
     });
   }
 
@@ -120,74 +140,74 @@ class ActionLogger {
   // isSubmitted: has already been submitted to server
   save(isSubmitted = false) {
 
-    // revive json to get human readable date
-    // let postedLog = this.logFromJSON(jsonString);
-    // let filePath = this.createFilePathFromLog(postedLog, isSubmitted);
-
     let jsonString = this.logToJSONString();
-    let filePath = this.createFilePathFromLog(this.logObject, isSubmitted);
-    // window.log(filePath);
-    // window.log(jsonString);
+    let filePath = this.createFilePathFromLog(this.interactLog, isSubmitted);
 
-    // window.log(relativeFolder);
+    // manual saving
+    // var blob = new Blob([jsonString], {type: "text/plain;charset=utf-8"});
+    // var blob = new Blob(this.interactLog, {type: "application/json;charset=utf-8"});
+    // window.utils.saveAs(blob, filePath);
 
-    var blob = new Blob([jsonString], {type: "text/plain;charset=utf-8"});
-    // var blob = new Blob(this.logObject, {type: "application/json;charset=utf-8"});
-    window.utils.saveAs(blob, filePath);
+    // automatic saving
+    let logServerUrl = window.appCfg.dbServer.url + ':' + window.appCfg.dbServer.port;
+    let url = logServerUrl + window.appCfg.dbServer.logRoute;
+    var data = {
+        file: filePath,
+        json: jsonString
+    }
 
-    // TODO automatic saving
-    // var data = {
-    //     operation: "save",
-    //     file: filePath,
-    //     json: jsonString
-    // }
+    fetch(url, {
+        method: "PUT",
+        mode: "cors",
+        headers: {
+            "Content-Type": "application/json"
+        },
+        body: JSON.stringify(data)
+    }).then(response => {
+        let txt = response.text();
+        // status ok
+        if (response.ok) {
+          txt.then(result => {
+            window.log(`Saved log to ${logServerUrl}, ${filePath}`);
+            this.flushLog(this.interactLog);
+            if (this.noshotLoggingComponent) this.noshotLoggingComponent.notifyLogUpdate();
+            return result;
+          });
+        } else {
+          // error
+          return txt.then(err => {throw err;});
+        }
+    }).catch(error => {
+        // let msg = error.message ? error.message : error;
+        console.log(`Error saving log to ${logServerUrl}`);
+        window.log(error);
+    });
+  }
 
-    // $.ajax({
-    //     type : "POST",
-    //     url : global.config.baseURL + "log.php",
-    //     dataType: "json",
-    //     data : data,
-    //     success: (response) =>
-    //     {
-    //         let tempLog = InteractObject.fromJSON(jsonString);
-    //         // window.log(tempLog);
-    //         if (isSubmitted) this.totalLoggedEvents.submitted = this.totalLoggedEvents.submitted.concat(tempLog.events);
-    //
-    //         if(response.success) {
-    //             window.log("Saved log to " + global.config.logPath  + global.config.actionLogFolder + filePath);
-    //             toastr.info("Action Log: saved locally!");
-    //             this.totalLoggedEvents.local = this.totalLoggedEvents.local.concat(tempLog.events);
-    //             if(onSuccess) onSuccess(response);
-    //         }
-    //         else {
-    //             console.error("Failed to save log to " + global.config.logPath  + global.config.actionLogFolder + filePath);
-    //             toastr.error("Action log: failed to save locally - " + response.message);
-    //             if(onFailure) onFailure(response);
-    //         }
-    //
-    //     }
-    // });
-
+  saveToLocalStorage() {
+    window.appCfg.preferences.save(this.interactLog.getCacheKey(), this.logToJSON(this.interactLog));
   }
 
   createFilePathFromLog(log, isSubmitted = false) {
-    let date = new Date(log.startTimestamp * 1000); // folder from task start time
-    let fileName = Date.now() + ".json"; //  file from current timestamp
+    let dateStart = new Date(log.beginTimestamp * 1000); // folder from task start time
+    let dateSubmit = new Date(log.timestamp * 1000); // task submit time
+    let fileExt = "json"; //  file from submission timestamp
 
     let teamMemberDir = this.teamName + "_" + this.memberId;
 
     let local_remote_log = isSubmitted ? "submitted" : "local";
 
-    let relDir = date.getFullYear() + "_" +
+    let relDir = dateStart.getFullYear() + "_" +
       // INFO: starts at 0
-      this.zeroPad(date.getMonth()) + "_" +
+      this.zeroPad(dateStart.getMonth()) + "_" +
       // INFO: getDay only gets day of week (e.g. 5 = fri)
-      this.zeroPad(date.getDate()) + "/" +
-      this.zeroPad(date.getHours()) + "_" + String(date.getMinutes()).padStart(2, '0');
+      this.zeroPad(dateStart.getDate());
 
-    // let actionLogPath = global.config.logPath  + global.config.actionLogFolder;
+    let stampBeginTime = this.zeroPad(dateStart.getHours()) + "-" + this.zeroPad(dateStart.getMinutes()) + "-" + this.zeroPad(dateStart.getSeconds());
+    let stampSubmitTime = this.zeroPad(dateSubmit.getHours()) + "-" + this.zeroPad(dateSubmit.getMinutes()) + "-" + this.zeroPad(dateSubmit.getSeconds());
 
-    return teamMemberDir + "/" + local_remote_log + "/" + relDir + "/" + fileName;
+    // log.timestamp necessary to guarantee uniqueness
+    return `${teamMemberDir}/${local_remote_log}/${relDir}/${log.startTime}/${stampBeginTime}_${stampSubmitTime}_${log.timestamp}.${fileExt}`;
   }
 
   startTimer() {
@@ -207,7 +227,9 @@ class ActionLogger {
     // var prevMapState = controller.featureMap.stringifyCurrentState();
     this.logInterval = setInterval(() => {
       // console.log("log interval fired...");
-      window.appCfg.preferences.save(this.getCacheKey(), this.logToJSONString());
+      this.saveToLocalStorage();
+      // submit interact log if there are new events
+      if (!this.isLogEmpty()) this.submit(this.interactLog);
     }, window.appCfg.logging.interactionIntervalMS);
   }
 
@@ -218,54 +240,62 @@ class ActionLogger {
     window.log("------------------------------------------");
   }
 
-  log(category, type, value, attributes = undefined) {
+  // pass Event/Result as object
+  log(category, object) {
     if (typeof category === "undefined" ||
       typeof type === "undefined" ||
       typeof value === "undefined") {
       window.log("ActionLogger::log incomplete log provided...");
       window.log(category);
-      window.log(type);
-      window.log(value);
+      window.log(object);
       return;
     }
 
-    if (!this.logObject) return; // logging is disabled
+    if (!this.interactLog) return; // logging is disabled
 
-    let event = new Event();
-    event.category = category;
-    event.type = type;
-    event.value = value;
-    if (typeof attributes !== "undefined") event.attributes = attributes;
-
-    let logDebug = "Event - " + category + " " + type;
+    let logDebug = "Event - " + category + " " + object.type;
     window.log("Action Logger: " + logDebug);
     // toastr.info("Action Logger: " + logDebug);
-    this.logObject.addEvent(event);
+    if (object.type === window.logging.logTypes.submitType.RESULT) {
+      this.interactLog.addEvent(object);
+    }
+    else if (object.type === window.logging.logTypes.submitType.INTERACT) {
+      let resultLog = new ResultObject(this.teamName, this.memberId);
+      // TODO add resultLog fields
+      // TODO add result
+      window.log(resultLog);
+    }
+
   }
 
-  logToJSONString() {
-    return JSON.stringify(this.logObject);
+  logToJSON(logObj = this.interactLog) {
+    return logObj.toJSON();
   }
 
-  logFromJSON(jsonOrString) {
-    return InteractObject.fromJSON(jsonOrString);
+  logToJSONString(logObj = this.interactLog) {
+    return JSON.stringify(logObj);
+  }
+
+  logFromJSON(jsonOrString, isInteractObject = true) {
+    if (isInteractObject) return InteractObject.fromJSON(jsonOrString);
+    else return ResultObject.fromJSON(jsonOrString);
   }
 
   getLogSequence() {
-    return this.teamId + ";" + this.logObject + "time " + this.getCurrentTime();
+    return this.teamId + ";" + this.interactLog + "time " + this.getCurrentTime();
   }
 
   // time stince start of logging
   getElapsedLogTime() {
-    let time = window.utils.ts2Unix(Date.now()) - this.logObject.startTimestamp;
-    let date = new Date(time * 1000);
+    let time = Date.now() - this.interactLog.startTime;
+    let date = new Date(time);
     return this.getFormattedTime(date);
   }
 
   // time spent logging
   getFormattedTimeIndicator(colored = true) {
 
-    let logTime = Date.now() - this.logObject.startTime;
+    let logTime = Date.now() - this.interactLog.startTime;
     // let date = new Date(logTime * 1000);
     let date = new Date(logTime);
     let formattedTime = this.getFormattedTime(date);
@@ -302,7 +332,6 @@ class ActionLogger {
   zeroPad(number, numZeros = 2) {
     return String(number).padStart(numZeros, '0');
   }
-
 
 } // class
 

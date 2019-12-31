@@ -10,6 +10,7 @@ import Preferences from './utils/Preferences.js';
 import SearchStorage from './utils/SearchStorage.js';
 import globalMixin from './mixins/globalMixin.js';
 import ActionLogger from './utils/logging/ActionLogger.js';
+import logTypes from './utils/logging/logTypes.js';
 
 /** 3rd party plugins **/
 // https://www.npmjs.com/package/@fortawesome/fontawesome-free
@@ -87,8 +88,8 @@ fetch('./config/local.json', {
 
 // logging
 window.logging = {}
+window.logging.logTypes = logTypes;
 window.logging.actionLogger = new ActionLogger(window.appCfg.vbsServer.teamName, window.appCfg.vbsServer.teamId, window.appCfg.vbsServer.memberId);
-
 
 // creates VUE app
 function initApp() {

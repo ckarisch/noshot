@@ -72,6 +72,9 @@ export default {
               this.escape();
           }
       });
+      this.$on('log-created', () => {
+        this.$refs.sideMenu.checkForLogs();
+      });
     },
     props: {
     },

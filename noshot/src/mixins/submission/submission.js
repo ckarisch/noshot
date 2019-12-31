@@ -6,8 +6,8 @@ var submission = {
     getSubmissionURL: function() {
 
       let url = window.appCfg.vbsServer.url + ":" + window.appCfg.vbsServer.port;
-      url += "/vbs/submit?";
-      url += "team=" + window.appCfg.vbsServer.teamId;
+      url += window.appCfg.vbsServer.submitRoute;
+      url += "?team=" + window.appCfg.vbsServer.teamId;
       url += "&member=" + window.appCfg.vbsServer.memberId;
 
       if (!url.startsWith("http://")) {

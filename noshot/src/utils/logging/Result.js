@@ -1,9 +1,11 @@
-class Event {
+class Result {
     constructor() {
         this.timestamp = window.utils.ts2Unix(Date.now());
-        this.category;
-        this.type;
-        this.value;
+        this.video;
+        this.shot;
+        this.score;
+        this.frame;
+        this.rank;
     }
 
     toJSON() {
@@ -14,7 +16,7 @@ class Event {
     // reviver can be passed as the second parameter to JSON.parse
     // to automatically call Class.fromJSON on the resulting value.
     static reviver(key, value) {
-        return key === "" ? Event.fromJSON(value) : value;
+        return key === "" ? Result.fromJSON(value) : value;
     }
 
     // fromJSON is used to convert a serialized version
@@ -22,13 +24,13 @@ class Event {
     static fromJSON(jsonOrString) {
         if (typeof jsonOrString === "string") {
             // if it's a string, parse it first
-            return JSON.parse(jsonOrString, Event.reviver);
+            return JSON.parse(jsonOrString, Result.reviver);
         }
         else {
-            let Event = new Event();
-            return Object.assign(Event, jsonOrString);
+            let Result = new Result();
+            return Object.assign(Result, jsonOrString);
         }
     }
 
 }
-export default Event;
+export default Result;

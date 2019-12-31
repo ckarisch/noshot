@@ -1,12 +1,9 @@
 <template>
   <div id="logOverlay">
-    <button v-on:click="toggleLogging" class="toggleLogButton" v-bind:class="{ enabledLog: isEnabled }" type="button" name="button"><i class="fas fa-power-off"></i></button>
+    <button v-tooltip.bottom-center="tooltips.toggleLog" v-on:click="toggleLogging" class="toggleLogButton" v-bind:class="{ enabledLog: isEnabled }" type="button" name="button"><i class="fas fa-power-off"></i></button>
     <div class="timedisplay">00:00:00</div>
-
-    <button v-on:click="saveLog" class="logButton" type="button" name="button"><i class="far fa-save"></i></button>
-    <button v-on:click="deleteLog" class="logButton" type="button" name="button"><i class="far fa-trash-alt"></i></button>
-
-
+    <button v-tooltip.bottom-center="tooltips.saveLog" v-on:click="saveLog" :disabled="!isLogEmpty" class="logButton" type="button" name="button"><i class="far fa-save"></i></button>
+    <button v-tooltip.bottom-center="tooltips.deleteLog" v-on:click="deleteLog" :disabled="!existsLog" class="logButton" type="button" name="button"><i class="far fa-trash-alt"></i></button>
   </div>
 </template>
 
@@ -14,11 +11,20 @@
 export default {
   name: 'NoshotLogging',
   created() {
+    this.actionLogger.setVueComponent(this);
+    this.updateButtons();
   },
   data: () => {
       return {
         isEnabled: false,
-        actionLogger: window.logging.actionLogger
+        actionLogger: window.logging.actionLogger,
+        tooltips: {
+          deleteLog: "Delete current log",
+          saveLog: "Force Save Log",
+          toggleLog: "Turn on/off logging"
+        },
+        existsLog: false,
+        isLogEmpty: true
       };
   },
   props: {
@@ -63,6 +69,7 @@ export default {
         this.isEnabled = false;
         this.actionLogger.stopLogging();
       }
+      this.updateButtons();
     }, // toggleLogging
 
     confirmResumeLog: function(onConfirm = undefined, onCancel = undefined) {
@@ -108,7 +115,7 @@ export default {
     },
 
     confirmDeleteLog: function(onConfirm = undefined, onCancel = undefined) {
-      this.confirmDialog(this, "<span>Delete log?</span>",
+      this.confirmDialog(this, "<span>Delete current log?</span>",
         // confirmed
         () => {
           this.actionLogger.deleteLog();
@@ -128,7 +135,8 @@ export default {
       }
 
       if (!this.actionLogger.isActive()) this.actionLogger.resumeLog(false);
-      this.actionLogger.save();
+      this.actionLogger.submit(this.actionLogger.interactLog);
+      this.updateButtons();
     },
 
     deleteLog: function() {
@@ -136,14 +144,25 @@ export default {
         this.$toastr.e(`No log task running!`, "Log");
         return;
       }
-      
+
       let onDeleteConfirmed = () => {
         this.isEnabled = false;
         if (this.actionLogger.isActive()) this.actionLogger.stopLogging();
+        this.updateButtons();
       }
       this.confirmDeleteLog(
         onDeleteConfirmed
       )
+    },
+
+    notifyLogUpdate: function() {
+      this.notifyParents(this, 'log-created');
+      this.updateButtons();
+    },
+
+    updateButtons: function() {
+      this.existsLog = this.actionLogger.isTaskRunning();
+      this.isLogEmpty = this.actionLogger.isLogEmpty();
     }
 
   }, // methods

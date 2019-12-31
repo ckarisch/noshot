@@ -204,7 +204,7 @@ export default {
 
 function getFromSolr(net, category, cache, callback) {
     const Http = new XMLHttpRequest();
-    const url = 'http://' + location.hostname + ':3001/search/' + net + '/' + category + '/' + cache;
+    const url = window.appCfg.dbServer.url + ':' + window.appCfg.dbServer.port + '/search/' + net + '/' + category + '/' + cache;
 
     Http.open("GET", url);
     Http.send();

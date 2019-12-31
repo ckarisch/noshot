@@ -23,6 +23,12 @@
 .logButton:hover {
   color: #a6cee3;
 }
+.logButton:disabled {
+  color: #ccc;
+}
+.logButton:disabled:hover {
+  color: #ccc;
+}
 
 // enabled state
 .toggleLogButton  {
