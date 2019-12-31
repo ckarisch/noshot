@@ -80,8 +80,7 @@ class ResultObject {
 
         // calls superclass toJSON setting its own type
         return Object.assign({}, this, {
-            results: resultArray,
-            timestamp: window.utils.ts2Unix(Date.now()) // get current timestamp for submission
+            results: resultArray
         });
     }
 

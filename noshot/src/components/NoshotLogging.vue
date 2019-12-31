@@ -191,10 +191,8 @@ export default {
 
   }, // methods
   mounted: function () {
-    if (!this.actionLogger.isActive()) {
-      this.actionLogger.resumeLog(false);
-      this.actionLogger.displayCurrentTime();
-    }
+    this.actionLogger.resumeLog(this.actionLogger.isActive());
+    this.actionLogger.displayCurrentTime();
   }
 }
 </script>

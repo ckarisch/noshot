@@ -57,7 +57,7 @@ class InteractObject {
       return InteractObject.getCacheKey();
     }
 
-    flush() {  
+    flush() {
         this.beginTimestamp  = this.timestamp;
         this.timestamp = null;
         this.events = [];
@@ -76,8 +76,7 @@ class InteractObject {
 
         // calls superclass toJSON setting its own type
         return Object.assign({}, this, {
-            events: eventArray,
-            timestamp: window.utils.ts2Unix(Date.now()) // get current timestamp for submission
+            events: eventArray
         });
     }
 

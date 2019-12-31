@@ -3,10 +3,11 @@ class Event {
         this.timestamp = window.utils.ts2Unix(Date.now());
         this.category = category;
         this.type = type;
-        this.value = value;
+        this.value = value; // JSON     
     }
 
     toJSON() {
+
         // calls superclass toJSON setting its own type
         return Object.assign({}, this);
     }

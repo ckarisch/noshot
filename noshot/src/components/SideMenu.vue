@@ -82,7 +82,7 @@
                if (response.ok) {
                  json.then(result => {
                    this.logFiles = result.files;
-                   window.log("# log files " + result.files.length);
+                   // window.log("#log files " + result.files.length);
                    return result;
                  });
                } else {

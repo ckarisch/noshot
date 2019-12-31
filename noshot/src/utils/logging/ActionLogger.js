@@ -63,6 +63,7 @@ class ActionLogger {
   }
 
   resumeLog(startLogging = true) {
+    if (!this.isTaskRunning()) return;
     this.interactLog = InteractObject.fromJSON(
       window.appCfg.preferences.load(InteractObject.getCacheKey(),
       new InteractObject(this.teamName, this.memberId)));
@@ -99,7 +100,7 @@ class ActionLogger {
     window.log("Delete log " + this.interactLog.getCacheKey());
     this.stopLogging();
     this.resetLog();
-    document.querySelector(".timedisplay").innerHTML = "00:00:00";
+    this.displayCurrentTime();
   }
 
   // submit to vbs server
@@ -118,7 +119,7 @@ class ActionLogger {
         },
         body: jsonString
     }).then(response => {
-        console.log(response);
+        // console.log(response);
         let txt = response.text();
         // status ok
         if (response.ok) {
@@ -201,7 +202,7 @@ class ActionLogger {
         // let msg = error.message ? error.message : error;
         let msg = `Error saving log to ${logServerUrl}`;
         window.log(msg);
-        this.fireToastr('e', msg, 'Log');        
+        this.fireToastr('e', msg, 'Log');
         window.log(error);
         this.isLogPending = false;
     });
@@ -277,8 +278,8 @@ class ActionLogger {
 
     // toastr.info("Action Logger: " + logDebug);
     if (logType === window.logging.logTypes.submitType.INTERACT) {
-      let logDebug = logType + " - Event: " + object.type;
-      window.log("Action Logger: " + logDebug);
+      // let logDebug = logType + " - Event: " + object.type;
+      // window.log("Action Logger: " + logDebug);
       this.interactLog.addEvent(object);
     }
     else if (logType === window.logging.logTypes.submitType.RESULT) {
@@ -316,6 +317,8 @@ class ActionLogger {
 
   // time spent logging
   getFormattedTimeIndicator(colored = true) {
+
+    if (!this.interactLog) return "00:00:00";
 
     let logTime = Date.now() - this.interactLog.startTime;
     // let date = new Date(logTime * 1000);
