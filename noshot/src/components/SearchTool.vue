@@ -139,6 +139,21 @@ export default {
             let net = search.selectedNetwork;
             let cache = search.selectedCache;
 
+            // log search action
+            let cat = window.logging.logTypes.category.TEXT;
+            let data  = {
+               category: cat.key,
+               type: cat.types.CONCEPT,
+               value: {
+                 title: search.title,
+                 net: net,
+                 cache: cache,
+                 range: search.videoRange
+               }
+            }
+            this.notifyParents(this, 'log-event', data);
+            // console.log("Window: "+ search.id +" SOLR SEARCH: " + search.title);
+
             getFromSolr(net, search.title, cache, (err, docs) => {
                 this.loading = false
                 if (err) {

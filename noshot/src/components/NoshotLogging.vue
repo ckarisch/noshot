@@ -2,12 +2,15 @@
   <div id="logOverlay">
     <button v-tooltip.bottom-center="tooltips.toggleLog" v-on:click="toggleLogging" class="toggleLogButton" v-bind:class="{ enabledLog: isEnabled }" type="button" name="button"><i class="fas fa-power-off"></i></button>
     <div class="timedisplay">00:00:00</div>
-    <button v-tooltip.bottom-center="tooltips.saveLog" v-on:click="saveLog" :disabled="!isLogEmpty" class="logButton" type="button" name="button"><i class="far fa-save"></i></button>
+    <button v-tooltip.bottom-center="tooltips.saveLog" v-on:click="saveLog" :disabled="!hasLogEvents" class="logButton" type="button" name="button"><i class="far fa-save"></i></button>
     <button v-tooltip.bottom-center="tooltips.deleteLog" v-on:click="deleteLog" :disabled="!existsLog" class="logButton" type="button" name="button"><i class="far fa-trash-alt"></i></button>
   </div>
 </template>
 
 <script>
+import Event from '../utils/logging/Event.js';
+// import Result from '../utils/logging/Result.js';
+
 export default {
   name: 'NoshotLogging',
   created() {
@@ -18,13 +21,14 @@ export default {
       return {
         isEnabled: false,
         actionLogger: window.logging.actionLogger,
+        logTypes: window.logging.logTypes,
         tooltips: {
           deleteLog: "Delete current log",
           saveLog: "Force Save Log",
           toggleLog: "Turn on/off logging"
         },
         existsLog: false,
-        isLogEmpty: true
+        hasLogEvents: false
       };
   },
   props: {
@@ -135,7 +139,7 @@ export default {
       }
 
       if (!this.actionLogger.isActive()) this.actionLogger.resumeLog(false);
-      this.actionLogger.submit(this.actionLogger.interactLog);
+      this.actionLogger.submit();
       this.updateButtons();
     },
 
@@ -162,8 +166,28 @@ export default {
 
     updateButtons: function() {
       this.existsLog = this.actionLogger.isTaskRunning();
-      this.isLogEmpty = this.actionLogger.isLogEmpty();
-    }
+      this.hasLogEvents = this.actionLogger.hasLogEvents();
+    },
+
+    // logs events, component usage:
+    // let cat = window.logging.logTypes.category.TEXT;
+    // let data  = {
+    //    category: cat.key,
+    //    type: cat.values.CONCEPT,
+    //    value: "anyAssociatedValue"
+    // }
+    // this.notifyParents(this, 'log-event', data);
+    logEvent: function(data) {
+      let event = new Event(data.category, data.type, data.value);
+      this.actionLogger.log(this.logTypes.submitType.INTERACT, event);
+    },
+
+    // logs results, component usage:
+    //TODO
+    // logEvent: function(category, type, value = undefined) {
+    //   let event = new Event(category, type, value);
+    //   this.actionLogger.log(this.logTypes.submitType.INTERACT, event);
+    // },
 
   }, // methods
   mounted: function () {

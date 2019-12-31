@@ -18,6 +18,7 @@ class ActionLogger {
     this.logInterval;       // interval for logging
     this.taskTimeInterval;  // update interval for task time
     this.interactLog;
+    this.isLogPending = false; // flag for marking critical logging section
     this.totalLoggedEvents = {
       local: [],
       submitted: []
@@ -38,16 +39,17 @@ class ActionLogger {
     return window.appCfg.preferences.load(InteractObject.getCacheKey(), false);
   }
 
-  isLogEmpty() {
+  hasLogEvents() {
     if (!this.isTaskRunning()) return false;
     let tempLog = InteractObject.fromJSON(
       window.appCfg.preferences.load(InteractObject.getCacheKey(),
       new InteractObject(this.teamName, this.memberId)));
-    return tempLog.events > 0;
+    // window.log(tempLog.events.length);
+    return tempLog.events.length > 0;
   }
 
   isActive() {
-    return (this.taskTimeInterval && this.logInterval);
+    return (this.taskTimeInterval && this.logInterval) ? true : false;
   }
 
   // getCacheKey() {
@@ -79,6 +81,7 @@ class ActionLogger {
     clearInterval(this.taskTimeInterval);
     this.logInterval = null;
     this.taskTimeInterval = null;
+    this.saveToLocalStorage();
     this.displayCurrentTime();
   }
 
@@ -89,17 +92,19 @@ class ActionLogger {
   flushLog() {
     window.log("Actionlog flush (" + this.interactLog.events.length + " items)");
     this.interactLog.flush();
+    this.saveToLocalStorage();
   }
 
   deleteLog() {
     window.log("Delete log " + this.interactLog.getCacheKey());
     this.stopLogging();
-    this.resetLog(this.interactLog);
+    this.resetLog();
     document.querySelector(".timedisplay").innerHTML = "00:00:00";
   }
 
   // submit to vbs server
   submit() {
+    this.isLogPending = true;
     this.interactLog.timestamp = window.utils.ts2Unix(Date.now()); // set submission ts
     let jsonString = this.logToJSONString(this.interactLog);
     let vbsServerUrl = window.appCfg.vbsServer.url + ":" + window.appCfg.vbsServer.port;
@@ -120,7 +125,7 @@ class ActionLogger {
           txt.then(result => {
             window.log(`Submitted log to ${vbsServerUrl}.`);
             // save locally
-            this.save(true);
+            this.save(jsonString, true);
             return result;
           });
         } else {
@@ -129,18 +134,32 @@ class ActionLogger {
         }
     }).catch(error => {
         // let msg = error.message ? error.message : error;
-        console.log(`Error submiting log to ${vbsServerUrl}.`);
+        let msg = `Error submiting log to ${vbsServerUrl}.`;
+        window.log(msg);
+        this.fireToastr('e', msg, 'Log');
+
+        // this.$toastr.i(`v ${video} f ${frame}`, "Submission");
         window.log(error);
         // save locally
-        this.save(false);
+        this.save(jsonString, false);
     });
   }
 
-  // creates file save dialog for saving log
-  // isSubmitted: has already been submitted to server
-  save(isSubmitted = false) {
+  // type = 'i','s','e'
+  fireToastr(type, msg, title = "") {
+    if (this.noshotLoggingComponent) {
+      this.noshotLoggingComponent.$toastr[type](msg, title);
+    }
+  }
 
-    let jsonString = this.logToJSONString();
+  /**
+   * creates file save dialog for saving log
+   * @param  {[type]}  jsonString          potentially vbs server submitted json string
+   * @param  {Boolean} [isSubmitted=false] is submitted to server
+   * @return {[type]}                      void
+   */
+  save(jsonString, isSubmitted = false) {
+
     let filePath = this.createFilePathFromLog(this.interactLog, isSubmitted);
 
     // manual saving
@@ -169,8 +188,9 @@ class ActionLogger {
         if (response.ok) {
           txt.then(result => {
             window.log(`Saved log to ${logServerUrl}, ${filePath}`);
-            this.flushLog(this.interactLog);
+            this.flushLog();
             if (this.noshotLoggingComponent) this.noshotLoggingComponent.notifyLogUpdate();
+            this.isLogPending = false;
             return result;
           });
         } else {
@@ -179,8 +199,11 @@ class ActionLogger {
         }
     }).catch(error => {
         // let msg = error.message ? error.message : error;
-        console.log(`Error saving log to ${logServerUrl}`);
+        let msg = `Error saving log to ${logServerUrl}`;
+        window.log(msg);
+        this.fireToastr('e', msg, 'Log');        
         window.log(error);
+        this.isLogPending = false;
     });
   }
 
@@ -229,7 +252,7 @@ class ActionLogger {
       // console.log("log interval fired...");
       this.saveToLocalStorage();
       // submit interact log if there are new events
-      if (!this.isLogEmpty()) this.submit(this.interactLog);
+      if (!this.isLogPending && this.hasLogEvents()) this.submit();
     }, window.appCfg.logging.interactionIntervalMS);
   }
 
@@ -241,25 +264,24 @@ class ActionLogger {
   }
 
   // pass Event/Result as object
-  log(category, object) {
-    if (typeof category === "undefined" ||
-      typeof type === "undefined" ||
-      typeof value === "undefined") {
+  log(logType, object) {
+    if (typeof logType === "undefined" ||
+      typeof object === "undefined") {
       window.log("ActionLogger::log incomplete log provided...");
-      window.log(category);
+      window.log(logType);
       window.log(object);
       return;
     }
 
-    if (!this.interactLog) return; // logging is disabled
+    if (!this.isActive()) return; // logging is disabled
 
-    let logDebug = "Event - " + category + " " + object.type;
-    window.log("Action Logger: " + logDebug);
     // toastr.info("Action Logger: " + logDebug);
-    if (object.type === window.logging.logTypes.submitType.RESULT) {
+    if (logType === window.logging.logTypes.submitType.INTERACT) {
+      let logDebug = logType + " - Event: " + object.type;
+      window.log("Action Logger: " + logDebug);
       this.interactLog.addEvent(object);
     }
-    else if (object.type === window.logging.logTypes.submitType.INTERACT) {
+    else if (logType === window.logging.logTypes.submitType.RESULT) {
       let resultLog = new ResultObject(this.teamName, this.memberId);
       // TODO add resultLog fields
       // TODO add result

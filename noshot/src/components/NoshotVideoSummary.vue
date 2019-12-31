@@ -57,6 +57,19 @@ export default {
         getVideoSummaryImages: function(video) {
           let keyframeBase = this.appCfg.dataServer.url + ':' + this.appCfg.dataServer.port + '/' + this.appCfg.dataServer.keyframesLocation + '/';
           // let testimg = document.querySelector('.testimg');
+
+          // log video summary action
+          let cat = window.logging.logTypes.category.BROWSE;
+          let data  = {
+             category: cat.key,
+             type: cat.types.VID_SUMMARY,
+             value: {
+               video: video.id,
+               cache: this.search.selectedCache
+             }
+          }
+          this.notifyParents(this, 'log-event', data);
+
           let totalKeyFrames = parseInt(this.appCfg.keyCount[video.id]);
           let s = [];
           for (let i = 0; i < totalKeyFrames; i++) {

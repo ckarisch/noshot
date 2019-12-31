@@ -27,8 +27,8 @@ class Result {
             return JSON.parse(jsonOrString, Result.reviver);
         }
         else {
-            let Result = new Result();
-            return Object.assign(Result, jsonOrString);
+            let result = new Result();
+            return Object.assign(result, jsonOrString);
         }
     }
 

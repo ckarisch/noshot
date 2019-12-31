@@ -1,9 +1,9 @@
 class Event {
-    constructor() {
+    constructor(category, type, value) {
         this.timestamp = window.utils.ts2Unix(Date.now());
-        this.category;
-        this.type;
-        this.value;
+        this.category = category;
+        this.type = type;
+        this.value = value;
     }
 
     toJSON() {
@@ -25,8 +25,8 @@ class Event {
             return JSON.parse(jsonOrString, Event.reviver);
         }
         else {
-            let Event = new Event();
-            return Object.assign(Event, jsonOrString);
+            let event = new Event();
+            return Object.assign(event, jsonOrString);
         }
     }
 
