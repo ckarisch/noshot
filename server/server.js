@@ -546,7 +546,8 @@ app.put('/log', createLogDir, (req, res) => {
   fs.writeFile(savePath, data, (err) => {
     if (err) {
       res.status(500).end();
-      throw err;
+      // throw err;
+      return;
     }
     // success case, the file was saved
     console.log('Log saved: ' + savePath);
@@ -560,7 +561,8 @@ app.get('/log', createLogDir, (req, res) => {
     if (err) {
         console.log('Unable to scan directory: ' + err);
         res.status(500).end();
-        throw err;
+        // throw err;
+        return;
     }
     res.status(200).send({files: files});
   });
@@ -570,7 +572,8 @@ app.delete('/log', (req, res) => {
   rimraf(logDir, (err) => {
     if (err) {
       res.status(500).end();
-      throw err;
+      // throw err;
+      return;
     }
     // success: the dir was deleted
     console.log("Cleared log!");

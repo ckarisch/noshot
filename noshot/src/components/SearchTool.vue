@@ -133,6 +133,57 @@ export default {
             search.minimized = false;
         },
 
+        logResult(search) {
+          let catText = window.logging.logTypes.category.TEXT;
+          let catBrowse = window.logging.logTypes.category.BROWSE;
+          let data = {};
+          data.info =  {
+            usedCategories: [catText.key, catBrowse.key],
+            usedTypes: [catText.types.CONCEPT, catBrowse.types.RANKED_LIST],
+            sortType:  [catBrowse.types.RANKED_LIST],
+            resultSetAvailability: (search.selectedCache === 1) ? 'all' : 'top'
+          }
+          data.results = []
+
+          for (let img of search.images) {
+            let second = img.second;
+            let url = this.appCfg.dataServer.url + ':' + this.appCfg.dataServer.port + '/' + this.appCfg.dataServer.keyframesLocation + '/' + window.utils.zeroPad(img.video, 5) + '/' + window.utils.zeroPad(img.video, 5) + '_' + second + '_key.jpg';
+            let v = this.utils.videoFromThumbUrl(url);
+            v.score = Math.round(img.probability * 100) / 100;
+            let result = this.videoToLogResult(v);
+            data.results.push(result);
+          }
+          this.notifyParents(this, 'log-result', data);
+        },
+
+        videoToLogResult(vidObj) {
+          return {
+            video: vidObj.id,
+            frame: vidObj.frame.number,
+            score: vidObj.score,
+            rank: undefined,
+            shot: undefined
+          };
+        },
+
+        logInteract: function(search) {
+          let cat = window.logging.logTypes.category.TEXT;
+          let net = search.selectedNetwork;
+          let cache = search.selectedCache;
+          let data  = {
+             category: cat.key,
+             type: cat.types.CONCEPT,
+             value: {
+               title: search.title,
+               net: net,
+               cache: cache,
+               range: search.videoRange
+             }
+          }
+          this.notifyParents(this, 'log-event', data);
+          // console.log("Window: "+ search.id +" SOLR SEARCH: " + search.title);
+        },
+
         fetchSolrSearch: function(search) {
             this.error = this.post = null
             this.loading = true
@@ -140,19 +191,7 @@ export default {
             let cache = search.selectedCache;
 
             // log search action
-            let cat = window.logging.logTypes.category.TEXT;
-            let data  = {
-               category: cat.key,
-               type: cat.types.CONCEPT,
-               value: {
-                 title: search.title,
-                 net: net,
-                 cache: cache,
-                 range: search.videoRange
-               }
-            }
-            this.notifyParents(this, 'log-event', data);
-            // console.log("Window: "+ search.id +" SOLR SEARCH: " + search.title);
+            this.logInteract(search);
 
             getFromSolr(net, search.title, cache, (err, docs) => {
                 this.loading = false
@@ -161,6 +200,9 @@ export default {
                 } else {
                     search.images = docs;
                     this.logCategories(docs);
+
+                    // issue result log
+                    this.logResult(search);
                 }
             });
         },

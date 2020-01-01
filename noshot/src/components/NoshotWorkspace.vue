@@ -78,6 +78,9 @@ export default {
       this.$on('log-event', (data) => {
         this.$refs.logging.logEvent(data);
       });
+      this.$on('log-result', (data) => {
+        this.$refs.logging.logResult(data);
+      });
     },
     props: {
     },
