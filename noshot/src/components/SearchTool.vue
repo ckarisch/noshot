@@ -154,7 +154,7 @@ export default {
             this.notifyParents(this, 'log-event', data);
             // console.log("Window: "+ search.id +" SOLR SEARCH: " + search.title);
 
-            getFromSolr(net, search.title, cache, search.page, (err, docs) => {
+            getFromSolr(net, search.title, cache, search.page, (err, response) => {
                 this.loading = false
                 if (err) {
                     this.error = err.toString();

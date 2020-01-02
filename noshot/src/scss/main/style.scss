@@ -133,6 +133,15 @@ li.tab.selected a {
 
 .searchContent {
   min-height: calc(100vh - 23em);
+
+  .menuLeft {
+    float:left;
+
+    position: absolute;
+    left: 10px;
+    top: 10px;
+    padding: 10px;
+  }
 }
 
 
@@ -290,11 +299,10 @@ li.tab.selected a {
 
 .searchNavigation {
   box-sizing: border-box;
-  padding: 10px 5px;
-  padding-bottom: 20px;
+  padding: 20px 0px;
   display: flex;
   align-items: center;
-  height: 4rem;
+  height: 6rem;
 }
 
 .searches {
@@ -327,10 +335,10 @@ header>input, header>label {
 
 .menu {
   position: absolute;
-  right: 0;
+  right: 10px;
   display: flex;
   justify-content: flex-end;
-  top: 0;
+  top: 10px;
 }
 
 .menu > button {
