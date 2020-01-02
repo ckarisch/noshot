@@ -8,7 +8,7 @@
         </div>
         <div class="slidecontainer" v-tooltip.top-center="tooltips.cache">
           cache ({{ search.selectedCache }})
-          <input ref="cacheRangeSlider" type="range" min="1" max="180" :value="search.selectedCache" class="slider" @input="updateCacheRange">
+          <input ref="cacheRangeSlider" type="range" :min="defaultSliderMin" max="180" :value="search.selectedCache" class="slider" @input="updateCacheRange">
         </div>
         <div>{{ search.images.length }} results.</div>
       </div>
@@ -49,7 +49,8 @@ export default {
         tooltips: {
           videoInput: "Enter video ID",
           cache: "Select seconds interval"
-        }
+        },
+        defaultSliderMin: 1
         // errorLoading: (e) => {this.errorLoading(e)}
       }
     },
@@ -81,7 +82,7 @@ export default {
         },
         logResult(results) {
           let cat = window.logging.logTypes.category.BROWSE;
-          let sliderValue = parseInt(this.$refs.cacheRangeSlider.value);
+          let sliderValue = (this.$refs.cacheRangeSlider) ? parseInt(this.$refs.cacheRangeSlider.value) : this.defaulSliderMin;
           let data = {};
           data.info =  {
             usedCategories: [cat.key],

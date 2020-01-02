@@ -93,7 +93,24 @@ export default {
         // jump to frame
         let timeCode = this.video.frame.second;
         this.$refs.videoEl.currentTime = timeCode;
+        // log interaction
+        this.logInteract(this.video);
       },
+
+      logInteract: function(video) {
+        let cat = window.logging.logTypes.category.BROWSE;
+        let data  = {
+           category: cat.key,
+           type: cat.types.VID_PLAYER,
+           value: {
+             video: video.id,
+             second: video.frame.second,
+             frame: video.frame.number
+           }
+        }
+        this.notifyParents(this, 'log-event', data);
+      },
+
       onCanPlay() {
         // window.log(this.$refs.videoEl.videoWidth);
         // set height according to current video height

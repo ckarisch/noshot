@@ -114,23 +114,42 @@ export default {
                 this.activeWorkspace.searches = [];
             this.activeWorkspace.searches.push(s);
             this.newSearch = '';
-
+            this.logInteractLayout("addSearch", s);
             if (s.type === window.searchStorage.type.SOLR_SEARCH) this.fetchSolrSearch(s);
 
         },
 
         removeWindow: function(search) {
-            this.searches.splice(this.searches.indexOf(search), 1)
+            this.searches.splice(this.searches.indexOf(search), 1);
+            this.logInteractLayout("removeWindow", search);
         },
 
         minimizeWindow: function(search) {
             search.minimized = !search.minimized;
             search.maximized = false;
+            this.logInteractLayout("minimizeWindow", search);
         },
 
         maximizeWindow: function(search) {
             search.maximized = !search.maximized;
             search.minimized = false;
+            this.logInteractLayout("maximizeWindow", search);
+        },
+
+        logInteractLayout: function(method, search) {
+          let cat = window.logging.logTypes.category.BROWSE;
+          let data  = {
+             category: cat.key,
+             type: cat.types.TOOL_LAYOUT,
+             value: {
+               method: method,
+               id: search.id,
+               workspace: search.workspace,
+               title: search.title,
+               type: search.type
+             }
+          }
+          this.notifyParents(this, 'log-event', data);
         },
 
         logResult(search) {
@@ -166,7 +185,7 @@ export default {
           };
         },
 
-        logInteract: function(search) {
+        logInteractSearch: function(search) {
           let cat = window.logging.logTypes.category.TEXT;
           let net = search.selectedNetwork;
           let cache = search.selectedCache;
@@ -191,7 +210,7 @@ export default {
             let cache = search.selectedCache;
 
             // log search action
-            this.logInteract(search);
+            this.logInteractSearch(search);
 
             getFromSolr(net, search.title, cache, (err, docs) => {
                 this.loading = false

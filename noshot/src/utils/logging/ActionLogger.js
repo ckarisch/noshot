@@ -288,7 +288,7 @@ class ActionLogger {
 
     let relDir = logStartDate.getFullYear() + "_" +
       // INFO: starts at 0
-      window.utils.zeroPad(logStartDate.getMonth()) + "_" +
+      window.utils.zeroPad(logStartDate.getMonth()+1) + "_" +
       // INFO: getDay only gets day of week (e.g. 5 = fri)
       window.utils.zeroPad(logStartDate.getDate());
 
