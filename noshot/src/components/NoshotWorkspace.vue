@@ -78,6 +78,9 @@ export default {
       this.$on('log-event', (data) => {
         this.$refs.logging.logEvent(data);
       });
+      this.$on('log-result', (data) => {
+        this.$refs.logging.logResult(data);
+      });
     },
     props: {
     },
@@ -136,10 +139,14 @@ export default {
             if (!this.tabCheck) {
                 return;
             }
-            this.workspaces.push({
+            let ws = {
                 id: value,
                 name: value
-            });
+            };
+            this.workspaces.push(ws);
+
+            // log interaction
+            this.logInteract("addTab", ws);
 
             this.visibility = value;
             window.location.hash = "/" + this.visibility;
@@ -164,6 +171,20 @@ export default {
           this.addTab();
         },
 
+        logInteract: function(method, tab) {
+          let cat = window.logging.logTypes.category.BROWSE;
+          let data  = {
+             category: cat.key,
+             type: cat.types.TOOL_LAYOUT,
+             value: {
+               method: method,
+               id: tab.id,
+               name: tab.name
+             }
+          }
+          this.$refs.logging.logEvent(data);
+        },
+
 
         removeWorkspace: function(workspace) {
             var temp = [];
@@ -180,6 +201,9 @@ export default {
                 }
             }
 
+            // log interaction
+            this.logInteract("removeWorkspace", workspace);
+
             // window.log(searches);
 
             this.workspaces.splice(this.workspaces.indexOf(workspace), 1);
@@ -194,7 +218,10 @@ export default {
                 if(w.id == hash)
                 {
                     this.visibility = hash;
+                    // triggers loading tab defined by hash/w.id
                     this.activeWorkspace = w;
+                    // log interaction
+                    this.logInteract("onHashChange", this.activeWorkspace);
                 }
             }
         },

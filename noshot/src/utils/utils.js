@@ -135,6 +135,9 @@ const utilFuncs = {
     ts2Unix: function(timestamp) {
       return Math.floor(timestamp / 1000);
       // return parseInt((timestamp / 1000).toFixed(0));
+    },
+    zeroPad: function(number, numZeros = 2) {
+      return String(number).padStart(numZeros, '0');
     }
 };
 

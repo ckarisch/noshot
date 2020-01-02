@@ -8,7 +8,7 @@
         </div>
         <div class="slidecontainer" v-tooltip.top-center="tooltips.cache">
           cache ({{ search.selectedCache }})
-          <input ref="cacheRangeSlider" type="range" min="1" max="180" :value="search.selectedCache" class="slider" @input="updateCacheRange">
+          <input ref="cacheRangeSlider" type="range" :min="defaultSliderMin" max="180" :value="search.selectedCache" class="slider" @input="updateCacheRange">
         </div>
         <div>{{ search.images.length }} results.</div>
       </div>
@@ -49,7 +49,8 @@ export default {
         tooltips: {
           videoInput: "Enter video ID",
           cache: "Select seconds interval"
-        }
+        },
+        defaultSliderMin: 1
         // errorLoading: (e) => {this.errorLoading(e)}
       }
     },
@@ -59,6 +60,49 @@ export default {
           // let testimg = document.querySelector('.testimg');
 
           // log video summary action
+          this.logInteract(video);
+
+          let totalKeyFrames = parseInt(this.appCfg.keyCount[video.id]);
+          let s = [];
+          let logResults = [];
+          for (let i = 0; i < totalKeyFrames; i++) {
+            let src = `${keyframeBase}${video.id}/${video.id}_${i}_key.jpg`;
+            let v = this.utils.videoFromThumbUrl(src);
+            v.second = i;
+            let fakeDBResult = this.utils.videoToDBResult(v);
+            // push images according to current cache
+            if (i % this.search.selectedCache === 0) {
+              s.push(fakeDBResult);
+              logResults.push(this.videoToLogResult(v));
+            }
+          }
+          // log results
+          this.logResult(logResults);
+          return s;
+        },
+        logResult(results) {
+          let cat = window.logging.logTypes.category.BROWSE;
+          let sliderValue = (this.$refs.cacheRangeSlider) ? parseInt(this.$refs.cacheRangeSlider.value) : this.defaulSliderMin;
+          let data = {};
+          data.info =  {
+            usedCategories: [cat.key],
+            usedTypes: [cat.types.VID_SUMMARY, cat.types.TEMP_CONTEXT],
+            sortType:  [cat.types.TEMP_CONTEXT],
+            resultSetAvailability: (sliderValue === 1) ? 'all' : 'top'
+          }
+          data.results = results;
+          this.notifyParents(this, 'log-result', data);
+        },
+        videoToLogResult(vidObj) {
+          return {
+            video: vidObj.id,
+            frame: vidObj.frame.number,
+            score: undefined,
+            rank: undefined,
+            shot: undefined
+          };
+        },
+        logInteract: function(video) {
           let cat = window.logging.logTypes.category.BROWSE;
           let data  = {
              category: cat.key,
@@ -69,18 +113,6 @@ export default {
              }
           }
           this.notifyParents(this, 'log-event', data);
-
-          let totalKeyFrames = parseInt(this.appCfg.keyCount[video.id]);
-          let s = [];
-          for (let i = 0; i < totalKeyFrames; i++) {
-            let src = `${keyframeBase}${video.id}/${video.id}_${i}_key.jpg`;
-            let v = this.utils.videoFromThumbUrl(src);
-            v.second = i;
-            let fakeDBResult = this.utils.videoToDBResult(v);
-            // push images according to current cache
-            if (i % this.search.selectedCache === 0) s.push(fakeDBResult);
-          }
-          return s;
         },
         changeVideo: function() {
           let inputNumber = parseInt(this.$refs.vidInput.value);
@@ -106,11 +138,17 @@ export default {
           }
         },
         updateCacheRange: function() {
-          let sliderValue = parseInt(this.$refs.cacheRangeSlider.value);
-          if (this.search.selectedCache !== sliderValue) {
-            this.search.selectedCache = sliderValue;
-            this.search.images = this.getVideoSummaryImages(this.search.video); // forces re-render
+          let sliderValueA = parseInt(this.$refs.cacheRangeSlider.value);
+          if (this.search.selectedCache !== sliderValueA) {
+            this.search.selectedCache = sliderValueA;
           }
+          // delay update to prevent overexhaustive reloading and logging
+          setTimeout(() => {
+            let sliderValueB = parseInt(this.$refs.cacheRangeSlider.value);
+            if (sliderValueA !== sliderValueB) return;
+            // console.log("issuing cache search " + sliderValueB);
+            this.search.images = this.getVideoSummaryImages(this.search.video); // forces re-render
+          }, 100);
         }
     },
     mounted: function() {

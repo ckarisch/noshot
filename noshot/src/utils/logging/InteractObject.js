@@ -46,12 +46,13 @@ class InteractObject {
         this.startTime = Date.now();    // Non UNIX TS, log start time (convert via: window.utils.ts2Unix(this.startTime))
         this.beginTimestamp = window.utils.ts2Unix(this.startTime); // UNIX TS, submission timestamp
         this.timestamp = null;          // UNIX TS, submission timestamp
-        this.type = window.logging.logTypes.INTERACT;
+        this.type = window.logging.logTypes.submitType.INTERACT;
         this.events = [];
+        this.isBeingSubmitted = false;
     }
 
     static getCacheKey() {
-      return window.appCfg.preferences.prefKeys.LOG.LOG_INTERACT;
+      return window.appCfg.preferences.prefKeys.LOG.INTERACT;
     }
     getCacheKey() {
       return InteractObject.getCacheKey();

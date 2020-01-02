@@ -42,22 +42,44 @@ class ResultObject {
   *
  */
     constructor(team, member) {
+        this.id = Date.now(); // more unique than this.timestamp
         this.teamId = team;
         this.memberId = member;
-        this.timestamp = window.utils.ts2Unix(Date.now());          // UNIX TS, submission timestamp
-        this.type = window.logging.logTypes.RESULT;
-        this.usedCategories = [];
-        this.usedTypes = [];
-        this.sortType = [];
+        this.timestamp = window.utils.ts2Unix(this.id);   // UNIX TS, submission timestamp
+        this.type = window.logging.logTypes.submitType.RESULT;
+        this.usedCategories = []; // list of currently used categories
+        this.usedTypes = [];      // used category types
+        this.sortType = [];       // type employed for sorting
+        // resultSetAvailability determines whether users can see and browse
+        // the whole returned ranked candidate set ('all'), just a limited
+        // subset without paging scrolling ('top'), or just a sample from a
+        // maintained relevance score distribution determining a ranked
+        // list that is not displayed at all ('sample').
         this.resultSetAvailability = "",
         this.results = [];
+        this.isBeingSubmitted = false;
     }
 
     static getCacheKey() {
-      return window.appCfg.preferences.prefKeys.LOG.LOG_RESULT;
+      return window.appCfg.preferences.prefKeys.LOG.RESULT;
     }
     getCacheKey() {
       return ResultObject.getCacheKey();
+    }
+
+    // e.g.:
+    // let info = {
+    //   usedCategories: ["Text", "Sketch"]
+    //   usedTypes: ["ASR", "Color"]
+    //   sortType:  ["ASR"]
+    //   resultSetAvailability: "all"
+    // }
+    initFromInfo(info, results = []) {
+      this.usedCategories = info.usedCategories;
+      this.usedTypes = info.usedTypes;
+      this.sortType = info.sortType;
+      this.resultSetAvailability = info.resultSetAvailability;
+      this.results = results;
     }
 
     flush() {

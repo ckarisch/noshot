@@ -1,11 +1,10 @@
 class Result {
-    constructor() {
-        this.timestamp = window.utils.ts2Unix(Date.now());
-        this.video;
-        this.shot;
-        this.score;
-        this.frame;
-        this.rank;
+    constructor(video, frame, score = undefined, rank = undefined, shot = undefined) {
+        this.video = video;
+        this.frame = frame;
+        this.score = score;
+        this.rank = rank;
+        this.shot = shot;
     }
 
     toJSON() {

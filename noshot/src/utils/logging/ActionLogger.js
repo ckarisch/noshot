@@ -18,12 +18,13 @@ class ActionLogger {
     this.logInterval;       // interval for logging
     this.taskTimeInterval;  // update interval for task time
     this.interactLog;
-    this.isLogPending = false; // flag for marking critical logging section
-    this.totalLoggedEvents = {
-      local: [],
-      submitted: []
-    }; // store all logged events for summary display
+    // this.isLogPending = false; // flag for marking critical logging section
+    // this.totalLoggedEvents = {
+    //   local: [],
+    //   submitted: []
+    // }; // store all logged events for summary display
     this.noshotLoggingComponent = null;
+    this.pendingResultLogs = [];
   }
 
   setVueComponent(component) {
@@ -33,10 +34,17 @@ class ActionLogger {
   resetLog() {
     window.appCfg.preferences.save(this.interactLog.getCacheKey(), undefined);
     this.interactLog = undefined;
+    window.appCfg.preferences.save(ResultObject.getCacheKey(), undefined);
+    this.pendingResultLogs = [];
   }
 
   isTaskRunning() {
     return window.appCfg.preferences.load(InteractObject.getCacheKey(), false);
+  }
+
+  areResultLogsPending() {
+    let resultObjects = window.appCfg.preferences.load(ResultObject.getCacheKey(), false);
+    return resultObjects.length > 0;
   }
 
   hasLogEvents() {
@@ -67,6 +75,15 @@ class ActionLogger {
     this.interactLog = InteractObject.fromJSON(
       window.appCfg.preferences.load(InteractObject.getCacheKey(),
       new InteractObject(this.teamName, this.memberId)));
+    this.interactLog.isBeingSubmitted = false;
+    if (this.areResultLogsPending()) {
+      let list = window.appCfg.preferences.load(ResultObject.getCacheKey(), false);
+      for (let rl of list) {
+        let resultObject = ResultObject.fromJSON(rl);
+        resultObject.isBeingSubmitted  = false;
+        this.pendingResultLogs.push(resultObject);
+      }
+    }
     if (startLogging) this.startLogging();
   }
 
@@ -90,9 +107,15 @@ class ActionLogger {
     document.querySelector(".timedisplay").innerHTML = this.getFormattedTimeIndicator(false);
   }
 
-  flushLog() {
-    window.log("Actionlog flush (" + this.interactLog.events.length + " items)");
-    this.interactLog.flush();
+  flushLog(log = this.interactLog) {
+    if (log === this.interactLog) {
+      window.log("Interact log flush (" + log.events.length + " items)");
+    }
+    else {
+      this.pendingResultLogs = this.pendingResultLogs.filter(element => element.id !== log.id);
+      window.log("Result log flush (remaining: " + this.pendingResultLogs.length + " logs)");
+    }
+    log.flush();
     this.saveToLocalStorage();
   }
 
@@ -103,47 +126,76 @@ class ActionLogger {
     this.displayCurrentTime();
   }
 
+  // submit to vbs server and save locally
+  submitAndSaveLog(log = this.interactLog) {
+    log.isBeingSubmitted = true;
+    let submitPromise = this.submit(log);
+    let savePromise = null;
+    // SUBMIT
+    submitPromise.then(
+      // resolve submit
+      () => {savePromise = this.save(log, true);},
+      // reject submit
+      () => {savePromise = this.save(log, false);}
+    )
+    // SAVE (after submit)
+    .finally(() => {
+      savePromise.then(
+        // resolve save
+        () => {
+          this.flushLog(log);
+          log.isBeingSubmitted = false;
+          if (this.noshotLoggingComponent) this.noshotLoggingComponent.notifyLogUpdate();
+        },
+        // reject save
+        () => {
+          log.isBeingSubmitted = false;
+        }
+      );
+    });
+  }
+
   // submit to vbs server
-  submit() {
-    this.isLogPending = true;
-    this.interactLog.timestamp = window.utils.ts2Unix(Date.now()); // set submission ts
-    let jsonString = this.logToJSONString(this.interactLog);
+  submit(log = this.interactLog) {
+    log.timestamp = window.utils.ts2Unix(Date.now()); // set submission ts
+    let jsonString = this.logToJSONString(log);
+
+    // server data
     let vbsServerUrl = window.appCfg.vbsServer.url + ":" + window.appCfg.vbsServer.port;
     let url = vbsServerUrl + window.appCfg.vbsServer.logRoute;
 
-    fetch(url, {
-        method: "POST",
-        mode: "cors",
-        headers: {
-            "Content-Type": "application/json"
-        },
-        body: jsonString
-    }).then(response => {
-        // console.log(response);
-        let txt = response.text();
-        // status ok
-        if (response.ok) {
-          txt.then(result => {
-            window.log(`Submitted log to ${vbsServerUrl}.`);
-            // save locally
-            this.save(jsonString, true);
-            return result;
-          });
-        } else {
-          // error
-          return txt.then(err => {throw err;});
-        }
-    }).catch(error => {
-        // let msg = error.message ? error.message : error;
-        let msg = `Error submiting log to ${vbsServerUrl}.`;
-        window.log(msg);
-        this.fireToastr('e', msg, 'Log');
-
-        // this.$toastr.i(`v ${video} f ${frame}`, "Submission");
-        window.log(error);
-        // save locally
-        this.save(jsonString, false);
-    });
+    return new Promise((res, rej) => {
+      fetch(url, {
+          method: "POST",
+          mode: "cors",
+          headers: {
+              "Content-Type": "application/json"
+          },
+          body: jsonString
+      }).then(response => {
+          let txt = response.text();
+          // status ok
+          if (response.ok) {
+            txt.then(result => {
+              window.log(`Submitted log to ${vbsServerUrl}.`);
+              res(jsonString);
+              return result;
+            });
+          } else {
+            // error
+            return txt.then(err => {
+              throw err;
+            });
+          }
+      }).catch(error => {
+          let msg = `Error submitting ${log.getCacheKey()} to ${vbsServerUrl}.`;
+          window.log(msg);
+          this.fireToastr('e', msg, 'Log');
+          window.log(error);
+          rej(jsonString);
+          return error;
+      }); // fetch
+    }); // return promise
   }
 
   // type = 'i','s','e'
@@ -159,9 +211,10 @@ class ActionLogger {
    * @param  {Boolean} [isSubmitted=false] is submitted to server
    * @return {[type]}                      void
    */
-  save(jsonString, isSubmitted = false) {
+  save(log = this.interactLog, isSubmitted = false) {
 
-    let filePath = this.createFilePathFromLog(this.interactLog, isSubmitted);
+    let jsonString = this.logToJSONString(log);
+    let filePath = this.createFilePathFromLog(log, isSubmitted);
 
     // manual saving
     // var blob = new Blob([jsonString], {type: "text/plain;charset=utf-8"});
@@ -176,44 +229,56 @@ class ActionLogger {
         json: jsonString
     }
 
-    fetch(url, {
-        method: "PUT",
-        mode: "cors",
-        headers: {
-            "Content-Type": "application/json"
-        },
-        body: JSON.stringify(data)
-    }).then(response => {
-        let txt = response.text();
-        // status ok
-        if (response.ok) {
-          txt.then(result => {
-            window.log(`Saved log to ${logServerUrl}, ${filePath}`);
-            this.flushLog();
-            if (this.noshotLoggingComponent) this.noshotLoggingComponent.notifyLogUpdate();
-            this.isLogPending = false;
-            return result;
-          });
-        } else {
-          // error
-          return txt.then(err => {throw err;});
-        }
-    }).catch(error => {
-        // let msg = error.message ? error.message : error;
-        let msg = `Error saving log to ${logServerUrl}`;
-        window.log(msg);
-        this.fireToastr('e', msg, 'Log');
-        window.log(error);
-        this.isLogPending = false;
-    });
+    return new Promise((res, rej) => {
+      fetch(url, {
+          method: "PUT",
+          mode: "cors",
+          headers: {
+              "Content-Type": "application/json"
+          },
+          body: JSON.stringify(data)
+      }).then(response => {
+          let txt = response.text();
+          // status ok
+          if (response.ok) {
+            txt.then(result => {
+              window.log(`Saved log to ${logServerUrl}, ${filePath}`);
+              res(result);
+              return result;
+            });
+          } else {
+            // error
+            return txt.then(err => {
+              throw err;
+            });
+          }
+      }).catch(error => {
+          // let msg = error.message ? error.message : error;
+          let msg = `Error saving log to ${logServerUrl}`;
+          window.log(msg);
+          this.fireToastr('e', msg, 'Log');
+          window.log(error);
+          rej(error);
+          return error;
+      }); // fetch
+    }); // return promise
   }
 
   saveToLocalStorage() {
+    // interact
     window.appCfg.preferences.save(this.interactLog.getCacheKey(), this.logToJSON(this.interactLog));
+    // result
+    let list = [];
+    for (let obj of this.pendingResultLogs) {
+      list.push(this.logToJSON(obj));
+    }
+    window.appCfg.preferences.save(ResultObject.getCacheKey(), list);
   }
 
   createFilePathFromLog(log, isSubmitted = false) {
-    let dateStart = new Date(log.beginTimestamp * 1000); // folder from task start time
+    let logStartTime = this.interactLog.startTime; // only defined in this.interactLog!!
+    let logStartDate = new Date(logStartTime);
+    let dateLastSubmit = new Date(log.beginTimestamp * 1000); // folder from task start time
     let dateSubmit = new Date(log.timestamp * 1000); // task submit time
     let fileExt = "json"; //  file from submission timestamp
 
@@ -221,17 +286,23 @@ class ActionLogger {
 
     let local_remote_log = isSubmitted ? "submitted" : "local";
 
-    let relDir = dateStart.getFullYear() + "_" +
+    let relDir = logStartDate.getFullYear() + "_" +
       // INFO: starts at 0
-      this.zeroPad(dateStart.getMonth()) + "_" +
+      window.utils.zeroPad(logStartDate.getMonth()+1) + "_" +
       // INFO: getDay only gets day of week (e.g. 5 = fri)
-      this.zeroPad(dateStart.getDate());
+      window.utils.zeroPad(logStartDate.getDate());
 
-    let stampBeginTime = this.zeroPad(dateStart.getHours()) + "-" + this.zeroPad(dateStart.getMinutes()) + "-" + this.zeroPad(dateStart.getSeconds());
-    let stampSubmitTime = this.zeroPad(dateSubmit.getHours()) + "-" + this.zeroPad(dateSubmit.getMinutes()) + "-" + this.zeroPad(dateSubmit.getSeconds());
+    let stampLastSubmit = window.utils.zeroPad(dateLastSubmit.getHours()) + "-" + window.utils.zeroPad(dateLastSubmit.getMinutes()) + "-" + window.utils.zeroPad(dateLastSubmit.getSeconds());
+    let stampSubmitTime = window.utils.zeroPad(dateSubmit.getHours()) + "-" + window.utils.zeroPad(dateSubmit.getMinutes()) + "-" + window.utils.zeroPad(dateSubmit.getSeconds());
 
-    // log.timestamp necessary to guarantee uniqueness
-    return `${teamMemberDir}/${local_remote_log}/${relDir}/${log.startTime}/${stampBeginTime}_${stampSubmitTime}_${log.timestamp}.${fileExt}`;
+    // Date.now() necessary to guarantee uniqueness
+    let path = `${teamMemberDir}/${local_remote_log}/${relDir}/${logStartTime}/${Date.now()}_${log.getCacheKey()}`;
+    if (log === this.interactLog) {
+      path += `_${stampLastSubmit}_${stampSubmitTime}`;
+    } else {
+      path += `_${stampSubmitTime}`;
+    }
+    return `${path}.${fileExt}`;
   }
 
   startTimer() {
@@ -253,7 +324,12 @@ class ActionLogger {
       // console.log("log interval fired...");
       this.saveToLocalStorage();
       // submit interact log if there are new events
-      if (!this.isLogPending && this.hasLogEvents()) this.submit();
+      if (!this.interactLog.isBeingSubmitted && this.hasLogEvents()) this.submitAndSaveLog();
+      // submit pending result logs
+      for (let resLog of this.pendingResultLogs) {
+        if (!resLog.isBeingSubmitted) this.submitAndSaveLog(resLog);
+      }
+
     }, window.appCfg.logging.interactionIntervalMS);
   }
 
@@ -283,10 +359,7 @@ class ActionLogger {
       this.interactLog.addEvent(object);
     }
     else if (logType === window.logging.logTypes.submitType.RESULT) {
-      let resultLog = new ResultObject(this.teamName, this.memberId);
-      // TODO add resultLog fields
-      // TODO add result
-      window.log(resultLog);
+      this.pendingResultLogs.push(object);
     }
 
   }
@@ -346,16 +419,12 @@ class ActionLogger {
   getFormattedTime(date, utc = true) {
     // getUTCHours bypasses timezone specific time, e.g. always adding +1 for europe
     let hours = utc ? date.getUTCHours() : date.getHours();
-    return this.zeroPad(hours) + ":" + this.zeroPad(date.getMinutes()) + ":" + this.zeroPad(date.getSeconds());
+    return window.utils.zeroPad(hours) + ":" + window.utils.zeroPad(date.getMinutes()) + ":" + window.utils.zeroPad(date.getSeconds());
   }
 
   getCurrentTime() {
     var date = new Date();
     return this.getFormattedTime(date, false);
-  }
-
-  zeroPad(number, numZeros = 2) {
-    return String(number).padStart(numZeros, '0');
   }
 
 } // class

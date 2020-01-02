@@ -9,7 +9,8 @@
 
 <script>
 import Event from '../utils/logging/Event.js';
-// import Result from '../utils/logging/Result.js';
+import Result from '../utils/logging/Result.js';
+import ResultObject from '../utils/logging/ResultObject.js';
 
 export default {
   name: 'NoshotLogging',
@@ -182,12 +183,40 @@ export default {
       this.actionLogger.log(this.logTypes.submitType.INTERACT, event);
     },
 
+    // creates results from dataArray
+    resultsFromDataArray: function(dataArray) {
+      let results = [];
+      for (let entry of dataArray) {
+        let result = new Result(entry.video, entry.frame, entry.score, entry.rank, entry.shot);
+        results.push(result);
+      }
+      return results;
+    },
+
     // logs results, component usage:
-    //TODO
-    // logEvent: function(category, type, value = undefined) {
-    //   let event = new Event(category, type, value);
-    //   this.actionLogger.log(this.logTypes.submitType.INTERACT, event);
-    // },
+    // pass data.info and data.results (array of result objects), i.e.
+    // all mandatory and optional properties of utils/logging/ResultObject.js:
+    // let data.info = {
+    //   usedCategories: ["Text", "Sketch"]
+    //   usedTypes: ["ASR", "Color"]
+    //   sortType:  ["ASR"]
+    //   resultSetAvailability: "all"
+    // }
+    // data.results is an array of which one result entry has
+    // all mandatory and optional properties of utils/logging/Result.js:
+    // let data.result  = {
+    //   video: "12345";
+    //   frame: 123;
+    //   score: 0.94;  // optional
+    //   rank: 1;     // optional
+    //   shot: 4;      // optional
+    // }
+    logResult: function(data) {
+      let results = this.resultsFromDataArray(data.results);
+      let resultObject = new ResultObject(this.actionLogger.teamId, this.actionLogger.memberId); // TODO: member
+      resultObject.initFromInfo(data.info, results);
+      this.actionLogger.log(this.logTypes.submitType.RESULT, resultObject);
+    },
 
   }, // methods
   mounted: function () {
