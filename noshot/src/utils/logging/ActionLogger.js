@@ -39,11 +39,15 @@ class ActionLogger {
   }
 
   isTaskRunning() {
-    return window.appCfg.preferences.load(InteractObject.getCacheKey(), false);
+    return this.getLogFromLocalStorage(InteractObject.getCacheKey()) ? true : false;
+  }
+
+  getLogFromLocalStorage(type = InteractObject.getCacheKey()) {
+    return window.appCfg.preferences.load(type, false);
   }
 
   areResultLogsPending() {
-    let resultObjects = window.appCfg.preferences.load(ResultObject.getCacheKey(), false);
+    let resultObjects = this.getLogFromLocalStorage(ResultObject.getCacheKey());
     return resultObjects.length > 0;
   }
 
@@ -77,15 +81,73 @@ class ActionLogger {
       new InteractObject(this.teamName, this.memberId)));
     this.interactLog.isBeingSubmitted = false;
     if (this.areResultLogsPending()) {
-      let list = window.appCfg.preferences.load(ResultObject.getCacheKey(), false);
+      let list = window.appCfg.preferences.load(ResultObject.getCacheKey(), []);
       for (let rl of list) {
         let resultObject = ResultObject.fromJSON(rl);
         resultObject.isBeingSubmitted  = false;
-        this.pendingResultLogs.push(resultObject);
+        // dont push already loaded events
+        if (this.pendingResultLogs.filter(el => el.id === rl.id).length === 0) {
+          this.pendingResultLogs.push(resultObject);
+        }
       }
     }
     if (startLogging) this.startLogging();
   }
+
+  // finishes up remaining logs and resets logging
+  finishLog(cb = null) {
+    // if (!this.isActive()) this.resumeLog(false); // get log if not loaded
+
+    this.stopLogging(); // sop all intervals for saving
+
+    if (!this.hasLogEvents() && !this.areResultLogsPending()) {
+      this.deleteLog();
+      return (cb) ? cb() : cb;
+    }
+
+    // interval to wait for currently submitting logs
+    let intvl = setInterval( () => {
+
+      // wait for all currently running submissions to finish
+      if (this.isSubmittingInteracLogs()) return;
+      if (this.isSubmittingResultLogs()) return;
+      clearInterval(intvl);
+
+      // logger has no server requests pending
+      let promises = [];
+
+      // interact log
+      if (this.hasLogEvents()) {
+        let p = new Promise( (res) => {
+          this.submitAndSaveLog(
+            this.interactLog,
+            () => {res();}
+          );
+        });
+        promises.push(p);
+      }
+
+      // result logs
+      if (this.areResultLogsPending()) {
+        for (let resLog of this.pendingResultLogs) {
+          let p = new Promise( (res) => {
+            this.submitAndSaveLog(
+              resLog,
+              () => {res();}
+            );
+          });
+          promises.push(p);
+        } // for all pending logs
+      }
+
+      // wait for all promises before cb
+      Promise.all(promises).then(() => {
+        this.deleteLog();
+        return (cb) ? cb() : cb;
+      });
+
+    }, 500); // interval
+  } // method
 
   startLogging() {
     window.log("Logging ON");
@@ -109,13 +171,14 @@ class ActionLogger {
 
   flushLog(log = this.interactLog) {
     if (log === this.interactLog) {
-      window.log("Interact log flush (" + log.events.length + " items)");
+      window.log("Interact log flush (" + log.events.length + " events)");
+      log.flush();
     }
     else {
       this.pendingResultLogs = this.pendingResultLogs.filter(element => element.id !== log.id);
       window.log("Result log flush (remaining: " + this.pendingResultLogs.length + " logs)");
     }
-    log.flush();
+
     this.saveToLocalStorage();
   }
 
@@ -126,8 +189,32 @@ class ActionLogger {
     this.displayCurrentTime();
   }
 
+  isSubmittingInteracLogs() {
+    return this.interactLog.isBeingSubmitted;
+  }
+
+  isSubmittingResultLogs() {
+    for (let resLog of this.pendingResultLogs) {
+      if (resLog.isBeingSubmitted) return true;
+    }
+    return false;
+  }
+
+  // submitPendingResultLogs() {
+  //   // pending resultlogs
+  //   for (let resLog of this.pendingResultLogs) {
+  //     if (!resLog.isBeingSubmitted) this.submitAndSaveLog(resLog);
+  //   }
+  // }
+
   // submit to vbs server and save locally
-  submitAndSaveLog(log = this.interactLog) {
+  submitAndSaveLog(log = this.interactLog, cb = null) {
+    // no events to log
+    if (!this.hasLogEvents()) {
+      if (cb) cb();
+      return;
+    }
+
     log.isBeingSubmitted = true;
     let submitPromise = this.submit(log);
     let savePromise = null;
@@ -146,10 +233,12 @@ class ActionLogger {
           this.flushLog(log);
           log.isBeingSubmitted = false;
           if (this.noshotLoggingComponent) this.noshotLoggingComponent.notifyLogUpdate();
+          if (cb) cb();
         },
         // reject save
         () => {
           log.isBeingSubmitted = false;
+          if (cb) cb();
         }
       );
     });
@@ -308,13 +397,8 @@ class ActionLogger {
   startTimer() {
     // update task time every 500 ms
     this.taskTimeInterval = setInterval(() => {
-      // console.log("timer interval fired...");
       this.displayCurrentTime();
     }, 500);
-    // let taskDurationFormatted = this.getFormattedTime(new Date(window.appCfg.logging.taskDurationSeconds * 1000));
-    // window.log(taskDurationFormatted);
-    // TODO: display
-    // $("#taskTimeInfo")[0].dataset.tootik = "Task duration: " + taskDurationFormatted;
   }
 
   startInterval() {
@@ -324,19 +408,30 @@ class ActionLogger {
       // console.log("log interval fired...");
       this.saveToLocalStorage();
       // submit interact log if there are new events
-      if (!this.interactLog.isBeingSubmitted && this.hasLogEvents()) this.submitAndSaveLog();
+      if (!this.isSubmittingInteracLogs()) this.submitAndSaveLog();
       // submit pending result logs
       for (let resLog of this.pendingResultLogs) {
         if (!resLog.isBeingSubmitted) this.submitAndSaveLog(resLog);
       }
-
     }, window.appCfg.logging.interactionIntervalMS);
   }
 
-  showLog(action, details) {
-    window.log("--------------- [OLD LOG] ----------------");
-    window.log("Action: " + action);
-    window.log("Details: " + details);
+  printLogsInfo() {
+    // local storage (LS)
+    let interactLocalStorage = this.getLogFromLocalStorage(InteractObject.getCacheKey());
+    let interactLocalEvents = (interactLocalStorage) ? interactLocalStorage.events.length : 0;
+    let resultsLocalStorage = this.getLogFromLocalStorage(ResultObject.getCacheKey());
+    let resultsLocalLogs = (resultsLocalStorage) ? resultsLocalStorage.length : 0;
+    // Objects (OBJ)
+    let numEvents = (this.interactLog) ? this.interactLog.events.length : 0;
+    let numResults = (this.pendingResultLogs) ? this.pendingResultLogs.length : 0;
+    window.log("--------------- [Log INFO] ----------------");
+    window.log("[Interaction Log]");
+    window.log(`OBJ ${(this.interactLog) ? "existing" : "undefined"}, #events: ${numEvents}`);
+    window.log(`LS ${(interactLocalStorage) ? "existing" : "undefined"}, #events: ${interactLocalEvents}`);
+    window.log("[Results Logs]");
+    window.log(`OBJ ${(this.pendingResultLogs) ? "existing" : "undefined"}, #logs: ${numResults}`);
+    window.log(`LS ${(resultsLocalStorage) ? "existing" : "undefined"}, #logs: ${resultsLocalLogs}`);
     window.log("------------------------------------------");
   }
 

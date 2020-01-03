@@ -24,10 +24,11 @@
   color: #a6cee3;
 }
 .logButton:disabled {
-  color: #ccc;
+  color: gray;
 }
 .logButton:disabled:hover {
-  color: #ccc;
+  color: gray;
+  cursor: default;
 }
 
 // enabled state

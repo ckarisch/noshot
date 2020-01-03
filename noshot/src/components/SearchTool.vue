@@ -160,7 +160,7 @@ export default {
             usedCategories: [catText.key, catBrowse.key],
             usedTypes: [catText.types.CONCEPT, catBrowse.types.RANKED_LIST],
             sortType:  [catBrowse.types.RANKED_LIST],
-            resultSetAvailability: (search.selectedCache === 1) ? 'all' : 'top'
+            resultSetAvailability: (search.pages > 1) ? 'top' : 'all'
           }
           data.results = []
 
@@ -196,7 +196,8 @@ export default {
                title: search.title,
                net: net,
                cache: cache,
-               range: search.videoRange
+               range: search.videoRange,
+               page: search.page
              }
           }
           this.notifyParents(this, 'log-event', data);
