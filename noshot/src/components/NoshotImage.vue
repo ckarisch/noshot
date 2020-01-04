@@ -1,8 +1,8 @@
 <template>
   <div>
-      <img :style="keyframeStyle" class="small" v-for="n in generateRange(search.videoRange)" :alt="keyframeSrc(img, (-search.videoRange + n))" :src="keyframeSrc(img, (-search.videoRange + n))" :key="keyframeSrc(img, (-search.videoRange + n)) + '_' + n" />
-      <img :style="keyframeStyle" v-on:click="click" :alt="keyframeSrc(img, 0)" :src="keyframeSrc(img, 0)" />
-      <img :style="keyframeStyle" class="small" v-for="n in generateRange(search.videoRange)" :alt="keyframeSrc(img, n+1)" :src="keyframeSrc(img, n+1)" :key="keyframeSrc(img, n+1) + '_' + n" />
+      <img :style="keyframeStyle" class="small" v-for="n in generateRange(search.videoRange)" :src="keyframeSrc(img, (-search.videoRange + n))" :key="keyframeSrc(img, (-search.videoRange + n)) + '_' + n" />
+      <img :style="keyframeStyle" v-on:click="click" :src="keyframeSrc(img, 0)" />
+      <img :style="keyframeStyle" class="small" v-for="n in generateRange(search.videoRange)" :src="keyframeSrc(img, n+1)" :key="keyframeSrc(img, n+1) + '_' + n" />
 
   </div>
 </template>
