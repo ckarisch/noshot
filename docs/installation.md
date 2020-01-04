@@ -68,6 +68,10 @@ Trobleshooting:
 ```
 curl -X POST -H 'Content-Type: application/json' 'http://localhost:8983/solr/noshot/update' --data-binary @data.json
 ```
+or without loading the whole file into memory
+```
+curl -X POST -H 'Content-Type: application/json' 'http://localhost:8983/solr/noshot/update' -T data.json
+```
 Importing may take some time. Test if everything worked by opening [http://localhost:8983/solr/](http://localhost:8983/solr/), using the `Query` Button and issuing a `*.*` querying, which should retrieve `7983689` results.
 
 ## Install Vue.js
