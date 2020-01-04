@@ -30,12 +30,14 @@
 
 <script>
 import NoshotWindow from './NoshotWindow.vue'
+import submission from '../mixins/submission/submission.js'
 
 export default {
     name: 'SearchTool',
     components: {
       NoshotWindow
     },
+    mixins: [submission],
     created() {
       // listeners
       this.$on('fetch-solr-search', (search) => {
@@ -52,6 +54,9 @@ export default {
       });
       this.$on('remove-window', (search) => {
         this.removeWindow(search);
+      });
+      this.$on('fire-submit-all', (search) => {
+        this.submitAll(search);
       });
     },
     props: {
@@ -268,6 +273,24 @@ export default {
         }
         return sObject;
       },
+      submitAll(search) {
+        this.confirmDialog(this, "<span>Submit all results of page?</span>",
+          // confirmed
+          () => {
+            if (search.images.length > 0) this.$toastr.i(`${search.images.length} results`, "Submission");
+            for (let img of search.images) {
+              let video = this.utils.zeroPad(img.video, 5);
+              let frame = this.utils.secondToFrame(img.second, this.utils.getVideoFPS(video))
+              this.submit(video, frame, false);
+            }
+          },
+          // cancelled
+          () => {
+            // user canceled request
+          }
+        );
+
+      }
     },
 
     // a custom directive to wait for the DOM to be updated

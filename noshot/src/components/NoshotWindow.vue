@@ -6,6 +6,9 @@
           <button class="maximize" @click="maximize()"></button>
           <button class="destroy" @click="remove()"></button>
       </div>
+      <div v-tooltip.bottom-center="tooltips.bulkSubmit" class="bulkSubmission">
+        <button type="button" name="button" @click="fireSubmitAll"><i class="fab fa-2x fa-stack-overflow"></i></button>
+      </div>
       <NoshotSearch :searchToolSettings="searchToolSettings" v-if="search.type === searchStorage.type.SOLR_SEARCH" :search="search" />
       <NoshotVideoSummary :searchToolSettings="searchToolSettings" v-if="search.type === searchStorage.type.VIDEO_SUMMARY" :search="search" />
     </div>
@@ -30,7 +33,10 @@ export default {
     },
     data: () => {
         return {
-          searchStorage: window.searchStorage
+          searchStorage: window.searchStorage,
+          tooltips: {
+            bulkSubmit: "Submit page"
+          }
         }
     },
     methods: {
@@ -45,7 +51,11 @@ export default {
         },
         remove: function() {
           this.notifyParents(this, 'remove-window', this.search);
+        },
+        fireSubmitAll: function() {
+          this.notifyParents(this, 'fire-submit-all', this.search);
         }
+
     }
 }
 

@@ -63,14 +63,14 @@ var submission = {
       else this.submit(video.id, video.frame.number);
 
     },
-    submit: function(video, frame) {
+    submit: function(video, frame, showToast = true) {
       let url = this.getSubmissionURL();
 
       url += "&video=" + video;
       url += "&frame=" + frame;
 
       window.log(`Submission: ${url}`);
-      this.$toastr.i(`v ${video} f ${frame}`, "Submission");
+      if (showToast) this.$toastr.i(`v ${video} f ${frame}`, "Submission");
       // issue submit
       fetch(url, {
           method: "POST",
@@ -85,7 +85,7 @@ var submission = {
               // parse result for correctness (only show info for AVS)
               let isCorrect = res.toLowerCase().includes("correct");
               let isWrong = res.toLowerCase().includes("wrong");
-              if (isCorrect) this.$toastr.s(`${res}`, "Submission successful");
+              if (isCorrect && showToast) this.$toastr.s(`${res}`, "Submission successful");
               else if (isWrong) this.$toastr.e(`${res}`, "Submission wrong");
               else this.$toastr.i(`${res}`, "Server response");
             });
