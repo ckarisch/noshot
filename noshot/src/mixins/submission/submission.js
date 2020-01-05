@@ -87,7 +87,9 @@ var submission = {
               let isWrong = res.toLowerCase().includes("wrong");
               if (isCorrect && showToast) this.$toastr.s(`${res}`, "Submission successful");
               else if (isWrong) this.$toastr.e(`${res}`, "Submission wrong");
-              else this.$toastr.i(`${res}`, "Server response");
+              else {
+                if (showToast) this.$toastr.i(`${res}`, "Server response");
+              }
             });
         },
         rejected => {
