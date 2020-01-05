@@ -278,10 +278,14 @@ export default {
           // confirmed
           () => {
             if (search.images.length > 0) this.$toastr.i(`${search.images.length} results`, "Submission");
+            let counter = 0;
             for (let img of search.images) {
+              if (counter % 20 == 19)
+                    this.sleep(300);
               let video = this.utils.zeroPad(img.video, 5);
               let frame = this.utils.secondToFrame(img.second, this.utils.getVideoFPS(video))
               this.submit(video, frame, false);
+              counter ++;
             }
           },
           // cancelled
@@ -290,7 +294,10 @@ export default {
           }
         );
 
-      }
+    },
+    function sleep (time) {
+        return new Promise((resolve) => setTimeout(resolve, time));
+    }
     },
 
     // a custom directive to wait for the DOM to be updated
