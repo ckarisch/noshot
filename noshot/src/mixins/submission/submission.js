@@ -63,7 +63,7 @@ var submission = {
       else this.submit(video.id, video.frame.number);
 
     },
-    submit: function(video, frame, showToast = true) {
+    submit: function(video, frame, showToast = true, callback = null) {
       let url = this.getSubmissionURL();
 
       url += "&video=" + video;
@@ -90,6 +90,8 @@ var submission = {
               else {
                 if (showToast) this.$toastr.i(`${res}`, "Server response");
               }
+              if (callback)
+                callback();
             });
         },
         rejected => {
@@ -97,6 +99,8 @@ var submission = {
           // window.log(responseText);
           window.log(rejected);
           this.$toastr.e(`Server not reachable...`, "Submission failed");
+          if (callback)
+            callback();
       })
       .catch(err => console.log(err));
 

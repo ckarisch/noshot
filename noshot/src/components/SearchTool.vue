@@ -279,12 +279,15 @@ export default {
           () => {
             if (search.images.length > 0) this.$toastr.i(`${search.images.length} results`, "Submission");
             let counter = 0;
+            let callback = null;
             for (let img of search.images) {
               if (counter % 20 == 19)
                     this.sleep(300);
               let video = this.utils.zeroPad(img.video, 5);
               let frame = this.utils.secondToFrame(img.second, this.utils.getVideoFPS(video))
-              this.submit(video, frame, false);
+              if(search.images.length > 0 && counter == search.images.length - 1)
+                callback = () => { this.$toastr.i(`${search.images.length} results done`, "Submission"); };
+              this.submit(video, frame, false, callback);
               counter ++;
             }
           },
