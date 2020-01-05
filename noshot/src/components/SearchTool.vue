@@ -225,7 +225,7 @@ export default {
                 } else {
                     search.pages = Math.ceil(response.numFound / 200);
                     search.images = response.docs;
-                    this.logCategories(response.docs);
+                    // this.logCategories(response.docs);
 
                     // issue result log
                     this.logResult(search);
