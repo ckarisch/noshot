@@ -295,7 +295,7 @@ export default {
         );
 
     },
-    function sleep (time) {
+    sleep(time) {
         return new Promise((resolve) => setTimeout(resolve, time));
     }
     },
