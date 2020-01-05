@@ -282,7 +282,7 @@ export default {
             let callback = null;
             for (let img of search.images) {
               if (counter % 20 == 19)
-                    this.sleep(300);
+                    this.sleep(30);
               let video = this.utils.zeroPad(img.video, 5);
               let frame = this.utils.secondToFrame(img.second, this.utils.getVideoFPS(video))
               if(search.images.length > 0 && counter == search.images.length - 1)
