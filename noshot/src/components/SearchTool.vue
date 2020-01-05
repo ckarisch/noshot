@@ -215,8 +215,6 @@ export default {
             let net = search.selectedNetwork;
             let cache = search.selectedCache;
 
-            // reset page
-            search.page = 1;
 
             // log search action
             this.logInteractSearch(search);
