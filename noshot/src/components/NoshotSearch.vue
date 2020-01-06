@@ -9,7 +9,8 @@
           :click-handler="changePage"
           :prev-text="'Prev'"
           :next-text="'Next'"
-          :container-class="'pagination'">
+          :container-class="'pagination'"
+          ref="paginate">
         </paginate>
     </div>
     <div class="searchNavigation">
@@ -57,7 +58,8 @@ export default {
     },
     props: {
       search: Object,
-      searchToolSettings: Object
+      searchToolSettings: Object,
+      pages: Number
     },
     data: () => {
         return {
@@ -73,6 +75,12 @@ export default {
         };
     },
 
+    watch: {
+        pages: function() {
+            this.$refs.paginate.selected = this.search.page;
+            console.log("pages changed");
+        }
+    },
     methods: {
         changePage: function(pageNum) {
           this.search.page = pageNum;
