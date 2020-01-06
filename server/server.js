@@ -121,7 +121,6 @@ app.get(['/search/:net/:category/:cache/:page/:excludeVideos', '/search/:net/:ca
     if (excludeVideosString !== '')
     {
         queryItems.push(['!video', '(' + excludeVideosString + ')']);
-        console.log(excludeVideosString);
     }
     let q = '';
     for (let e of queryItems) {
