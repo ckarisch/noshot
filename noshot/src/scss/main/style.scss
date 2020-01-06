@@ -248,16 +248,21 @@ li.tab.selected a {
   width: 100px;
 }
 
-.resultContainer img {
-    width: 100%;
-    height: auto;
-    position: relative;
-    display: block;
-    // border: 5px solid #fff;
-    max-height: 100%;
-    box-sizing: border-box;
-    background-color: #eee;
-    min-height: 30px;
+.resultContainer {
+    img {
+        width: 100%;
+        height: auto;
+        position: relative;
+        display: block;
+        // border: 5px solid #fff;
+        max-height: 100%;
+        box-sizing: border-box;
+        background-color: #eee;
+        min-height: 30px;
+    }
+    img.clicked {
+        border: 3px solid #f00;
+    }
 }
 
 .resultContainer img.small {

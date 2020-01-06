@@ -81,7 +81,6 @@ button {
 	position: relative;
 	z-index: 2;
 	/* border-top: 1px solid #e6e6e6; */
-	padding: $layout-padding;
 	/* margin-bottom: 5rem; */
 	height: calc(100% - #{$header-height + $footer-height});
 	display: block;

@@ -1,7 +1,7 @@
 <template>
   <div>
       <img :style="keyframeStyle" class="small" v-for="n in generateRange(search.videoRange)" :src="keyframeSrc(img, (-search.videoRange + n))" :key="keyframeSrc(img, (-search.videoRange + n)) + '_' + n" />
-      <img :style="keyframeStyle" v-on:click="click" :src="keyframeSrc(img, 0)" :video="img.video" />
+      <img :style="keyframeStyle" :class="{clicked: clicked}" v-on:click="click($event)" :src="keyframeSrc(img, 0)" :video="img.video" />
       <img :style="keyframeStyle" class="small" v-for="n in generateRange(search.videoRange)" :src="keyframeSrc(img, n+1)" :key="keyframeSrc(img, n+1) + '_' + n" />
 
   </div>
@@ -16,7 +16,8 @@ export default {
     props: {
         img: Object,
         search: Object,
-        searchToolSettings: Object
+        searchToolSettings: Object,
+        clicked: Boolean
     },
     data: function () {
         return {
@@ -57,6 +58,7 @@ export default {
           return s;
       },
       click: function(event) {
+        this.clicked = true;
         if (event.shiftKey) this.openVideo(event);
         else if(event.ctrlKey) this.openVideoSummary(event);
         else if(event.altKey) this.excludeVideo(event);
