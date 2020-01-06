@@ -8,7 +8,7 @@
         </div>
         <div class="slidecontainer" v-tooltip.top-center="tooltips.cache">
           cache ({{ search.selectedCache }})
-          <input ref="cacheRangeSlider" type="range" :min="defaultSliderMin" max="180" :value="search.selectedCache" class="slider" @input="updateCacheRange">
+          <input ref="cacheRangeSlider" type="range" :min="defaultSliderMin" max="60" :value="search.selectedCache" class="slider" @input="updateCacheRange">
         </div>
         <div>{{ search.images.length }} results.</div>
       </div>
