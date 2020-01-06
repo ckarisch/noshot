@@ -101,6 +101,11 @@ li.tab.selected a {
   min-width: 3.6em;
 }
 
+.menuTop {
+    display: flex;
+    align-items: center;
+}
+
 .green {
   background: #dfecdf;
 }
@@ -124,7 +129,7 @@ li.tab.selected a {
 
 .searchContainer {
   display: block;
-  padding: 40px 20px;
+  padding: 10px 40px;
   box-shadow: 0 0 10px rgba(0, 0, 0, .2);
   margin-right: $layout-padding;
   min-width: 450px;
@@ -134,14 +139,6 @@ li.tab.selected a {
 .searchContent {
   min-height: calc(100vh - 23em);
 
-  .menuLeft {
-    float:left;
-
-    position: absolute;
-    left: 25px;
-    top: 10px;
-    padding: 10px;
-  }
 }
 
 
@@ -179,14 +176,6 @@ li.tab.selected a {
     top: 50%;
     right: .5rem;
     transform: translate3d(0, -50%, 0);
-  }
-
-  > .view > .menuLeft {
-    display: block;
-    position: absolute;
-    top: 0;
-    padding: 0.5em;
-    left: .5rem;
   }
 }
 
@@ -365,8 +354,6 @@ header>input, header>label {
   display: block;
 }
 
-.searches:not(.minimized) .view > .menu { padding: .5em; }
-
 .tab button.destroy {
     /* right:  .2em; */
     /* background-size: 0.8em; */
@@ -400,16 +387,47 @@ span.label {
   letter-spacing: .03em;
 }
 
-.bulkSubmission {
+.menuLeftSide {
   position: absolute;
+  display: flex;
+  flex-direction: column;
   z-index: 100;
   left: 5px;
   top: 5px;
+  width: 30px;
+
+  svg {
+    width: 100% !important;
+    height: auto;
+  }
 }
 
 .bulkSubmission {
+  width: 28px;
   cursor: pointer;
+
+  button { width: 28px; }
 }
 .bulkSubmission:hover {
   color: #a6cee3;
+}
+
+.counter {
+    position: absolute;
+    background: #fff;
+    border-radius: 30px;
+    left: 50%;
+    top: 50%;
+    transform: translate3d(-50%, -50%, 0);
+    padding: 1px;
+    width: 1em;
+    height: 1em;
+    text-align: center;
+    line-height: 1;
+    font-size: 10px;
+    pointer-events: none;
+}
+
+.counter.red {
+    color: #f00;
 }

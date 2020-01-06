@@ -1,5 +1,6 @@
 node_modules/
 keyframes
+package-lock.json
 
 scripts/*.pyc
 scripts/temp*.jpg

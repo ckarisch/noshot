@@ -1,15 +1,17 @@
 <template>
   <div class="searchContent">
-    <div class="menuLeft">
-      <span>{{search.images.length}}</span>
+    <div class="menuTop">
+        <div class="menuLeft">
+          <span v-if="search.images">{{search.images.length}}</span>
+        </div>
+        <paginate v-if="search.pages"
+          :page-count="search.pages"
+          :click-handler="changePage"
+          :prev-text="'Prev'"
+          :next-text="'Next'"
+          :container-class="'pagination'">
+        </paginate>
     </div>
-    <paginate
-      :page-count="search.pages"
-      :click-handler="changePage"
-      :prev-text="'Prev'"
-      :next-text="'Next'"
-      :container-class="'pagination'">
-    </paginate>
     <div class="searchNavigation">
         <vue-suggestion :items="items"
                   v-model="searchText"

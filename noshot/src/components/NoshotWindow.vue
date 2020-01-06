@@ -6,8 +6,14 @@
           <button class="maximize" @click="maximize()"></button>
           <button class="destroy" @click="remove()"></button>
       </div>
-      <div v-tooltip.bottom-center="tooltips.bulkSubmit" class="bulkSubmission">
-        <button type="button" name="button" @click="fireSubmitAll"><i class="fab fa-2x fa-stack-overflow"></i></button>
+      <div class="menuLeftSide"> <!-- vertical menu on the left border -->
+          <!-- <div v-tooltip.bottom-center="tooltips.bulkSubmit" class="bulkSubmission">
+            <button type="button" name="button" @click="fireSubmitAll"><i class="fab fa-2x fa-stack-overflow"></i></button>
+          </div> -->
+          <div v-if="search.excludeVideos" v-tooltip.bottom-center="tooltips.resetExcludedVideos" @click="resetExcludedVideos">
+            <span :class="{counter: true, red: search.excludeVideos.length > 0 }">{{ search.excludeVideos.length }}</span>
+            <button type="button" name="button"><i class="fas fa-film"></i></button>
+          </div>
       </div>
       <NoshotSearch :searchToolSettings="searchToolSettings" v-if="search.type === searchStorage.type.SOLR_SEARCH" :search="search" />
       <NoshotVideoSummary :searchToolSettings="searchToolSettings" v-if="search.type === searchStorage.type.VIDEO_SUMMARY" :search="search" />
@@ -35,7 +41,8 @@ export default {
         return {
           searchStorage: window.searchStorage,
           tooltips: {
-            bulkSubmit: "Submit page"
+            bulkSubmit: "Submit page",
+            resetExcludedVideos: "Reset excluded videos"
           }
         }
     },
@@ -54,6 +61,9 @@ export default {
         },
         fireSubmitAll: function() {
           this.notifyParents(this, 'fire-submit-all', this.search);
+        },
+        resetExcludedVideos: function() {
+          this.notifyParents(this, 'reset-excluded-videos', this.search);
         }
 
     }

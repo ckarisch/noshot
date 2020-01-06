@@ -1,7 +1,7 @@
 <template>
   <div>
       <img :style="keyframeStyle" class="small" v-for="n in generateRange(search.videoRange)" :src="keyframeSrc(img, (-search.videoRange + n))" :key="keyframeSrc(img, (-search.videoRange + n)) + '_' + n" />
-      <img :style="keyframeStyle" v-on:click="click" :src="keyframeSrc(img, 0)" />
+      <img :style="keyframeStyle" v-on:click="click" :src="keyframeSrc(img, 0)" :video="img.video" />
       <img :style="keyframeStyle" class="small" v-for="n in generateRange(search.videoRange)" :src="keyframeSrc(img, n+1)" :key="keyframeSrc(img, n+1) + '_' + n" />
 
   </div>
@@ -59,6 +59,7 @@ export default {
       click: function(event) {
         if (event.shiftKey) this.openVideo(event);
         else if(event.ctrlKey) this.openVideoSummary(event);
+        else if(event.altKey) this.excludeVideo(event);
         else this.submitFrame(event);
       },
 
@@ -69,6 +70,14 @@ export default {
         if (Object.keys(video).length === 0) return;
 
         this.submitConfirm(video);
+      },
+      excludeVideo: function(event) {
+
+        let video = event.target.attributes.video.value;
+        if(!this.search.excludeVideos.includes(video))
+            this.search.excludeVideos.push(video);
+        
+        this.notifyParents(this, 'fetch-solr-search', this.search);
       },
       openVideo(event) {
         let imgUrl = event.target.src;

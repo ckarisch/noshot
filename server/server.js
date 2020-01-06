@@ -57,7 +57,7 @@ app.use(function(req, res, next) {
   next();
 });
 
-app.get('/search/:net/:category/:cache/:page', function searchHandler(req, res) {
+app.get(['/search/:net/:category/:cache/:page/:excludeVideos', '/search/:net/:category/:cache/:page/'], function searchHandler(req, res) {
   res.statusCode = 200;
   res.setHeader('Content-Type', 'application/json');
 
@@ -66,7 +66,15 @@ app.get('/search/:net/:category/:cache/:page', function searchHandler(req, res) 
   let category = req.params.category;
   let cache = req.params.cache;
   let page = req.params.page;
-  if(category !== typeof(undefined))
+  let excludeVideos = req.params.excludeVideos
+
+  if(excludeVideos !== undefined)
+  {
+      excludeVideos = excludeVideos.split(',');
+  }
+  else { excludeVideos = [] }
+
+  if(category !== undefined)
   {
     // category = category.replace(/ *, */g, "OR");
     // category = category.replace(/ +/g, " AND ");
@@ -95,55 +103,69 @@ app.get('/search/:net/:category/:cache/:page', function searchHandler(req, res) 
       categoryString += c;
     }
 
-        //const queryItems = [['categoryName', category], ['net', net], ['nodeType', cache]];
-        const queryItems = [
-            ['category', '(' + categoryString + ')'],
-            ['net', net],
-            ['nodeType', cache]
-        ];
-        let q = '';
-        for (let e of queryItems) {
-            if (q != '')
-                q += ' AND ';
-            q += e[0] + ':' + e[1];
-        }
-        q = q.replaceArray([' ', ':'], ['+', '%3A']);
+    let excludeVideosString = '';
+    if(excludeVideos !== undefined)
+    for (let c of excludeVideos) {
+      if (excludeVideosString != '')
+        excludeVideosString += ' OR ';
+      excludeVideosString += c;
+    }
 
-        // const params = util.format('&rows=%i&sort=probability%20desc&group=true&group.field=video&group.main=true', 1000);
-        const params = util.format('&sort=probability%20desc&rows=%i&start=%i', rows, rows * (page - 1));
+    //const queryItems = [['categoryName', category], ['net', net], ['nodeType', cache]];
+    const queryItems = [
+        ['category', '(' + categoryString + ')'],
+        ['net', net],
+        ['nodeType', cache]
+    ];
+
+    if (excludeVideosString !== '')
+    {
+        queryItems.push(['!video', '(' + excludeVideosString + ')']);
+        console.log(excludeVideosString);
+    }
+    let q = '';
+    for (let e of queryItems) {
+        if (q != '')
+            q += ' AND ';
+        q += e[0] + ':' + e[1];
+    }
+    q = q.replaceArray([' ', ':'], ['+', '%3A']);
+
+    // const params = util.format('&rows=%i&sort=probability%20desc&group=true&group.field=video&group.main=true', 1000);
+    const params = util.format('&sort=probability%20desc&rows=%i&start=%i', rows, rows * (page - 1));
 
 
-        http.get({
-            hostname: 'localhost',
-            port: 8983,
-            path: '/solr/noshot/select?q=' + q + params,
-            agent: false // Create a new agent just for this one request
-        }, (resp) => {
-            let data = '';
+    http.get({
+        hostname: 'localhost',
+        port: 8983,
+        path: '/solr/noshot/select?q=' + q + params,
+        agent: false // Create a new agent just for this one request
+    }, (resp) => {
+        let data = '';
 
-            // A chunk of data has been recieved.
-            resp.on('data', (chunk) => {
-                data += chunk;
-            });
-
-            // The whole response has been received. Print out the result.
-            resp.on('end', () => {
-                const jdata = JSON.parse(data);
-                if (jdata.response && jdata.response.docs)
-                {
-                    jdata.response.docs = filterSolrResponse(jdata.response.docs);
-                    res.json(jdata.response);
-                }
-                else
-                    res.json([]);
-            });
-
-        }).on("error", (err) => {
-            console.log("Error: " + err.message);
-            res.send("Error: " + err.message);
+        // A chunk of data has been recieved.
+        resp.on('data', (chunk) => {
+            data += chunk;
         });
-    } else
-        res.json([]);
+
+        // The whole response has been received. Print out the result.
+        resp.on('end', () => {
+            const jdata = JSON.parse(data);
+            if (jdata.response && jdata.response.docs)
+            {
+                jdata.response.docs = filterSolrResponse(jdata.response.docs);
+                res.json(jdata.response);
+            }
+            else
+                res.json([]);
+        });
+
+    }).on("error", (err) => {
+        console.log("Error: " + err.message);
+        res.send("Error: " + err.message);
+    });
+  } else
+    res.json([]);
 
 });
 

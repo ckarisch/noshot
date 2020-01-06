@@ -58,6 +58,12 @@ export default {
       this.$on('fire-submit-all', (search) => {
         this.submitAll(search);
       });
+      this.$on('reset-excluded-videos', (search) => {
+        search.excludeVideos = [];
+        this.fetchSolrSearch(search);
+      });
+      
+      
     },
     props: {
       activeWorkspace: Object,
@@ -158,6 +164,9 @@ export default {
         },
 
         logResult(search) {
+          if(search.images === undefined)
+            return;
+            
           let catText = window.logging.logTypes.category.TEXT;
           let catBrowse = window.logging.logTypes.category.BROWSE;
           let data = {};
@@ -219,7 +228,7 @@ export default {
             // log search action
             this.logInteractSearch(search);
 
-            getFromSolr(net, search.title, cache, search.page, (err, response) => {
+            getFromSolr(net, search.title, cache, search.page, search.excludeVideos, (err, response) => {
                 this.loading = false
                 if (err) {
                     this.error = err.toString();
@@ -248,7 +257,8 @@ export default {
               workspace: this.activeWorkspace.id,
               minimized: false,
               maximized: false,
-              images: []
+              images: [],
+              excludeVideos: []
           };
 
           switch(type) {
@@ -316,9 +326,9 @@ export default {
     }
 }
 
-function getFromSolr(net, category, cache, page, callback) {
+function getFromSolr(net, category, cache, page, excludeVideos, callback) {
     const Http = new XMLHttpRequest();
-    const url = window.appCfg.dbServer.url + ':' + window.appCfg.dbServer.port + '/search/' + net + '/' + category + '/' + cache + '/' + page;
+    const url = window.appCfg.dbServer.url + ':' + window.appCfg.dbServer.port + '/search/' + net + '/' + category + '/' + cache + '/' + page + '/' + excludeVideos.join(',');
 
     Http.open("GET", url);
     Http.send();
