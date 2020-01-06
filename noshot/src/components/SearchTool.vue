@@ -3,7 +3,7 @@
 
           <input class="new-search" autofocus autocomplete="off" placeholder="enter new search" v-model="newSearch" @keyup.enter="addSearch(createSearchForType(solr_search_type))">
 
-          <ul class="dive-layout searches minimized">
+          <ul v-if="filteredSearchesMinimized.length > 0" class="dive-layout searches minimized">
               <li v-for="search in filteredSearchesMinimized" class="search searchContainer" :key="search.id" :class="{ marked: search.marked, editing: search == editedSearch, minimized: search.minimized, maximized: search.maximized }">
                   <div class="view">
                       <div class="menu">
@@ -291,7 +291,7 @@ export default {
             case window.searchStorage.type.VIDEO_SUMMARY:
               sObject.title = payload.id;
               sObject.video = payload;
-              sObject.selectedCache = 1;
+              sObject.selectedCache = 5;
               break;
             case window.searchStorage.type.NONE:
             default:

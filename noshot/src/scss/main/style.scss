@@ -288,7 +288,7 @@ li.tab.selected a {
   align-items: center;
 }
 
-.searchNavigation {
+.searches:not(.minimized) .searchNavigation {
   box-sizing: border-box;
   padding: 20px 0px;
   display: flex;
@@ -301,6 +301,27 @@ li.tab.selected a {
   padding: 0;
   justify-content: stretch;
   align-items: flex-start;
+  margin-top: 1rem;
+}
+
+.search.minimized {
+    .searchNavigation {
+        width: 100%;
+        padding-right: 60px;
+        box-sizing: border-box;
+
+        > input {
+            width: 100%;
+            box-sizing: border-box;
+        }
+    }
+    > .view {
+        display: flex;
+        align-items: center;
+        height: 100%;
+        padding: 5px;
+        box-sizing: border-box;
+    }
 }
 
 input {
