@@ -78,7 +78,6 @@ export default {
     watch: {
         pages: function() {
             this.$refs.paginate.selected = this.search.page;
-            console.log("pages changed");
         }
     },
     methods: {

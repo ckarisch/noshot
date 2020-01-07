@@ -223,10 +223,14 @@ export default {
             this.loading = true
             let net = search.selectedNetwork;
             let cache = search.selectedCache;
-            let tempPage = search.page;
-            let tempPages = search.pages;
+            // let tempPage = search.page;
+            // let tempPages = search.pages;
             
             let pagesFromSolr;
+            
+            if(search.lastTitle != search.title) {
+                search.page = 1;
+            }
 
             // log search action
             this.logInteractSearch(search);
@@ -238,32 +242,20 @@ export default {
                 } else {
                     pagesFromSolr = Math.ceil(response.numFound / 200);
                     search.images = response.docs;
-                    // this.logCategories(response.docs);
 
                     // issue result log
                     this.logResult(search);
                     
+                    // check if page is available
+                    search.page = Math.max(0, Math.min(pagesFromSolr, search.page));
                     
-                    // check page is in range
-                    if(pagesFromSolr != tempPages) {
-                        search.page = Math.max(0, Math.min(pagesFromSolr, search.page));
-                        // set pages after setting search.page because of watching for pages change in NoshotSearch.vue
-                        search.pages = pagesFromSolr;
-                        if(search.page != tempPage) {
-                            this.fetchSolrSearch(search);
-                        }
-                    }
+                    // set pages after setting search.page because of watching for pages change in NoshotSearch.vue
+                    search.pages = pagesFromSolr;
+                    
+                    search.lastTitle = search.title;
                 }
             });
             
-        },
-        logCategories: function(docs) {
-            if (docs.length > 0) {
-                let categories = {};
-                for (let doc of docs) {
-                    categories[doc.categoryName] = null;
-                }
-            }
         },
         createSearchForType: function(type = window.searchStorage.type.NONE, payload = null) {
           let sObject = {
