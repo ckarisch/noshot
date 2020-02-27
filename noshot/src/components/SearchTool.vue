@@ -62,8 +62,8 @@ export default {
         search.excludeVideos = [];
         this.fetchSolrSearch(search);
       });
-      
-      
+
+
     },
     props: {
       activeWorkspace: Object,
@@ -166,7 +166,7 @@ export default {
         logResult(search) {
           if(search.images === undefined)
             return;
-            
+
           let catText = window.logging.logTypes.category.TEXT;
           let catBrowse = window.logging.logTypes.category.BROWSE;
           let data = {};
@@ -225,9 +225,9 @@ export default {
             let cache = search.selectedCache;
             // let tempPage = search.page;
             // let tempPages = search.pages;
-            
+
             let pagesFromSolr;
-            
+
             if(search.lastTitle != search.title) {
                 search.page = 1;
             }
@@ -245,17 +245,17 @@ export default {
 
                     // issue result log
                     this.logResult(search);
-                    
+
                     // check if page is available
                     search.page = Math.max(0, Math.min(pagesFromSolr, search.page));
-                    
+
                     // set pages after setting search.page because of watching for pages change in NoshotSearch.vue
                     search.pages = pagesFromSolr;
-                    
+
                     search.lastTitle = search.title;
                 }
             });
-            
+
         },
         createSearchForType: function(type = window.searchStorage.type.NONE, payload = null) {
           let sObject = {
@@ -335,7 +335,8 @@ export default {
 
 function getFromSolr(net, category, cache, page, excludeVideos, callback) {
     const Http = new XMLHttpRequest();
-    const url = window.appCfg.dbServer.url + ':' + window.appCfg.dbServer.port + '/search/' + net + '/' + category + '/' + cache + '/' + page + '/' + excludeVideos.join(',');
+    const excludeString = excludeVideos ? excludeVideos.join(',') : "";
+    const url = window.appCfg.dbServer.url + ':' + window.appCfg.dbServer.port + '/search/' + net + '/' + category + '/' + cache + '/' + page + '/' + excludeString;
 
     Http.open("GET", url);
     Http.send();
