@@ -377,6 +377,29 @@ function getBestKeyframe(client, video, startSecond, endSecond, categoryId, cach
   });
 }
 
+function getFoundObjectsForCategory(client, categoryId) {
+  return new Promise((resolve, reject) => {
+    var query = client.createQuery()
+    				   .q(util.format('nodeType:1 AND category:%i', categoryId))
+               .start(0)
+    				   .rows(0);
+
+    client.search(query,(err, obj) => {
+      if(err) reject(err)
+      else {
+        let numFound = obj.response.numFound;
+
+        if(typeof numFound === 'undefined')
+        {
+          return resolve(null);
+        }
+
+        resolve([categoryId, numFound]);
+      }
+    });
+  });
+}
+
 function generateDemoData(client, res) {
   deleteAll(client);
 
@@ -502,6 +525,52 @@ app.get('/update/:cache', async function cacheUpdateHandler(req, res) {
 
 });
 
+
+app.get('/generate-stats', async function cacheUpdateHandler(req, res) {
+  res.statusCode = 200;
+  res.setHeader('Content-Type', 'text/html');
+
+    let data = [];
+    let promises = [];
+    let startTime = new Date();
+
+    let categories = (await getLimit(client, 'category')).category; // highest category number
+    writeLine(res, "total categories: " + categories);
+    res.write("<style type=\"text/css\" scoped>td { min-width: 180px; padding: 0 5px; } </style>");
+    res.write("<table>");
+    res.write("<tbody>");
+    res.write("<th>row</th><th>category</th><th>numFound</th>");
+
+    for (let category = 0; category <= categories; category++) {
+          let numFoundPromise = getFoundObjectsForCategory(client, category);
+          promises.push(numFoundPromise);
+    }
+
+    data = await Promise.all(promises);
+    data = data.filter(e => e !== null);
+    data.sort((a, b) => { return a[1] < b[1] ? 1 : -1});
+
+    let sum = 0;
+    for (let d = 0; d < data.length; d++)
+    {
+      res.write("<tr><td>" + data[d][1] + "</td></tr>");
+      sum += data[d][1];
+    }
+
+    res.write("</tbody>");
+    res.write("</table>");
+
+    res.write("sum: " + sum);
+
+    const time = (new Date() - startTime) / 1000;
+    // writeLine(res, "");
+
+    //console.info('Execution time: %dms', end)
+
+    data = [];
+    
+    return res.end("<br/> done..");
+});
 
 app.get('/generate-docs', async function cacheUpdateHandler(req, res) {
   res.statusCode = 200;
