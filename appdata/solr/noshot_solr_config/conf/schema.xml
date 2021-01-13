@@ -17,7 +17,15 @@
     <field name="net" type="string" indexed="true" stored="true"/>
     <field name="categoryName" type="string" indexed="true" stored="true"/>
 
-    <field name="_version_" type="plong" indexed="false" stored="false"/>
+    <field name="b1" type="plong" indexed="true" stored="true" multiValued="false" />
+    <field name="b2" type="plong" indexed="true" stored="true" multiValued="false" />
+    <field name="b3" type="plong" indexed="true" stored="true" multiValued="false" />
+    <field name="b4" type="plong" indexed="true" stored="true" multiValued="false" />
+    <field name="b5" type="plong" indexed="true" stored="true" multiValued="false" />
+    <field name="b6" type="plong" indexed="true" stored="true" multiValued="false" />
+
+
+	<field name="_version_" type="plong" indexed="false" stored="false"/>
     <field name="_root_" type="string" indexed="true" stored="false" docValues="false" />
     <field name="_text_" type="text_general" indexed="true" stored="false" multiValued="true"/>
     <uniqueKey>id</uniqueKey>
