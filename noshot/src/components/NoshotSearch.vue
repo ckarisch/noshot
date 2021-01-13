@@ -30,6 +30,15 @@
           range ({{ search.videoRange }})
           <input type="range" min="0" max="5" value="1" class="slider" v-model="search.videoRange" @change="fetchSolrSearch(search)">
         </div>
+      <table class="brightnessFilter">
+        <tbody>
+          <tr v-for="i in brightnessFilterRows" :key="i">
+            <td v-for="j in brightnessFilterColumns" :key="i + '_' + j" @click="selectBrightnessFilter(i, j)" :class="selectedBrightnessFilter == (i - 1) * brightnessFilterColumns + (j - 1) ? 'active' : ''">
+              {{i + '-' + j}}
+            </td>
+          </tr>
+        </tbody>
+      </table>
     </div>
     <div :class="{ showFrames: search.frames, resultContainer: true }">
         <div>
@@ -71,7 +80,10 @@ export default {
             searchText: {},
             item: null,
             items: [],
-            itemTemplate
+            itemTemplate,
+            brightnessFilterRows: 2,
+            brightnessFilterColumns: 3,
+            selectedBrightnessFilter: -1
         };
     },
 
@@ -150,6 +162,20 @@ export default {
         },
         keyup () {
           console.log("keyup");
+        },
+        selectBrightnessFilter(i, j) {
+          let temp = (i - 1) * this.brightnessFilterColumns + (j - 1);
+          if(this.selectedBrightnessFilter == temp) {
+            this.selectedBrightnessFilter = -1;
+            this.search.selectedBrightnessFilter = -1;
+          }
+          else {
+            this.selectedBrightnessFilter = temp;
+            this.search.selectedBrightnessFilter = this.selectedBrightnessFilter + 1;
+          }
+          console.log(this.search.selectedBrightnessFilter);
+          this.search.page = 1;
+          this.fetchSolrSearch(this.search);
         }
     },
 

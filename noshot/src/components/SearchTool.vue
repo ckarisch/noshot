@@ -235,19 +235,22 @@ export default {
             // log search action
             this.logInteractSearch(search);
 
-            getFromSolr(net, search.title, cache, search.page, search.excludeVideos, (err, response) => {
+            getFromSolr(net, search.title, cache, search.page, search.excludeVideos, search.selectedBrightnessFilter, (err, response) => {
                 this.loading = false
                 if (err) {
                     this.error = err.toString();
                 } else {
                     pagesFromSolr = Math.ceil(response.numFound / 200);
+                    if(!pagesFromSolr)
+                      pagesFromSolr = 1;
+                    
                     search.images = response.docs;
 
                     // issue result log
                     this.logResult(search);
 
                     // check if page is available
-                    search.page = Math.max(0, Math.min(pagesFromSolr, search.page));
+                    search.page = Math.max(1, Math.min(pagesFromSolr, search.page));
 
                     // set pages after setting search.page because of watching for pages change in NoshotSearch.vue
                     search.pages = pagesFromSolr;
@@ -333,10 +336,10 @@ export default {
     }
 }
 
-function getFromSolr(net, category, cache, page, excludeVideos, callback) {
+function getFromSolr(net, category, cache, page, excludeVideos, selectedBrightnessFilter, callback) {
     const Http = new XMLHttpRequest();
     const excludeString = excludeVideos ? excludeVideos.join(',') : "";
-    const url = window.appCfg.dbServer.url + ':' + window.appCfg.dbServer.port + '/search/' + net + '/' + category + '/' + cache + '/' + page + '/' + excludeString;
+    const url = window.appCfg.dbServer.url + ':' + window.appCfg.dbServer.port + '/search/' + net + '/' + category + '/' + cache + '/' + page + '/' + selectedBrightnessFilter + '/' + excludeString;
 
     Http.open("GET", url);
     Http.send();

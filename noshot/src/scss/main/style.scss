@@ -301,6 +301,17 @@ li.tab.selected a {
   height: 6rem;
 }
 
+.searchNavigation .brightnessFilter td {
+  background-color: #aaa;
+  text-indent: -3000px;
+  width: 30px;
+  height: 20px;
+}
+.searchNavigation .brightnessFilter td.active {
+  background-color: #eee;
+}
+
+
 .searches {
   display: flex;
   padding: 0;

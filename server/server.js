@@ -4,6 +4,7 @@ var app = express();
 var util = require('util');
 var querystring = require('querystring');
 var fs = require('fs');
+var Jimp = require('jimp');
 const url = require('url');
 const cacheUpdateSemaphore = require('semaphore')(1)
 var convertSeconds = require('convert-seconds');
@@ -57,7 +58,7 @@ app.use(function(req, res, next) {
   next();
 });
 
-app.get(['/search/:net/:category/:cache/:page/:excludeVideos', '/search/:net/:category/:cache/:page/'], function searchHandler(req, res) {
+app.get(['/search/:net/:category/:cache/:page/:selectedBrightnessFilter/:excludeVideos', '/search/:net/:category/:cache/:page/:selectedBrightnessFilter/'], function searchHandler(req, res) {
   res.statusCode = 200;
   res.setHeader('Content-Type', 'application/json');
 
@@ -67,6 +68,7 @@ app.get(['/search/:net/:category/:cache/:page/:excludeVideos', '/search/:net/:ca
   let cache = req.params.cache;
   let page = req.params.page;
   let excludeVideos = req.params.excludeVideos
+  let selectedBrightnessFilter = req.params.selectedBrightnessFilter;
 
   if(excludeVideos !== undefined)
   {
@@ -118,10 +120,21 @@ app.get(['/search/:net/:category/:cache/:page/:excludeVideos', '/search/:net/:ca
         ['nodeType', cache]
     ];
 
+    // select A >= B
+    const gteQueryItems = []; 
+
     if (excludeVideosString !== '')
     {
         queryItems.push(['!video', '(' + excludeVideosString + ')']);
     }
+
+    if (selectedBrightnessFilter !== '-1'){
+      for(let i = 1; i <= 6; i++) {
+        if(i != selectedBrightnessFilter)
+          gteQueryItems.push(['b' + selectedBrightnessFilter, 'b'+i]);
+      }
+    }
+    //{!frange l=0 incl=false}sub(b2,b1)
     let q = '';
     for (let e of queryItems) {
         if (q != '')
@@ -130,14 +143,21 @@ app.get(['/search/:net/:category/:cache/:page/:excludeVideos', '/search/:net/:ca
     }
     q = q.replaceArray([' ', ':'], ['+', '%3A']);
 
+    let fq = '';
+    for (let e of gteQueryItems) {
+        fq += '&fq={!frange l=0 incl=false}sub(' + e[0] + ',' + e[1] + ')';
+    }
+    fq = fq.replaceArray([' ', ':'], ['+', '%3A'], ['{', '%7B'], ['}', '%7D'], [',', '%2C']);
+
     // const params = util.format('&rows=%i&sort=probability%20desc&group=true&group.field=video&group.main=true', 1000);
     const params = util.format('&sort=probability%20desc&rows=%i&start=%i', rows, rows * (page - 1));
 
+    console.log('/solr/noshot/select?q=' + q + fq + params);
 
     http.get({
         hostname: 'localhost',
         port: 8983,
-        path: '/solr/noshot/select?q=' + q + params,
+        path: '/solr/noshot/select?q=' + q + fq + params,
         agent: false // Create a new agent just for this one request
     }, (resp) => {
         let data = '';
@@ -319,7 +339,7 @@ function getLimit(client, parameter, query) {
   });
 }
 
-function getKeyframe(client, video, second) {
+function getKeyframe(client, video, second, includeID = false) {
   return new Promise((resolve, reject) => {
     var query = client.createQuery()
     				   .q(util.format('nodeType:1 AND video:%i AND second:%i', video, second))
@@ -337,14 +357,71 @@ function getKeyframe(client, video, second) {
           return resolve(null);
         }
 
-        delete keyframe.id;
+        if(!includeID)
+          delete keyframe.id;
+        
         delete keyframe._version_;
 
         resolve(keyframe);
       }
     });
   });
+}
 
+function getKeyframes(client, video, second) {
+  return new Promise((resolve, reject) => {
+    var query = client.createQuery()
+    				   .q(util.format('video:%i AND second:%i', video, second))
+               .sort({'probability': 'desc'})
+               .start(0)
+    				   .rows(100);
+
+    client.search(query,(err, obj) => {
+      if(err) reject(err)
+      else {
+        let keyframes = obj.response.docs;
+
+        if(typeof keyframes === 'undefined')
+        {
+          resolve(null);
+        }
+        else {
+          resolve(keyframes);
+        }
+      }
+    });
+  });
+}
+
+function removeKeyframe(id) {
+  return new Promise((resolve, reject) => {
+    client.delete('id', id, function(err,obj){
+      if(err){
+        console.log('remove error:')
+        console.log(err);
+        reject(err);
+      }else{
+        resolve(true);
+      }
+   });
+  });
+}
+
+function addKeyframe(keyframe) {
+  return new Promise((resolve, reject) => {
+    delete keyframe.id; // remove solr doc id
+    delete keyframe._version_; // remove solr doc version
+
+    client.add(keyframe,function(err,obj){
+      if(err){
+        console.log('add keyframe err:');
+        console.log(err);
+        reject(err);
+      }else{
+        resolve(true);
+      }
+   });
+  });
 }
 
 function getBestKeyframe(client, video, startSecond, endSecond, categoryId, cacheSize) {
@@ -571,6 +648,128 @@ app.get('/generate-stats', async function cacheUpdateHandler(req, res) {
     
     return res.end("<br/> done..");
 });
+
+const luminance = (pixelColor) => {
+  const rgb = Jimp.intToRGBA(pixelColor);
+  return (0.2126*rgb.r + 0.7152*rgb.g + 0.0722*rgb.b);
+}
+
+const averageLuminance = (image, x, y, w, h) => {
+  const pixels = new Array(w * h).fill(0);
+  const luminances = pixels.map((pixel, i) => {return luminance(image.getPixelColor(i % w + x, parseInt(Math.floor(i / w) + y)))});
+  const sum = luminances.reduce((sum, lum) => { return sum + lum; }, 0);
+  return sum / pixels.length;
+}
+
+var brightnessFilterWidth = 3;
+var brightnessFilterHeight = 2;
+// get luminance of all sections defined by brightnessFilterWidth and brightnessFilterHeight
+const luminanceArray = (image) => {
+  const sectionWidth = (image.bitmap.width / brightnessFilterWidth);
+  const sectionHeight = (image.bitmap.height / brightnessFilterHeight);
+  const sections = new Array(parseInt(brightnessFilterWidth * brightnessFilterHeight)).fill(0);
+  const sectionsLuminance = sections.map((s, i) => { 
+    return Math.round(averageLuminance(image, (i % brightnessFilterWidth) * sectionWidth, Math.floor(i / brightnessFilterWidth) * sectionHeight, sectionWidth, sectionHeight)); 
+  })
+  return sectionsLuminance;
+}
+
+app.get('/update-brightness-cache/:start/:end', async function cacheUpdateHandler(req, res) {
+  res.statusCode = 200;
+  res.setHeader('Content-Type', 'text/html');
+
+  let start = parseInt(req.params.start);
+  let end = parseInt(req.params.end);
+  if(!cacheUpdateSemaphore.available()) {
+    // writeLine(res, 'another cache request is running.' );
+    return res.end('another cache request is running.');
+  }
+
+  cacheUpdateSemaphore.take(async function() {
+
+    let startTime = new Date();
+    res.write('start generating brightness cache<br/>');
+
+    let videos = (await getLimit(client, 'video')).video; // highest video number
+    writeLine(res, "total videos: " + videos);
+
+    for (let video = start; video <= videos; video++) { // start with last cached video
+      if(video >= end) {
+        cacheUpdateSemaphore.leave();
+        return res.end('<br/><br/>abort on video ' + video + '(video ' + video + ' is not updated)');
+      }
+      for (let second = 1; second <= keyCount[video.toString().padStart(5, '0')]; second += 1) {
+        let keyframes = await getKeyframes(client, video, second, true);
+
+        if(!keyframes) {
+          writeLine(res, "error at video " + video + " of " + videos + ', second ' + second + ' of ' + keyCount[video.toString().padStart(5, '0')]);
+          continue;
+        }
+        if(!keyframes.length) {
+          continue;
+        }
+
+        // every entry has the same image
+        const videoStr = keyframes[0].video.toString().padStart(5, '0');
+        let image = await Jimp.read('http://localhost/keyframes/' + videoStr + '/' + videoStr + '_' + keyframes[0].second + '_key.jpg')
+        const lArray = luminanceArray(image);
+        // lArray.sort();
+
+        // update keyframes
+        // writeLine(res, 'start delete keyframes');
+        let promises = [];
+        for (let keyframe of keyframes) {
+          promises.push(removeKeyframe(keyframe.id));
+          keyframe.b1 = lArray[0];
+          keyframe.b2 = lArray[1];
+          keyframe.b3 = lArray[2];
+          keyframe.b4 = lArray[3];
+          keyframe.b5 = lArray[4];
+          keyframe.b6 = lArray[5];
+        }
+        await Promise.all(promises);
+        
+        // writeLine(res, 'end delete keyframes');
+        // writeLine(res, 'start add keyframes');
+
+        promises = [];
+        for (let keyframe of keyframes) {
+          promises.push(addKeyframe(keyframe));
+        }
+        await Promise.all(promises);
+
+        // writeLine(res, 'end add keyframes');
+        client.commit();
+        // writeLine(res, 'commit');
+      }
+
+      const time = (new Date() - startTime) / 1000;
+
+      console.log();
+      console.log("video: " + video + " of " + videos + ' (' + Math.round(video/videos*10000)/100 + "%)");
+      console.log("time taken: " + JSON.stringify(convertSeconds(time)));
+      console.log("estimated time: " + JSON.stringify(convertSeconds(time / (video/videos))));
+
+      writeLine(res, "");
+      writeLine(res, "video: " + video + " of " + videos + ' (' + Math.round(video/videos*10000)/100 + "%)");
+      writeLine(res, "time taken: " + JSON.stringify(convertSeconds(time)));
+      writeLine(res, "estimated time: " + JSON.stringify(convertSeconds(time / (video/videos))));
+
+      writeLine(res, 'wait 10 seconds');
+      console.log('wait 10 seconds');
+      for (let i = 10; i > 0; i--) {
+        await new Promise(resolve => setTimeout(resolve, 1000));
+        console.log('wait... ' + i);
+        writeLine(res, 'wait... ' + i);
+      }
+    }
+
+    cacheUpdateSemaphore.leave();
+    return res.end("<br/> done..");
+  });
+
+});
+
 
 app.get('/generate-docs', async function cacheUpdateHandler(req, res) {
   res.statusCode = 200;
