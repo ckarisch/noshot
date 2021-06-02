@@ -1,27 +1,20 @@
 var submission = {
-  created: function() {
+  created: function () {
     // window.log(this.getSubmissionURL());
   },
   methods: {
-    getSubmissionURL: function() {
+    getSubmissionURL: function () {
 
-      let url = window.appCfg.vbsServer.url + ":" + window.appCfg.vbsServer.port;
-      url += window.appCfg.vbsServer.submitRoute;
-      url += "?team=" + window.appCfg.vbsServer.teamId;
-      url += "&member=" + window.appCfg.vbsServer.memberId;
-
-      if (!url.startsWith("http://")) {
-        url = "http://" + url;
-      }
+      let url = window.appCfg.DRESServer.url + `/submit?session=${window.appCfg.DRESServer.sessionId}`;
       return url;
 
     },
-    submitList: function(frameList) {
+    submitList: function (frameList) {
       for (let f in frameList) {
         this.submit(f);
       }
     },
-    submitConfirm: function(video, confirm=this.appCfg.preferences.isEnabled("confirmSubmit", true)) {
+    submitConfirm: function (video, confirm = this.appCfg.preferences.isEnabled("confirmSubmit", true)) {
 
       let addTag = "";
 
@@ -49,13 +42,13 @@ var submission = {
                       <div><b>v</b> ${video.id} <b>f</b> ${video.frame.number}</div>
                     </div>`,
             {
-            html: true,
-            // close on clicking outside
-            backdropClose: true
-          }).then(() => {
-            // window.log('Clicked on proceed');
-            this.submit(video.id, video.frame.number);
-          })
+              html: true,
+              // close on clicking outside
+              backdropClose: true
+            }).then(() => {
+              // window.log('Clicked on proceed');
+              this.submit(video.id, video.frame.number);
+            })
           .catch(() => {
             window.log('submission cancelled');
           });
@@ -63,46 +56,46 @@ var submission = {
       else this.submit(video.id, video.frame.number);
 
     },
-    submit: function(video, frame, showToast = true, callback = null) {
+    submit: function (video, frame, showToast = true, callback = null) {
       let url = this.getSubmissionURL();
 
-      url += "&video=" + video;
-      url += "&frame=" + frame;
+      url += '&item=' + video;
+      url += '&frame=' + frame
 
       window.log(`Submission: ${url}`);
       if (showToast) this.$toastr.i(`v ${video} f ${frame}`, "Submission");
       // issue submit
       fetch(url, {
-          method: "POST",
-          mode: "cors"
+        method: "GET",
+        mode: "cors"
       })
-      .then(
-        response => {
-          // response returns text
-          response.text().then(
-            res => {
-              window.log(res);
-              // parse result for correctness (only show info for AVS)
-              let isCorrect = res.toLowerCase().includes("correct");
-              let isWrong = res.toLowerCase().includes("wrong");
-              if (isCorrect && showToast) this.$toastr.s(`${res}`, "Submission successful");
-              else if (isWrong) this.$toastr.e(`${res}`, "Submission wrong");
-              else {
-                if (showToast) this.$toastr.i(`${res}`, "Server response");
-              }
-              if (callback)
-                callback();
-            });
-        },
-        rejected => {
-          // let responseText = rejected.body;
-          // window.log(responseText);
-          window.log(rejected);
-          this.$toastr.e(`Server not reachable...`, "Submission failed");
-          if (callback)
-            callback();
-      })
-      .catch(err => console.log(err));
+        .then(
+          response => {
+            // response returns text
+            response.text().then(
+              res => {
+                window.log(res);
+                // parse result for correctness (only show info for AVS)
+                let isCorrect = res.toLowerCase().includes("correct");
+                let isWrong = res.toLowerCase().includes("wrong");
+                if (isCorrect && showToast) this.$toastr.s(`${res}`, "Submission successful");
+                else if (isWrong) this.$toastr.e(`${res}`, "Submission wrong");
+                else {
+                  if (showToast) this.$toastr.i(`${res}`, "Server response");
+                }
+                if (callback)
+                  callback();
+              });
+          },
+          rejected => {
+            // let responseText = rejected.body;
+            // window.log(responseText);
+            window.log(rejected);
+            this.$toastr.e(`Server not reachable...`, "Submission failed");
+            if (callback)
+              callback();
+          })
+        .catch(err => console.log(err));
 
     }
   }

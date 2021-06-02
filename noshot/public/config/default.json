@@ -17,6 +17,10 @@
     "teamId": 10,
     "memberId": 1
   },
+  "DRESServer": {
+    "url": "https://vbs.itec.aau.at:9443",
+    "sessionId": ""
+  },
   "dataServer": {
     "url": "http://localhost",
     "port": 80,
