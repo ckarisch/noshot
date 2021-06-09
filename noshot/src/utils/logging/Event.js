@@ -9,7 +9,7 @@ class Event {
     toJSON() {
 
         // calls superclass toJSON setting its own type
-        return Object.assign({}, this);
+        return Object.assign({}, this, {value: this.value.toString()});
     }
 
     // reviver can be passed as the second parameter to JSON.parse

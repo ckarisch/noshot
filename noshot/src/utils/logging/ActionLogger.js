@@ -249,9 +249,9 @@ class ActionLogger {
     log.timestamp = window.utils.ts2Unix(Date.now()); // set submission ts
     let jsonString = this.logToJSONString(log);
 
-    // server data
-    let vbsServerUrl = window.appCfg.vbsServer.url + ":" + window.appCfg.vbsServer.port;
-    let url = vbsServerUrl + window.appCfg.vbsServer.logRoute;
+    // server data    
+    let vbsServerUrl = window.appCfg.DRESServer.url;
+    let url = vbsServerUrl + window.appCfg.DRESServer.logRoute + `?session=${window.appCfg.DRESServer.sessionId}`;
 
     return new Promise((res, rej) => {
       fetch(url, {

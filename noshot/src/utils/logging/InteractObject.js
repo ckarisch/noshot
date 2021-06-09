@@ -49,6 +49,8 @@ class InteractObject {
         this.type = window.logging.logTypes.submitType.INTERACT;
         this.events = [];
         this.isBeingSubmitted = false;
+        this.sortType = 'feedbackModel';
+        this.resultSetAvailability = 'all';
     }
 
     static getCacheKey() {
@@ -76,7 +78,11 @@ class InteractObject {
         }
 
         // calls superclass toJSON setting its own type
-        return Object.assign({}, this, {
+        return Object.assign({}, {
+            timestamp: this.timestamp,
+            sortType: this.sortType,
+            resultSetAvailability: this.resultSetAvailability
+        }, {
             events: eventArray
         });
     }

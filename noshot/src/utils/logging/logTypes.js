@@ -31,7 +31,7 @@ logTypes.eventType = {
 
 logTypes.category = {
     TEXT: {
-        key: "text", // used whenever user enters a text, while various data sources can be selected from listed types
+        key: "BROWSING", // used whenever user enters a text, while various data sources can be selected from listed types
         types: {
             META: "metadata", // using texts provided with videos (filename, descriptions, etc.)
             OCR: "OCR", // optical character recognition
@@ -46,7 +46,7 @@ logTypes.category = {
         }
     },
     IMAGE: {
-        key: "image", // used when user provides or selects an image
+        key: "IMAGE", // used when user provides or selects an image
         types: {
             GLOBAL_FEAT: "globalFeatures", // whole image search, e.g. DCNN features
             LOCAL_FEAT: "localFeatures", // only part of image is considered
@@ -73,7 +73,7 @@ logTypes.category = {
     },
     BROWSE: {
         // B = browsing using a tool specific browsing system, e.g., zoom in/out in a hierarchical imagemap
-        key: "browsing",
+        key: "BROWSING",
         types: {
             RANKED_LIST: "rankedList", // browsing ranked and sorted results
             VID_SUMMARY: "videoSummary", // user displays representative frames from a selected video (value contains video id)

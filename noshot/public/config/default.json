@@ -19,7 +19,9 @@
   },
   "DRESServer": {
     "url": "https://vbs.itec.aau.at:9443",
-    "sessionId": ""
+    "sessionId": "",
+    "logRoute": "/log/query",
+    "submitRoute": "/log/result"
   },
   "dataServer": {
     "url": "http://localhost",
