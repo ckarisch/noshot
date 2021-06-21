@@ -128,7 +128,7 @@ app.get(['/search/:net/:category/:cache/:page/:selectedBrightnessFilter/:exclude
         queryItems.push(['!video', '(' + excludeVideosString + ')']);
     }
 
-    if (selectedBrightnessFilter !== '-1'){
+    if (selectedBrightnessFilter !== '-1' && [1,2,3,4,5,6].includes(parseInt(selectedBrightnessFilter))){
       for(let i = 1; i <= 6; i++) {
         if(i != selectedBrightnessFilter)
           gteQueryItems.push(['b' + selectedBrightnessFilter, 'b'+i]);
@@ -145,7 +145,7 @@ app.get(['/search/:net/:category/:cache/:page/:selectedBrightnessFilter/:exclude
 
     let fq = '';
     for (let e of gteQueryItems) {
-        fq += '&fq={!frange l=0 incl=false}sub(' + e[0] + ',' + e[1] + ')';
+        fq += '&fq={!frange l=20 incl=false}sub(' + e[0] + ',' + e[1] + ')';
     }
     fq = fq.replaceArray([' ', ':'], ['+', '%3A'], ['{', '%7B'], ['}', '%7D'], [',', '%2C']);
 
@@ -241,7 +241,7 @@ function getChildren(id) {
   for (c of childCategories) {
     children = children.concat(getChildren(c));
   }
-  return children.slice(0,1000);
+  return children.slice(0,800);
 
 }
 
